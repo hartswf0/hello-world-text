@@ -1,0 +1,263 @@
+{
+  "format": "THUNDER_VERDICT_CASE",
+  "version": "1.0",
+  "case_id": "CASE-V1-SAMPLE",
+  "source_world_record": {
+    "header": {
+      "protocol_version": "0.2"
+    }
+  },
+  "source_samples": [
+    {
+      "tick": 0,
+      "p": [
+        0,
+        1,
+        0
+      ],
+      "q": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "v": [
+        0,
+        0,
+        0
+      ],
+      "speed": 0,
+      "impact": 0,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 3,
+      "p": [
+        0,
+        1,
+        0.1
+      ],
+      "q": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "v": [
+        0,
+        0,
+        2
+      ],
+      "speed": 7.2,
+      "impact": 0,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 6,
+      "p": [
+        0,
+        1,
+        0.3
+      ],
+      "q": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "v": [
+        0,
+        0,
+        3
+      ],
+      "speed": 10.8,
+      "impact": 0,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 9,
+      "p": [
+        0,
+        1,
+        0.6
+      ],
+      "q": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "v": [
+        0,
+        0,
+        4
+      ],
+      "speed": 14.4,
+      "impact": 0.05,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 12,
+      "p": [
+        0.1,
+        1,
+        0.9
+      ],
+      "q": [
+        0,
+        0.02,
+        0,
+        0.9998
+      ],
+      "v": [
+        1,
+        0,
+        3
+      ],
+      "speed": 11.38,
+      "impact": 0.2,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 15,
+      "p": [
+        0.3,
+        1,
+        1.1
+      ],
+      "q": [
+        0,
+        0.05,
+        0,
+        0.9987
+      ],
+      "v": [
+        2,
+        0,
+        2
+      ],
+      "speed": 10.18,
+      "impact": 0.4,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 18,
+      "p": [
+        0.5,
+        1,
+        1.2
+      ],
+      "q": [
+        0,
+        0.08,
+        0,
+        0.9968
+      ],
+      "v": [
+        1,
+        0,
+        1
+      ],
+      "speed": 5.09,
+      "impact": 0.15,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    },
+    {
+      "tick": 21,
+      "p": [
+        0.6,
+        1,
+        1.25
+      ],
+      "q": [
+        0,
+        0.08,
+        0,
+        0.9968
+      ],
+      "v": [
+        0.4,
+        0,
+        0.2
+      ],
+      "speed": 1.61,
+      "impact": 0.02,
+      "material": "RUBBER",
+      "topology": "HYBRID",
+      "world": "STEEL"
+    }
+  ],
+  "source_facts": {
+    "duration": 0.35,
+    "avgSpeed": 7.58,
+    "maxSpeed": 14.4,
+    "peakImpact": 0.4,
+    "material": "RUBBER",
+    "topology": "HYBRID",
+    "world": "STEEL",
+    "materials": [
+      "RUBBER"
+    ],
+    "topologies": [
+      "HYBRID"
+    ],
+    "worlds": [
+      "STEEL"
+    ],
+    "displacement": 1.39,
+    "collision": true
+  },
+  "adjudication_event_stream": [],
+  "parties": {
+    "A": {
+      "role": "PROSECUTION",
+      "account": "The rubber rig struck an obstacle.",
+      "sealed": true,
+      "model": {
+        "speedScale": 1,
+        "traction": 1,
+        "delay": 0,
+        "material": "RUBBER",
+        "topology": "HYBRID",
+        "world": "STEEL"
+      },
+      "claims": [],
+      "challenges": [],
+      "submitted": false,
+      "score": null
+    },
+    "B": {
+      "role": "DEFENSE",
+      "account": "The vehicle slid before contact.",
+      "sealed": true,
+      "model": {
+        "speedScale": 0.9,
+        "traction": 0.8,
+        "delay": 0.1,
+        "material": "RUBBER",
+        "topology": "HYBRID",
+        "world": "STEEL"
+      },
+      "claims": [],
+      "challenges": [],
+      "submitted": false,
+      "score": null
+    }
+  },
+  "verdict": null,
+  "exported_at": "2026-07-01T18:40:00Z"
+}

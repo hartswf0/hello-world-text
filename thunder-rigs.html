@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<meta name="thunder-build" content="jolt-modes-wreckstudio-v4">
+<title>THUNDER RIGS · JOLT PHYSICS</title>
+<style>
+:root{
+  --bg:#050505;--ink:#fff;--muted:#8b8b8b;--cyan:#19e6c8;--violet:#a855f7;--amber:#ffd23f;--red:#ff3b30;--green:#00ff88;--line:#333;
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);--safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);touch-action:none;overscroll-behavior:none}
+button,input{font:inherit}button{color:inherit}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;outline:0}
+#shade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(#0009,transparent 18%,transparent 78%,#0009);z-index:2}
+#crosshair{position:fixed;z-index:3;left:50%;top:44%;width:10px;height:10px;margin:-5px;opacity:.18;pointer-events:none}#crosshair:before,#crosshair:after{content:"";position:absolute;background:#fff}#crosshair:before{left:4px;top:0;width:1px;height:10px}#crosshair:after{top:4px;left:0;width:10px;height:1px}
+
+/* ============ TOP BAR: title (left) + mode switch (right). Small, out of sightline. ============ */
+#topbar{position:fixed;z-index:20;top:calc(8px + var(--safe-t));left:calc(8px + var(--safe-l));right:calc(8px + var(--safe-r));display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
+#title{display:flex;align-items:center;gap:7px;pointer-events:none}
+#title .pill{border:1px solid var(--cyan);color:var(--cyan);background:#000b;padding:4px 7px;font-size:7px;letter-spacing:.14em}#title .pill.bad{border-color:var(--red);color:var(--red)}
+#title b{font-size:11px;letter-spacing:.2em;color:#fff}
+@media(max-width:560px){#title b{display:none}}
+#modes{display:flex;border:1px solid #2a2a2a;background:#000c;pointer-events:auto;overflow:hidden}
+#modes button{border:0;background:transparent;color:#7a8684;font-size:8px;font-weight:800;letter-spacing:.12em;padding:8px 11px;cursor:pointer;border-right:1px solid #1f1f1f}
+#modes button:last-child{border-right:0}
+#modes button.on{color:#000}
+#modes button[data-mode="drive"].on{background:var(--cyan)}
+#modes button[data-mode="build"].on{background:var(--amber)}
+#modes button[data-mode="review"].on{background:var(--violet)}
+
+/* ============ GAUGE CLUSTER: bottom edge, glanceable, shared across modes ============ */
+#cluster{position:fixed;z-index:12;left:50%;transform:translateX(-50%);bottom:calc(6px + var(--safe-b));display:flex;align-items:center;gap:9px;background:#000a;border:1px solid #1f1f1f;padding:4px 10px;pointer-events:none;transition:opacity .2s}
+#cluster.dim{opacity:.15}
+.gauge{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:32px}
+.gauge .gl{font-size:6px;letter-spacing:.14em;color:#5f6b6a}
+.gauge .gv{font-size:12px;font-weight:800;line-height:1;color:#fff}.gauge .gv.small{font-size:10px}
+.gsep{width:1px;height:18px;background:#1f1f1f}
+#g-dots{display:flex;gap:2px;align-items:center;height:12px}
+.gdotp{width:4px;height:4px;background:#2a3a38;border-radius:50%}.gdotp.on{background:var(--cyan)}.gdotp.full{background:var(--red)}
+#g-impact{width:40px;height:4px;background:#ffffff14;overflow:hidden;margin-top:4px}#g-impact i{display:block;height:100%;width:0;background:var(--red);transition:width .08s}
+@media(max-width:520px){#cluster{gap:6px;padding:4px 7px}.gauge{min-width:26px}.gauge .gv{font-size:11px}}
+
+/* ============ WORLD-SIDE ROSTER STRIP (left gutter, narrow, cannot cross car) — BUILD+REVIEW only ============ */
+#strip{position:fixed;z-index:9;left:calc(6px + var(--safe-l));top:calc(42px + var(--safe-t));width:88px;bottom:calc(150px + var(--safe-b));display:none;flex-direction:column;gap:5px;pointer-events:none}
+#strip.show{display:flex}
+#strip-head{font-size:7px;letter-spacing:.16em;color:#5f6b6a;display:flex;justify-content:space-between;align-items:center;pointer-events:auto}
+#strip-head b{color:#8fa;font-size:8px}
+#strip-clear{pointer-events:auto;border:1px solid #4a2020;color:#a44;background:transparent;font-size:8px;width:15px;height:15px;line-height:1;cursor:pointer;padding:0}
+#strip-list{display:flex;flex-direction:column;gap:5px;overflow-y:auto;overflow-x:hidden;pointer-events:auto;-webkit-overflow-scrolling:touch;padding-right:2px}
+.chip{position:relative;border:1px solid #263230;background:#060a09e6;padding:5px 6px;cursor:pointer;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.chip:active{background:#0d1413}.chip.sel{border-color:var(--cyan);background:#08211d}
+.chip .ck{font-size:8px;font-weight:800;letter-spacing:.03em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip.jelly .ck{color:var(--cyan)}.chip.ragdoll .ck{color:#d8b4fe}.chip.crates .ck{color:var(--amber)}
+.chip .cs{font-size:7px;letter-spacing:.05em;color:#5c6a72}.chip .cs.awake{color:var(--green)}
+.chip .cx{position:absolute;top:0;right:0;width:14px;height:14px;border:0;border-left:1px solid #331;border-bottom:1px solid #331;background:#0a0605;color:#a44;font-size:9px;line-height:1;cursor:pointer;display:none}
+.chip.sel .cx{display:block}
+.chip-empty{border:1px dashed #263230;padding:8px 5px;text-align:center;font-size:7px;color:#4a5654;letter-spacing:.05em;line-height:1.4}
+#strip-more{pointer-events:auto;text-align:center;font-size:7px;color:#5f6b6a;border:1px solid #263230;background:#060a09;padding:3px;cursor:pointer;display:none}
+
+/* ============ CONTROLS: stick + pads (DRIVE only) ============ */
+#drive-controls{position:fixed;z-index:15;inset:0;pointer-events:none;display:none}
+#drive-controls.show{display:block}
+#drive{position:absolute;left:calc(8px + var(--safe-l));bottom:calc(8px + var(--safe-b));width:148px;height:148px;border-radius:50%;touch-action:none;pointer-events:auto}
+#drive-base{position:absolute;inset:8px;border-radius:50%;border:1px solid #ffffff40;background:#0006;box-shadow:inset 0 0 0 20px #ffffff06}
+#drive-base:before,#drive-base:after{content:"";position:absolute;background:#ffffff1a}.drive-v{left:50%;top:16px;bottom:16px;width:1px}.drive-h{top:50%;left:16px;right:16px;height:1px}
+#knob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px;border-radius:50%;border:2px solid #fff;background:#ffffff1c;box-shadow:0 4px 16px #000}
+#drive-label{position:absolute;inset:auto 0 -14px;text-align:center;font-size:7px;letter-spacing:.16em;color:#8a9694}
+#pads{position:absolute;right:calc(8px + var(--safe-r));bottom:calc(8px + var(--safe-b));display:grid;grid-template-columns:54px 64px;grid-template-areas:"jump boost" "brake boost";gap:7px;align-items:center;justify-items:center}
+.pad{border-radius:50%;background:#000a;font-weight:900;font-size:9px;letter-spacing:.04em;cursor:pointer;touch-action:none;pointer-events:auto}.pad:active,.pad.on{transform:scale(.92);filter:brightness(1.5)}
+#jump{grid-area:jump;width:50px;height:50px;border:2px solid #fff}#brake{grid-area:brake;width:50px;height:50px;border:2px solid var(--amber);color:var(--amber)}#boost{grid-area:boost;width:64px;height:64px;border:2px solid var(--red);color:var(--red);background:#ff3b3018}
+
+/* ============ BUILD BAR: single bottom action row. No panel. ============ */
+#build-bar{position:fixed;z-index:16;left:50%;transform:translateX(-50%);bottom:calc(44px + var(--safe-b));width:min(560px,calc(100vw - 20px));background:#060a09f2;border:1px solid var(--amber);display:none;flex-direction:column;padding:8px;gap:8px}
+#build-bar.show{display:flex}
+.bb-spawn-row{display:flex;gap:6px;align-items:stretch}
+.bb-kind{flex:1;min-height:46px;border:1px solid #333;background:#0c0c0c;color:#9aa;font-size:9px;font-weight:800;letter-spacing:.05em;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.bb-kind small{font-size:6px;color:#5f6b6a;letter-spacing:.08em}
+.bb-kind.sel[data-kind="jelly"]{border-color:var(--cyan);color:var(--cyan);background:#08211d}
+.bb-kind.sel[data-kind="ragdoll"]{border-color:var(--violet);color:#d8b4fe;background:#1a0f2a}
+.bb-kind.sel[data-kind="crates"]{border-color:var(--amber);color:var(--amber);background:#1c1808}
+#bb-go{flex:0 0 88px;border:1px solid var(--amber);background:#1c1808;color:var(--amber);font-size:11px;font-weight:800;letter-spacing:.06em;cursor:pointer}
+#bb-go:active{background:var(--amber);color:#000}
+#bb-go.edit{border-color:var(--cyan);background:#08211d;color:var(--cyan)}
+.bb-tune-row{display:flex;gap:10px;align-items:center}
+.bb-slider{flex:1;display:flex;align-items:center;gap:7px;font-size:7px;letter-spacing:.08em;color:#7a8684}
+.bb-slider input{flex:1;accent-color:var(--amber)}
+.bb-slider .bv{color:#fff;font-size:9px;min-width:26px;text-align:right}
+.bb-extra{display:flex;gap:6px}
+.bb-x{flex:1;min-height:34px;border:1px solid #555;background:#0c0c0c;font-size:8px;font-weight:800;letter-spacing:.06em;cursor:pointer}.bb-x:active{background:#fff;color:#000}
+.bb-x.red{border-color:var(--red);color:var(--red)}.bb-x.amber{border-color:var(--amber);color:var(--amber)}
+@media(max-width:520px){.bb-kind{font-size:8px}#bb-go{flex:0 0 70px;font-size:10px}}
+
+/* ============ REVIEW BAR: wreck studio timeline. No panel. ============ */
+#review-bar{position:fixed;z-index:16;left:50%;transform:translateX(-50%);bottom:calc(44px + var(--safe-b));width:min(620px,calc(100vw - 20px));background:#0a0610f2;border:1px solid var(--violet);display:none;flex-direction:column;padding:8px;gap:8px}
+#review-bar.show{display:flex}
+.rv-top{display:flex;gap:8px;align-items:center}
+.rv-play{flex:0 0 46px;min-height:40px;border:1px solid var(--violet);background:#1a0f2a;color:#d8b4fe;font-size:14px;cursor:pointer}.rv-play:active{background:var(--violet);color:#000}
+.rv-scrub-wrap{flex:1;position:relative;height:40px;display:flex;align-items:center}
+#rv-scrub{width:100%;accent-color:var(--violet)}
+.rv-marks{position:absolute;inset:0;pointer-events:none}
+.rv-mark{position:absolute;top:2px;bottom:2px;width:2px;background:var(--amber)}
+.rv-mark.in{background:var(--green)}.rv-mark.out{background:var(--red)}
+.rv-range{position:absolute;top:0;bottom:0;background:#ffd23f22;pointer-events:none}
+.rv-time{flex:0 0 auto;font-size:8px;color:#9aa;letter-spacing:.06em;min-width:64px;text-align:center}
+.rv-row2{display:flex;gap:6px}
+.rv-btn{flex:1;min-height:36px;border:1px solid #555;background:#0c0c0c;font-size:8px;font-weight:800;letter-spacing:.05em;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}.rv-btn:active{background:#fff;color:#000}
+.rv-btn small{font-size:6px;color:#5f6b6a;letter-spacing:.06em}
+.rv-btn.in{border-color:var(--green);color:var(--green)}.rv-btn.out{border-color:var(--red);color:var(--red)}
+.rv-btn.export{border-color:var(--violet);color:#d8b4fe}
+.rv-btn.rec{border-color:var(--amber);color:var(--amber)}
+.rv-btn.rec.armed{background:var(--amber);color:#000}
+#rv-status{font-size:7px;letter-spacing:.1em;color:#7a8684;text-align:center;min-height:9px}
+#rv-status.work{color:var(--amber)}#rv-status.done{color:var(--green)}#rv-status.err{color:var(--red)}
+#rv-export-progress{height:3px;background:#1a1a1a;overflow:hidden;display:none}#rv-export-progress.show{display:block}#rv-export-progress i{display:block;height:100%;width:0;background:var(--violet);transition:width .1s}
+@media(max-width:520px){.rv-btn{font-size:7px}.rv-time{min-width:52px;font-size:7px}}
+
+/* ============ WORLD TAGS ============ */
+#tags{position:fixed;inset:0;z-index:8;pointer-events:none;overflow:hidden}
+.wtag{position:absolute;transform:translate(-50%,-50%);font-size:8px;font-weight:800;letter-spacing:.03em;color:#fff;background:#000a;border:1px solid #333;padding:1px 4px;white-space:nowrap;will-change:transform;opacity:.9}
+.wtag.jelly{border-color:#19e6c8;color:var(--cyan)}.wtag.ragdoll{border-color:#a855f7;color:#d8b4fe}.wtag.crates{border-color:#ffd23f;color:var(--amber)}
+.wtag.sel{border-width:2px}.wtag.hidden{display:none}
+
+#toast{position:fixed;z-index:50;left:50%;top:11%;transform:translate(-50%,-10px);background:#000e;border:1px solid #fff;padding:8px 12px;font-size:9px;letter-spacing:.1em;opacity:0;pointer-events:none;transition:.2s}#toast.show{opacity:1;transform:translate(-50%,0)}
+#boot{position:fixed;inset:0;z-index:100;background:#050505;display:grid;place-items:center;padding:24px;text-align:center}.boot-card{width:min(560px,92vw)}.boot-kicker{color:var(--cyan);font-size:9px;letter-spacing:.28em}.boot-card h1{font-size:clamp(40px,12vw,84px);line-height:.82;margin:16px 0 18px;letter-spacing:-.08em}.boot-copy{font-size:10px;line-height:1.6;color:#9aa;max-width:460px;margin:auto}.loader{height:3px;background:#1a1a1a;margin:22px auto 10px;max-width:400px;overflow:hidden}.loader i{display:block;height:100%;width:35%;background:var(--cyan);animation:load 1.2s infinite ease-in-out}@keyframes load{0%{transform:translateX(-120%)}100%{transform:translateX(400%)}}#boot-state{font-size:8px;letter-spacing:.16em;color:#5f6b6a}.boot-error{color:#ff9d96!important;white-space:pre-wrap}
+#help{position:fixed;inset:0;z-index:80;background:#000e;display:none;place-items:center;padding:20px}#help.show{display:grid}.help-card{width:min(620px,94vw);max-height:86vh;overflow:auto;border:1px solid #fff;background:#070707;padding:18px;touch-action:pan-y}.help-card h2{margin:0 0 12px;font-size:15px;letter-spacing:.14em}.help-grid{display:grid;grid-template-columns:1fr;gap:9px}.help-item{border:1px solid #263230;padding:10px;font-size:9px;line-height:1.45;color:#9aa}.help-item b{display:block;color:#fff;margin-bottom:4px}.close{width:100%;margin-top:12px;min-height:42px;border:1px solid #fff;background:#111}
+#help-btn{position:fixed;z-index:20;bottom:calc(8px + var(--safe-b));right:calc(8px + var(--safe-r));width:26px;height:26px;border:1px solid #333;background:#000b;color:#7a8684;font-size:11px;cursor:pointer;display:none}
+#help-btn.show{display:block}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<scr'+'ipt src="https://unpkg.com/three@0.160.0/build/three.min.js"><\/scr'+'ipt>')</script>
+</head>
+<body>
+<canvas id="gl"></canvas><div id="shade"></div><div id="crosshair"></div>
+<div id="tags"></div>
+
+<div id="topbar">
+  <div id="title"><span class="pill" id="engine-pill">JOLT</span><b>THUNDER RIGS</b></div>
+  <div id="modes">
+    <button data-mode="drive" class="on">DRIVE</button>
+    <button data-mode="build">BUILD</button>
+    <button data-mode="review">REVIEW</button>
+  </div>
+</div>
+
+<!-- Roster strip: BUILD + REVIEW only -->
+<aside id="strip" aria-label="Live bodies">
+  <div id="strip-head"><span>ALIVE <b id="strip-count">0</b></span><button id="strip-clear" title="clear all">×</button></div>
+  <div id="strip-list"></div>
+  <button id="strip-more">MORE</button>
+</aside>
+
+<!-- Gauge cluster: all modes -->
+<div id="cluster" aria-label="Instruments">
+  <div class="gauge"><span class="gl">SPD</span><span class="gv" id="g-spd">0</span></div>
+  <div class="gsep"></div>
+  <div class="gauge"><span class="gl">BODIES</span><span id="g-dots"></span></div>
+  <div class="gsep"></div>
+  <div class="gauge"><span class="gl">FPS</span><span class="gv small" id="g-fps">0</span></div>
+  <div class="gsep"></div>
+  <div class="gauge"><span class="gl">IMPACT</span><span id="g-impact"><i id="g-impact-fill"></i></span></div>
+</div>
+
+<!-- DRIVE controls -->
+<div id="drive-controls" class="show">
+  <div id="drive"><div id="drive-base"><i class="drive-v"></i><i class="drive-h"></i></div><div id="knob"></div><div id="drive-label">STEER · THROTTLE</div></div>
+  <div id="pads"><button class="pad" id="jump">JUMP</button><button class="pad" id="brake">BRAKE</button><button class="pad" id="boost">BOOST</button></div>
+</div>
+
+<!-- BUILD bar -->
+<div id="build-bar" aria-label="Build">
+  <div class="bb-spawn-row">
+    <button class="bb-kind sel" data-kind="jelly">JELLY<small>soft body</small></button>
+    <button class="bb-kind" data-kind="ragdoll">RAGDOLL<small>12 parts</small></button>
+    <button class="bb-kind" data-kind="crates">CRATES<small>×15 stack</small></button>
+    <button id="bb-go">SPAWN</button>
+  </div>
+  <div class="bb-tune-row">
+    <label class="bb-slider">EL<input id="elastic" type="range" min="1" max="9" step="1" value="6"><span class="bv" id="elastic-v">6</span></label>
+    <label class="bb-slider">BO<input id="bounce" type="range" min="0" max="0.8" step="0.02" value="0.12"><span class="bv" id="bounce-v">.12</span></label>
+    <label class="bb-slider">GRAV<input id="gravity" type="range" min="0.25" max="2" step="0.05" value="1"><span class="bv" id="gravity-v">1.0</span></label>
+  </div>
+  <div class="bb-extra">
+    <button class="bb-x red" id="crash-test">CRASH TEST</button>
+    <button class="bb-x" id="reset-car">RESET RIG</button>
+    <button class="bb-x amber" id="spin-toggle">KINETIC: ON</button>
+  </div>
+</div>
+
+<!-- REVIEW bar: wreck studio -->
+<div id="review-bar" aria-label="Wreck studio">
+  <div class="rv-top">
+    <button class="rv-play" id="rv-play" title="play/pause">▶</button>
+    <div class="rv-scrub-wrap">
+      <input id="rv-scrub" type="range" min="0" max="299" step="1" value="0">
+      <div class="rv-marks" id="rv-marks"><div class="rv-range" id="rv-range"></div><div class="rv-mark in" id="rv-mark-in" style="left:0%"></div><div class="rv-mark out" id="rv-mark-out" style="left:100%"></div></div>
+    </div>
+    <div class="rv-time" id="rv-time">0.0 / 0.0s</div>
+  </div>
+  <div class="rv-row2">
+    <button class="rv-btn rec" id="rv-rec">REC<small id="rv-rec-label">ROLLING</small></button>
+    <button class="rv-btn in" id="rv-set-in">SET IN<small id="rv-in-t">0.0s</small></button>
+    <button class="rv-btn out" id="rv-set-out">SET OUT<small id="rv-out-t">10.0s</small></button>
+    <button class="rv-btn export" id="rv-export">EXPORT<small id="rv-export-fmt">WEBM</small></button>
+  </div>
+  <div id="rv-export-progress"><i id="rv-export-fill"></i></div>
+  <div id="rv-status">rolling buffer active · drive, wreck, then review</div>
+</div>
+
+<button id="help-btn" title="help">?</button>
+
+<div id="help"><div class="help-card"><h2>THUNDER RIGS · MODES + WRECK STUDIO</h2><div class="help-grid">
+  <div class="help-item"><b>THREE MODES, NEVER A PANEL</b>DRIVE, BUILD, REVIEW — switch at top-right. Exactly one is active; the world is never covered. Each mode shows only a thin bar at the bottom edge.</div>
+  <div class="help-item"><b>DRIVE</b>Just the stick, pads, and gauges. Clean windshield. This is the ground state.</div>
+  <div class="help-item"><b>BUILD</b>One bottom bar: pick a body kind, tap SPAWN, it drops into the space you're looking at. Sliders tune the next spawn. Tap a body in the world to select it (cyan ring); the SPAWN button becomes RESPAWN to retune a selected jelly.</div>
+  <div class="help-item"><b>REVIEW — FILM A WRECK</b>The sim records a rolling 10-second buffer of the action. In REVIEW, time freezes and a timeline appears. Scrub to replay the wreck, set IN / OUT marks, then EXPORT the clip.</div>
+  <div class="help-item"><b>CAPTURE MODES</b>ROLLING = always recording the last 10s. Tap REC to switch to ARMED: press once to start a fresh take, again to stop, then scrub that take. Rolling is lighter on memory; armed captures a clean run.</div>
+  <div class="help-item"><b>EXPORT: WEBM OR PNG</b>EXPORT renders IN→OUT to a WebM video if your device supports it, otherwise it falls back automatically to a PNG frame burst. Both are bounded and safe on low-memory devices.</div>
+</div><button id="help-close" class="close">CLOSE</button></div></div>
+
+<div id="toast"></div>
+<div id="boot"><div class="boot-card"><div class="boot-kicker">THREE.JS + JOLT WASM</div><h1>THUNDER<br>RIGS</h1><div class="boot-copy">Loading rigid vehicles, compliant soft bodies, articulated ragdolls, collision-driven deformation, and the wreck studio.</div><div class="loader"><i></i></div><div id="boot-state">ALLOCATING PHYSICS WORLD</div></div></div>
+
+<script type="module">
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let toastTimer=0;
+function toast(text){const e=$('toast');e.textContent=text;e.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('show'),1400)}
+function fail(message,error){console.error(message,error||'');const boot=$('boot');$('boot-state').className='boot-error';$('boot-state').textContent=message+(error?'\n'+(error.message||error):'');boot.style.display='grid';$('engine-pill').textContent='ERR';$('engine-pill').classList.add('bad')}
+if(!window.THREE){fail('Three.js could not load. Check the network or content blocker.');throw new Error('THREE unavailable')}
+
+let initJolt;
+try{({default:initJolt}=await import('https://cdn.jsdelivr.net/npm/jolt-physics@1.0.0/dist/jolt-physics.wasm-compat.js'))}
+catch(first){try{({default:initJolt}=await import('https://www.unpkg.com/jolt-physics@1.0.0/dist/jolt-physics.wasm-compat.js'))}catch(second){fail('Jolt WASM could not load. Open from a static HTTPS server and check network access.',second);throw second}}
+
+let Jolt;
+try{Jolt=await initJolt()}catch(err){fail('Jolt WASM initialization failed.',err);throw err}
+window.Jolt=Jolt;
+$('boot-state').textContent='BUILDING COLLISION WORLD';
+
+const LAYER_STATIC=0,LAYER_MOVING=1,NUM_LAYERS=2;
+let settings=new Jolt.JoltSettings();
+settings.mMaxWorkerThreads=Math.max(1,Math.min(3,(navigator.hardwareConcurrency||4)-1));
+const pairFilter=new Jolt.ObjectLayerPairFilterTable(NUM_LAYERS);
+pairFilter.EnableCollision(LAYER_STATIC,LAYER_MOVING);pairFilter.EnableCollision(LAYER_MOVING,LAYER_MOVING);
+const bpStatic=new Jolt.BroadPhaseLayer(0),bpMoving=new Jolt.BroadPhaseLayer(1);
+const bpInterface=new Jolt.BroadPhaseLayerInterfaceTable(NUM_LAYERS,2);
+bpInterface.MapObjectToBroadPhaseLayer(LAYER_STATIC,bpStatic);bpInterface.MapObjectToBroadPhaseLayer(LAYER_MOVING,bpMoving);
+settings.mObjectLayerPairFilter=pairFilter;settings.mBroadPhaseLayerInterface=bpInterface;
+settings.mObjectVsBroadPhaseLayerFilter=new Jolt.ObjectVsBroadPhaseLayerFilterTable(bpInterface,2,pairFilter,NUM_LAYERS);
+const jolt=new Jolt.JoltInterface(settings);Jolt.destroy(settings);
+const physicsSystem=jolt.GetPhysicsSystem();
+const bodyInterface=physicsSystem.GetBodyInterface();
+physicsSystem.SetGravity(new Jolt.Vec3(0,-9.81,0));
+
+const renderer=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x08090d);scene.fog=new THREE.FogExp2(0x08090d,.016);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.08,500);camera.position.set(0,5,-10);
+scene.add(new THREE.HemisphereLight(0xaecbff,0x19100d,1.5));
+const sun=new THREE.DirectionalLight(0xffffff,3.1);sun.position.set(-12,26,-8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-38;sun.shadow.camera.right=38;sun.shadow.camera.top=38;sun.shadow.camera.bottom=-38;sun.shadow.bias=-0.0004;scene.add(sun);
+const cyanLight=new THREE.PointLight(0x19e6c8,26,18,2);cyanLight.position.set(0,5,4);scene.add(cyanLight);
+
+const rigidRecords=[];const softRecords=[];const kinematicRecords=[];const keepRefs=[];
+
+const wrapV=v=>({x:v.GetX(),y:v.GetY(),z:v.GetZ()});
+function syncObject(body,obj){const p=body.GetPosition(),q=body.GetRotation();obj.position.set(p.GetX(),p.GetY(),p.GetZ());obj.quaternion.set(q.GetX(),q.GetY(),q.GetZ(),q.GetW())}
+function mat(color,rough=.62,metal=.05){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal})}
+function registerRigid(body,obj,{test=false}={}){obj.traverse?.(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}});scene.add(obj);rigidRecords.push({body,obj});syncObject(body,obj);return body}
+function createRigid(shape,pos,quat,motion,layer,obj,{mass=0,restitution=.1,friction=.75}={}){const cs=new Jolt.BodyCreationSettings(shape,new Jolt.RVec3(pos.x,pos.y,pos.z),new Jolt.Quat(quat.x,quat.y,quat.z,quat.w),motion,layer);if(mass>0){cs.mOverrideMassProperties=Jolt.EOverrideMassProperties_CalculateInertia;cs.mMassPropertiesOverride.mMass=mass}const body=bodyInterface.CreateBody(cs);Jolt.destroy(cs);body.SetRestitution(restitution);body.SetFriction(friction);bodyInterface.AddBody(body.GetID(),Jolt.EActivation_Activate);registerRigid(body,obj);return body}
+function boxBody(pos,size,{color=0xffffff,motion=Jolt.EMotionType_Dynamic,quat=new THREE.Quaternion(),mass=0,restitution=.1,friction=.75}={}){const shape=new Jolt.BoxShape(new Jolt.Vec3(size.x/2,size.y/2,size.z/2),.04,null);const mesh=new THREE.Mesh(new THREE.BoxGeometry(size.x,size.y,size.z),mat(color));return createRigid(shape,pos,quat,motion,motion===Jolt.EMotionType_Static?LAYER_STATIC:LAYER_MOVING,mesh,{mass,restitution,friction})}
+function sphereBody(pos,r,{color=0xffffff,mass=0,restitution=.25}={}){const shape=new Jolt.SphereShape(r,null);const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,24,16),mat(color,.38,.08));return createRigid(shape,pos,new THREE.Quaternion(),Jolt.EMotionType_Dynamic,LAYER_MOVING,mesh,{mass,restitution,friction:.65})}
+function capsuleObject(shape,color){const r=shape.GetRadius(),h=2*shape.GetHalfHeightOfCylinder();return new THREE.Mesh(new THREE.CapsuleGeometry(r,h,8,16),mat(color,.55,.02))}
+function bodyObject(body,color=0xffffff){const shape=body.GetShape();switch(shape.GetSubType()){case Jolt.EShapeSubType_Box:{const s=Jolt.castObject(shape,Jolt.BoxShape),e=s.GetHalfExtent();return new THREE.Mesh(new THREE.BoxGeometry(e.GetX()*2,e.GetY()*2,e.GetZ()*2),mat(color))}case Jolt.EShapeSubType_Sphere:{const s=Jolt.castObject(shape,Jolt.SphereShape);return new THREE.Mesh(new THREE.SphereGeometry(s.GetRadius(),20,14),mat(color))}case Jolt.EShapeSubType_Capsule:return capsuleObject(Jolt.castObject(shape,Jolt.CapsuleShape),color);default:return new THREE.Mesh(new THREE.BoxGeometry(.4,.4,.4),mat(color))}}
+
+/* ============================ ARENA (stronger) ============================ */
+boxBody({x:0,y:-.5,z:0},{x:80,y:1,z:80},{color:0x13151b,motion:Jolt.EMotionType_Static,friction:1});
+const grid=new THREE.GridHelper(80,80,0x24413d,0x151a1e);grid.position.y=.012;scene.add(grid);
+// Perimeter walls
+boxBody({x:0,y:2,z:40},{x:80,y:4,z:1},{color:0x1d222a,motion:Jolt.EMotionType_Static});boxBody({x:0,y:2,z:-40},{x:80,y:4,z:1},{color:0x1d222a,motion:Jolt.EMotionType_Static});boxBody({x:40,y:2,z:0},{x:1,y:4,z:80},{color:0x1d222a,motion:Jolt.EMotionType_Static});boxBody({x:-40,y:2,z:0},{x:1,y:4,z:80},{color:0x1d222a,motion:Jolt.EMotionType_Static});
+// Boundary light strips (drawn, not emoji) — read as an arena, not a box
+function lightStrip(x,z,w,d,color){const g=new THREE.Mesh(new THREE.BoxGeometry(w,0.06,d),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:1.4,roughness:.4}));g.position.set(x,0.05,z);scene.add(g)}
+lightStrip(0,39,80,0.18,0x19e6c8);lightStrip(0,-39,80,0.18,0x19e6c8);lightStrip(39,0,0.18,80,0xa855f7);lightStrip(-39,0,0.18,80,0xa855f7);
+// Ramps
+function ramp(x,z,angle,color){const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),angle);boxBody({x,y:1.2,z},{x:5,y:.5,z:8},{color,motion:Jolt.EMotionType_Static,quat:q,friction:1})}
+ramp(-11,8,-.28,0x24343b);ramp(11,9,.28,0x352b42);ramp(0,22,-.36,0x3a3020);
+
+// Half-pipe: a ring of angled static slats forming a curved trough on the left side
+function halfPipe(cx,cz,radius,slats,arc,color){const step=arc/slats;for(let i=0;i<=slats;i++){const a=-arc/2+i*step;const nx=Math.sin(a),ny=Math.cos(a);const px=cx+nx*radius, py=radius-ny*radius+0.25, pz=cz;const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-a);boxBody({x:px,y:py,z:pz},{x:0.5,y:0.4,z:9},{color,motion:Jolt.EMotionType_Static,quat:q,friction:.9})}}
+halfPipe(-22,-6,5.5,12,Math.PI*0.9,0x22303a);
+
+// Stepped target pyramids: static so they persist, give crash tests a thing to knock toward
+function pyramid(cx,cz,levels,color){for(let y=0;y<levels;y++){const s=(levels-y);boxBody({x:cx,y:0.5+y*1.02,z:cz},{x:s*0.9,y:1,z:s*0.9},{color:y%2?color:0x2a2f36,motion:Jolt.EMotionType_Static})}}
+pyramid(0,-16,3,0x3a2f20);pyramid(9,-20,2,0x2f2440);
+
+// Central pillar cluster for the vehicle to weave
+for(let i=0;i<5;i++){const a=i/5*Math.PI*2;boxBody({x:Math.cos(a)*7,y:1.5,z:Math.sin(a)*7-2},{x:0.8,y:3,z:0.8},{color:i%2?0x263230:0x2d2634,motion:Jolt.EMotionType_Static})}
+
+// KINETIC BAR: a spinning kinematic obstacle. Named ceiling: one bar, driven by a bounded angular step.
+let spinnerBody=null, spinnerMesh=null, spinnerOn=true, spinnerAngle=0;
+(function buildSpinner(){const shape=new Jolt.BoxShape(new Jolt.Vec3(7,0.35,0.6),0.02,null);const cs=new Jolt.BodyCreationSettings(shape,new Jolt.RVec3(14,1.1,-6),new Jolt.Quat(0,0,0,1),Jolt.EMotionType_Kinematic,LAYER_MOVING);const body=bodyInterface.CreateBody(cs);Jolt.destroy(cs);body.SetFriction(.4);bodyInterface.AddBody(body.GetID(),Jolt.EActivation_Activate);const mesh=new THREE.Mesh(new THREE.BoxGeometry(14,0.7,1.2),new THREE.MeshStandardMaterial({color:0xffd23f,emissive:0x3a2c00,emissiveIntensity:.5,roughness:.4,metalness:.3}));mesh.castShadow=true;scene.add(mesh);spinnerBody=body;spinnerMesh=mesh;kinematicRecords.push({body,obj:mesh});syncObject(body,mesh)})();
+function stepSpinner(dt){if(!spinnerOn)return;spinnerAngle=(spinnerAngle+dt*1.4)%(Math.PI*2);const q=new Jolt.Quat(0,Math.sin(spinnerAngle/2),0,Math.cos(spinnerAngle/2));bodyInterface.MoveKinematic(spinnerBody.GetID(),new Jolt.RVec3(14,1.1,-6),q,dt)}
+
+/* ===================== CONTACT SPARKS (bounded pool) ===================== */
+const SPARK_MAX=24;const sparkPool=[];const sparkMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0});
+for(let i=0;i<SPARK_MAX;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(0.18,8,6),sparkMat.clone());m.visible=false;scene.add(m);sparkPool.push({mesh:m,life:0})}
+let sparkCursor=0;
+function emitSpark(x,y,z,color){const s=sparkPool[sparkCursor];sparkCursor=(sparkCursor+1)%SPARK_MAX;s.mesh.position.set(x,y,z);s.mesh.material.color.set(color);s.mesh.material.opacity=0.9;s.mesh.scale.setScalar(0.4);s.mesh.visible=true;s.life=0.35}
+function updateSparks(dt){for(const s of sparkPool){if(s.life<=0)continue;s.life-=dt;const t=clamp(s.life/0.35,0,1);s.mesh.material.opacity=t*0.9;s.mesh.scale.setScalar(0.4+(1-t)*1.6);if(s.life<=0)s.mesh.visible=false}}
+
+/* ============================ VEHICLE ============================ */
+const carRoot=new THREE.Group();
+const chassisGeom=new THREE.BoxGeometry(1.8,.58,3.5,8,3,14);const chassisMat=new THREE.MeshStandardMaterial({color:0x19e6c8,roughness:.34,metalness:.28,emissive:0x032c25,emissiveIntensity:.45});
+const chassisSkin=new THREE.Mesh(chassisGeom,chassisMat);chassisSkin.position.y=.28;carRoot.add(chassisSkin);
+const canopy=new THREE.Mesh(new THREE.BoxGeometry(1.35,.55,1.55,4,2,6),new THREE.MeshPhysicalMaterial({color:0x11151b,roughness:.16,metalness:.35,transmission:.25,transparent:true,opacity:.9}));canopy.position.set(0,.77,-.35);carRoot.add(canopy);
+const nose=new THREE.Mesh(new THREE.ConeGeometry(.72,1.1,4),mat(0xa855f7,.3,.22));nose.rotation.x=Math.PI/2;nose.rotation.z=Math.PI/4;nose.position.set(0,.26,2.15);carRoot.add(nose);
+const tailL=new THREE.Mesh(new THREE.BoxGeometry(.12,.72,1.15),mat(0xa855f7,.3,.25));tailL.position.set(.65,.48,-1.65);tailL.rotation.z=-.22;carRoot.add(tailL);const tailR=tailL.clone();tailR.position.x=-.65;tailR.rotation.z=.22;carRoot.add(tailR);
+const restPos=chassisGeom.attributes.position.array.slice();const dent=new Float32Array(restPos.length);const dentV=new Float32Array(restPos.length);let impactLevel=0;
+function strikeSkin(strength,worldDelta){const inv=carRoot.quaternion.clone().invert();const d=worldDelta.clone().applyQuaternion(inv).normalize();const a=chassisGeom.attributes.position.array;for(let i=0;i<a.length;i+=3){const px=restPos[i],py=restPos[i+1],pz=restPos[i+2];const radial=new THREE.Vector3(px/1.1,py/.45,pz/2).normalize();const face=Math.max(0,radial.dot(d));const noise=.55+.45*Math.sin(i*12.9898);const push=Math.min(.38,strength*.018)*face*noise;dentV[i]-=d.x*push;dentV[i+1]-=d.y*push*.55;dentV[i+2]-=d.z*push}impactLevel=Math.max(impactLevel,clamp(strength/22,0,1))}
+function updateSkin(dt){const a=chassisGeom.attributes.position.array;for(let i=0;i<a.length;i++){dentV[i]+=(-dent[i]*34-dentV[i]*8.5)*dt;dent[i]+=dentV[i]*dt;a[i]=restPos[i]+dent[i]}chassisGeom.attributes.position.needsUpdate=true;chassisGeom.computeVertexNormals();impactLevel=Math.max(0,impactLevel-dt*1.15);$('g-impact-fill').style.width=(impactLevel*100).toFixed(0)+'%'}
+const hW=.9,hH=.22,hL=1.75;
+const carShapeSettings=new Jolt.OffsetCenterOfMassShapeSettings(new Jolt.Vec3(0,-hH,0),new Jolt.BoxShapeSettings(new Jolt.Vec3(hW,hH,hL)));
+const carShape=carShapeSettings.Create().Get();const carCS=new Jolt.BodyCreationSettings(carShape,new Jolt.RVec3(0,2,0),Jolt.Quat.prototype.sRotation(new Jolt.Vec3(0,1,0),Math.PI),Jolt.EMotionType_Dynamic,LAYER_MOVING);carCS.mOverrideMassProperties=Jolt.EOverrideMassProperties_CalculateInertia;carCS.mMassPropertiesOverride.mMass=1150;const carBody=bodyInterface.CreateBody(carCS);Jolt.destroy(carCS);carBody.SetFriction(.9);carBody.SetRestitution(.04);bodyInterface.AddBody(carBody.GetID(),Jolt.EActivation_Activate);registerRigid(carBody,carRoot);
+const vehicleSettings=new Jolt.VehicleConstraintSettings();vehicleSettings.mMaxPitchRollAngle=Math.PI*.42;vehicleSettings.mWheels.clear();
+const wheelParams=[{x:hW,z:1.27,steer:.52,hand:0},{x:-hW,z:1.27,steer:.52,hand:0},{x:hW,z:-1.27,steer:0,hand:2600},{x:-hW,z:-1.27,steer:0,hand:2600}];
+for(const w of wheelParams){const ws=new Jolt.WheelSettingsWV();ws.mPosition=new Jolt.Vec3(w.x,-.18,w.z);ws.mMaxSteerAngle=w.steer;ws.mMaxHandBrakeTorque=w.hand;ws.mRadius=.36;ws.mWidth=.22;ws.mSuspensionMinLength=.18;ws.mSuspensionMaxLength=.48;vehicleSettings.mWheels.push_back(ws)}
+const controllerSettings=new Jolt.WheeledVehicleControllerSettings();controllerSettings.mEngine.mMaxTorque=760;controllerSettings.mTransmission.mClutchStrength=12;controllerSettings.mDifferentials.clear();
+for(const pair of [[0,1],[2,3]]){const dif=new Jolt.VehicleDifferentialSettings();dif.mLeftWheel=pair[0];dif.mRightWheel=pair[1];dif.mLimitedSlipRatio=1.35;dif.mEngineTorqueRatio=.5;controllerSettings.mDifferentials.push_back(dif)}controllerSettings.mDifferentialLimitedSlipRatio=1.4;vehicleSettings.mController=controllerSettings;
+vehicleSettings.mAntiRollBars.clear();for(const pair of [[0,1],[2,3]]){const bar=new Jolt.VehicleAntiRollBar();bar.mLeftWheel=pair[0];bar.mRightWheel=pair[1];vehicleSettings.mAntiRollBars.push_back(bar)}
+const vehicleConstraint=new Jolt.VehicleConstraint(carBody,vehicleSettings);vehicleConstraint.SetVehicleCollisionTester(new Jolt.VehicleCollisionTesterCastCylinder(LAYER_MOVING,.05));physicsSystem.AddConstraint(vehicleConstraint);const vehicleController=Jolt.castObject(vehicleConstraint.GetController(),Jolt.WheeledVehicleController);const vehicleStepListener=new Jolt.VehicleConstraintStepListener(vehicleConstraint);physicsSystem.AddStepListener(vehicleStepListener);keepRefs.push(vehicleSettings,controllerSettings,vehicleConstraint,vehicleStepListener);
+const wheelRight=new Jolt.Vec3(0,1,0),wheelUp=new Jolt.Vec3(1,0,0);const wheelMeshes=[];for(let i=0;i<4;i++){const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.22,18),mat(0x111111,.82,.05));wheel.castShadow=true;carRoot.add(wheel);wheelMeshes.push(wheel)}
+function syncWheels(){for(let i=0;i<4;i++){const tr=vehicleConstraint.GetWheelLocalTransform(i,wheelRight,wheelUp),p=tr.GetTranslation(),q=tr.GetRotation().GetQuaternion(),w=wheelMeshes[i];w.position.set(p.GetX(),p.GetY(),p.GetZ());w.quaternion.set(q.GetX(),q.GetY(),q.GetZ(),q.GetW())}}
+
+/* ============================ SOFT BODIES ============================ */
+function createSoftCubeShared(n=6,spacing=.34,edgeCompliance=1e-6,volumeCompliance=1e-8){
+  const offset=-.5*spacing*(n-1),shared=new Jolt.SoftBodySharedSettings(),v=new Jolt.SoftBodySharedSettingsVertex();
+  const index=(x,y,z)=>x+y*n+z*n*n;
+  for(let z=0;z<n;z++)for(let y=0;y<n;y++)for(let x=0;x<n;x++){v.mPosition.x=x*spacing+offset;v.mPosition.y=y*spacing+offset;v.mPosition.z=z*spacing+offset;shared.mVertices.push_back(v)}
+  Jolt.destroy(v);
+  const edge=new Jolt.SoftBodySharedSettingsEdge(0,0,edgeCompliance);
+  for(let z=0;z<n;z++)for(let y=0;y<n;y++)for(let x=0;x<n;x++){const a=index(x,y,z);edge.set_mVertex(0,a);if(x<n-1){edge.set_mVertex(1,index(x+1,y,z));shared.mEdgeConstraints.push_back(edge)}if(y<n-1){edge.set_mVertex(1,index(x,y+1,z));shared.mEdgeConstraints.push_back(edge)}if(z<n-1){edge.set_mVertex(1,index(x,y,z+1));shared.mEdgeConstraints.push_back(edge)}}
+  Jolt.destroy(edge);shared.CalculateEdgeLengths();
+  const tetra=[[[0,0,0],[0,1,1],[0,0,1],[1,1,1]],[[0,0,0],[0,1,0],[0,1,1],[1,1,1]],[[0,0,0],[0,0,1],[1,0,1],[1,1,1]],[[0,0,0],[1,0,1],[1,0,0],[1,1,1]],[[0,0,0],[1,1,0],[0,1,0],[1,1,1]],[[0,0,0],[1,0,0],[1,1,0],[1,1,1]]];
+  const vol=new Jolt.SoftBodySharedSettingsVolume(0,0,0,0,volumeCompliance);
+  for(let z=0;z<n-1;z++)for(let y=0;y<n-1;y++)for(let x=0;x<n-1;x++)for(const t of tetra){for(let i=0;i<4;i++)vol.set_mVertex(i,index(x+t[i][0],y+t[i][1],z+t[i][2]));shared.mVolumeConstraints.push_back(vol)}
+  Jolt.destroy(vol);shared.CalculateVolumeConstraintVolumes();
+  const f=new Jolt.SoftBodySharedSettingsFace(0,0,0,0),face=(a,b,c)=>{f.set_mVertex(0,a);f.set_mVertex(1,b);f.set_mVertex(2,c);shared.AddFace(f)};
+  for(let a=0;a<n-1;a++)for(let b=0;b<n-1;b++){
+    face(index(a,b,0),index(a,b+1,0),index(a+1,b+1,0));face(index(a,b,0),index(a+1,b+1,0),index(a+1,b,0));
+    face(index(a,b,n-1),index(a+1,b+1,n-1),index(a,b+1,n-1));face(index(a,b,n-1),index(a+1,b,n-1),index(a+1,b+1,n-1));
+    face(index(a,0,b),index(a+1,0,b+1),index(a,0,b+1));face(index(a,0,b),index(a+1,0,b),index(a+1,0,b+1));
+    face(index(a,n-1,b),index(a,n-1,b+1),index(a+1,n-1,b+1));face(index(a,n-1,b),index(a+1,n-1,b+1),index(a+1,n-1,b));
+    face(index(0,a,b),index(0,a,b+1),index(0,a+1,b+1));face(index(0,a,b),index(0,a+1,b+1),index(0,a+1,b));
+    face(index(n-1,a,b),index(n-1,a+1,b+1),index(n-1,a,b+1));face(index(n-1,a,b),index(n-1,a+1,b),index(n-1,a+1,b+1));
+  }
+  Jolt.destroy(f);shared.Optimize();return shared;
+}
+function makeSoftMesh(body,color){const mp=Jolt.castObject(body.GetMotionProperties(),Jolt.SoftBodyMotionProperties);const vertsSettings=mp.GetVertices(),softSettings=mp.GetSettings();const posOffset=Jolt.SoftBodyVertexTraits.prototype.mPositionOffset;const views=[];for(let i=0;i<vertsSettings.size();i++)views.push(new Float32Array(Jolt.HEAP32.buffer,Jolt.getPointer(vertsSettings.at(i))+posOffset,3));const faceData=softSettings.mFaces;const faces=new Uint32Array(faceData.size()*3);for(let i=0;i<faceData.size();i++)faces.set(new Uint32Array(Jolt.HEAP32.buffer,Jolt.getPointer(faceData.at(i)),3),i*3);const geometry=new THREE.BufferGeometry(),positions=new Float32Array(vertsSettings.size()*3);geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.setIndex(new THREE.BufferAttribute(faces,1));const material=new THREE.MeshPhysicalMaterial({color,roughness:.14,metalness:0,transmission:.45,transparent:true,opacity:.82,thickness:1.5,side:THREE.DoubleSide,emissive:0x000000,emissiveIntensity:0});const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=true;mesh.receiveShadow=true;const update=()=>{for(let i=0;i<views.length;i++)positions.set(views[i],i*3);geometry.attributes.position.needsUpdate=true;geometry.computeVertexNormals()};update();return{mesh,update}}
+
+/* ============================ SPAWNERS ============================ */
+function spawnJelly(x,y,z,elasticVal,bounceVal){
+  const e=elasticVal, b=bounceVal;
+  const edge=Math.pow(10,-2.8-e*.48),volume=Math.pow(10,-4.8-e*.42);
+  const shared=createSoftCubeShared(6,.34,edge,volume);
+  const cs=new Jolt.SoftBodyCreationSettings(shared,new Jolt.RVec3(x,y,z),Jolt.Quat.prototype.sRotation(new Jolt.Vec3(1,0,0),-.35),LAYER_MOVING);
+  cs.mPressure=2.1;cs.mObjectLayer=LAYER_MOVING;
+  const body=bodyInterface.CreateSoftBody(cs);Jolt.destroy(cs);body.SetFriction(.65);body.SetRestitution(b);bodyInterface.AddBody(body.GetID(),Jolt.EActivation_Activate);
+  const sm=makeSoftMesh(body,new THREE.Color().setHSL(.47+Math.random()*.22,.82,.58));scene.add(sm.mesh);softRecords.push({body,obj:sm.mesh,update:sm.update});
+  return {kind:'soft',body,obj:sm.mesh,meta:{e,b}};
+}
+function spawnRagdollRec(x,y,z){
+  const skeleton=new Jolt.Skeleton(),S=s=>new Jolt.JPHString(s,s.length);const low=skeleton.AddJoint(S('LowerBody'),-1),mid=skeleton.AddJoint(S('MidBody'),low),upper=skeleton.AddJoint(S('UpperBody'),mid);skeleton.AddJoint(S('Head'),upper);const ual=skeleton.AddJoint(S('UpperArmL'),upper),uar=skeleton.AddJoint(S('UpperArmR'),upper);skeleton.AddJoint(S('LowerArmL'),ual);skeleton.AddJoint(S('LowerArmR'),uar);const ull=skeleton.AddJoint(S('UpperLegL'),low),ulr=skeleton.AddJoint(S('UpperLegR'),low);skeleton.AddJoint(S('LowerLegL'),ull);skeleton.AddJoint(S('LowerLegR'),ulr);
+  const shapes=[new Jolt.CapsuleShape(.15,.1),new Jolt.CapsuleShape(.15,.1),new Jolt.CapsuleShape(.15,.1),new Jolt.CapsuleShape(.075,.1),new Jolt.CapsuleShape(.15,.06),new Jolt.CapsuleShape(.15,.06),new Jolt.CapsuleShape(.15,.05),new Jolt.CapsuleShape(.15,.05),new Jolt.CapsuleShape(.2,.075),new Jolt.CapsuleShape(.2,.075),new Jolt.CapsuleShape(.2,.06),new Jolt.CapsuleShape(.2,.06)];
+  const P=[[0,1.15,0],[0,1.35,0],[0,1.55,0],[0,1.825,0],[-.425,1.55,0],[.425,1.55,0],[-.8,1.55,0],[.8,1.55,0],[-.15,.8,0],[.15,.8,0],[-.15,.3,0],[.15,.3,0]].map(p=>new Jolt.RVec3(p[0]+x,p[1]+y,p[2]+z));
+  const C=[[0,0,0],[0,1.25,0],[0,1.45,0],[0,1.65,0],[-.225,1.55,0],[.225,1.55,0],[-.65,1.55,0],[.65,1.55,0],[-.15,1.05,0],[.15,1.05,0],[-.15,.55,0],[.15,.55,0]].map(p=>new Jolt.RVec3(p[0]+x,p[1]+y,p[2]+z));
+  const rz=Jolt.Quat.prototype.sRotation(Jolt.Vec3.prototype.sAxisZ(),Math.PI/2).Clone(),rot=[rz,rz,rz,Jolt.Quat.prototype.sIdentity(),rz,rz,rz,rz,Jolt.Quat.prototype.sIdentity(),Jolt.Quat.prototype.sIdentity(),Jolt.Quat.prototype.sIdentity(),Jolt.Quat.prototype.sIdentity()];
+  const minusX=Jolt.Vec3.prototype.sAxisX().Mul(-1).Clone(),minusY=Jolt.Vec3.prototype.sAxisY().Mul(-1).Clone();const axes=[Jolt.Vec3.prototype.sZero(),Jolt.Vec3.prototype.sAxisY(),Jolt.Vec3.prototype.sAxisY(),Jolt.Vec3.prototype.sAxisY(),Jolt.Vec3.prototype.sAxisX(),Jolt.Vec3.prototype.sAxisX(),minusX,Jolt.Vec3.prototype.sAxisX(),minusY,minusY,minusY,minusY];const twist=[0,5,5,90,45,45,45,45,45,45,45,45],normal=[0,10,10,45,90,90,0,0,45,45,0,0],plane=[0,10,10,45,45,45,90,90,45,45,60,60];const rs=new Jolt.RagdollSettings();rs.mSkeleton=skeleton;rs.mParts.resize(skeleton.GetJointCount());for(let i=0;i<skeleton.GetJointCount();i++){const part=rs.mParts.at(i);part.SetShape(shapes[i]);part.mPosition=P[i];part.mRotation=rot[i];part.mMotionType=Jolt.EMotionType_Dynamic;part.mObjectLayer=LAYER_MOVING;if(i>0){const c=new Jolt.SwingTwistConstraintSettings();c.mDrawConstraintSize=.1;c.mPosition1=c.mPosition2=C[i];c.mTwistAxis1=c.mTwistAxis2=axes[i];c.mPlaneAxis1=c.mPlaneAxis2=Jolt.Vec3.prototype.sAxisZ();c.mTwistMinAngle=-twist[i]*Math.PI/180;c.mTwistMaxAngle=twist[i]*Math.PI/180;c.mNormalHalfConeAngle=normal[i]*Math.PI/180;c.mPlaneHalfConeAngle=plane[i]*Math.PI/180;part.mToParent=c}}
+  rs.Stabilize();rs.DisableParentChildCollisions();const doll=rs.CreateRagdoll(0,0,physicsSystem);doll.AddToPhysicsSystem(Jolt.EActivation_Activate);const dollBodies=[],dollObjects=[];for(let i=0;i<doll.GetBodyCount();i++){const id=doll.GetBodyID(i),body=physicsSystem.GetBodyLockInterfaceNoLock().TryGetBody(id),obj=bodyObject(body,i===3?0xffd23f:0xa855f7);registerRigid(body,obj);dollBodies.push(body);dollObjects.push(obj)}doll.SetLinearAndAngularVelocity(new Jolt.Vec3(-2,4,1),new Jolt.Vec3(3,1,4),false);keepRefs.push(doll,rs,skeleton);
+  return {kind:'ragdoll',doll,bodies:dollBodies,objects:dollObjects,meta:{}};
+}
+
+
+/* ===================== POPULATION + ROSTER STATE ===================== */
+const testRecords=[];
+const MAX_TEST_BODIES=100;
+const STRIP_MAX_ROWS=14;
+let selectedIdx=-1, isolatedIdx=-1, stripExpanded=false;
+
+function bodiesInRec(r){if(r.kind==='crates'||r.kind==='ragdoll')return r.bodies.length;return 1}
+function totalPopulation(){let n=0;for(const r of testRecords)n+=bodiesInRec(r);return n}
+function canSpawn(a){return totalPopulation()+a<=MAX_TEST_BODIES}
+function recMeshes(r){if(r.kind==='crates'||r.kind==='ragdoll')return r.objects;return [r.obj]}
+function recPrimaryBody(r){return r.body||r.bodies?.[0]||null}
+function recAsleep(r){const b=recPrimaryBody(r);if(!b)return false;try{return !bodyInterface.IsActive(b.GetID())}catch{return false}}
+
+/* ===================== WORLD TAGS ===================== */
+const tagsLayer=$('tags');
+function tagLabel(r){if(r.kind==='soft')return 'e'+r.meta.e;if(r.kind==='crates')return (r.meta.crash?'crash ':'')+'×'+r.meta.n;if(r.kind==='ragdoll')return 'doll';return r.kind}
+function makeTag(r){const el=document.createElement('div');const k=r.kind==='soft'?'jelly':r.kind;el.className='wtag '+k;el.textContent=tagLabel(r);tagsLayer.appendChild(el);return el}
+
+/* ===================== SELECTION ===================== */
+function selectRec(idx){
+  if(selectedIdx>=0&&selectedIdx<testRecords.length)outlineRec(testRecords[selectedIdx],false);
+  selectedIdx=(selectedIdx===idx)?-1:idx;
+  if(selectedIdx>=0)outlineRec(testRecords[selectedIdx],true);
+  applyArmedMode();renderStrip();
+}
+function clearIsolation(){if(isolatedIdx<0)return;for(const r of testRecords)for(const m of recMeshes(r))m.visible=true;isolatedIdx=-1}
+function outlineRec(r,on){for(const m of recMeshes(r)){if(m.material&&m.material.emissive){const base=(m===chassisSkin)?0x032c25:0x000000;const baseI=(m===chassisSkin)?0.45:0;m.material.emissive.set(on?0x19e6c8:base);m.material.emissiveIntensity=on?0.85:baseI}}}
+
+/* ===================== DESTROY / REMOVE ===================== */
+function destroyRec(r){
+  if(r.tag){r.tag.remove();r.tag=null}
+  untrackRec(r);
+  if(r.kind==='ragdoll'){try{r.doll.RemoveFromPhysicsSystem()}catch{}for(let n=0;n<r.bodies.length;n++){scene.remove(r.objects[n]);const i=rigidRecords.findIndex(v=>v.body===r.bodies[n]);if(i>=0)rigidRecords.splice(i,1)}return}
+  if(r.kind==='crates'){for(let n=0;n<r.bodies.length;n++){try{bodyInterface.RemoveBody(r.bodies[n].GetID());bodyInterface.DestroyBody(r.bodies[n].GetID())}catch{}scene.remove(r.objects[n]);const i=rigidRecords.findIndex(v=>v.body===r.bodies[n]);if(i>=0)rigidRecords.splice(i,1)}return}
+  try{bodyInterface.RemoveBody(r.body.GetID());bodyInterface.DestroyBody(r.body.GetID())}catch{}
+  scene.remove(r.obj);
+  let i=rigidRecords.findIndex(v=>v.body===r.body);if(i>=0)rigidRecords.splice(i,1);
+  i=softRecords.findIndex(v=>v.body===r.body);if(i>=0)softRecords.splice(i,1);
+}
+function removeOne(idx){
+  if(idx<0||idx>=testRecords.length)return;
+  if(isolatedIdx===idx)clearIsolation();
+  destroyRec(testRecords[idx]);testRecords.splice(idx,1);
+  if(selectedIdx===idx)selectedIdx=-1;else if(selectedIdx>idx)selectedIdx--;
+  if(isolatedIdx>idx)isolatedIdx--;
+  applyArmedMode();renderStrip();
+}
+function clearTests(){for(let i=testRecords.length-1;i>=0;i--)destroyRec(testRecords[i]);testRecords.length=0;selectedIdx=-1;clearIsolation();applyArmedMode();renderStrip();toast('CLEARED')}
+function addRecord(r){r.tag=makeTag(r);testRecords.push(r);trackRec(r);renderStrip()}
+
+/* ===================== CRASH TEST ===================== */
+function crashTest(){
+  const b=+$('bounce').value;
+  if(!canSpawn(8)){toast('POPULATION FULL');return}
+  const bodies=[],objects=[];
+  for(let i=0;i<8;i++){const body=sphereBody({x:(i-4)*.55,y:3+i*.18,z:14+i*.45},.38,{color:i%2?0xff3b30:0xffd23f,mass:18,restitution:b});const rec=rigidRecords[rigidRecords.length-1];bodies.push(body);objects.push(rec.obj);bodyInterface.AddImpulse(body.GetID(),new Jolt.Vec3((Math.random()-.5)*20,0,-300))}
+  addRecord({kind:'crates',bodies,objects,meta:{b,n:8,crash:true}});
+  toast('CRASH LIVE');
+}
+
+/* ===================== ARMED SPAWN (BUILD bar) ===================== */
+let armedKind='jelly';
+const KIND_LABEL={jelly:'JELLY',ragdoll:'RAGDOLL',crates:'CRATES'};
+const KIND_COUNT={jelly:1,ragdoll:12,crates:15};
+function selectedIsJelly(){return selectedIdx>=0&&selectedIdx<testRecords.length&&testRecords[selectedIdx].kind==='soft'}
+function applyArmedMode(){
+  const editing=selectedIsJelly();
+  $('bb-go').classList.toggle('edit',editing);
+  $('bb-go').textContent=editing?('RESPAWN e'+(+$('elastic').value)):'SPAWN';
+}
+function spawnCratesRec(bounceVal){const b=bounceVal,bodies=[],objects=[];for(let y=0;y<5;y++)for(let x=0;x<5-y;x++){const body=boxBody({x:-6+x*1.05+y*.52,y:.55+y*1.05,z:8},{x:.95,y:.95,z:.95},{color:(x+y)%2?0xffd23f:0x19e6c8,mass:28,restitution:b,friction:.72});const rec=rigidRecords[rigidRecords.length-1];bodies.push(body);objects.push(rec.obj)}return {kind:'crates',bodies,objects,meta:{b,n:bodies.length}}}
+function doSpawn(){
+  if(selectedIsJelly()){
+    const idx=selectedIdx,rec=testRecords[idx],p=rec.body.GetPosition();const x=p.GetX(),y=p.GetY(),z=p.GetZ();
+    removeOne(idx);
+    if(!canSpawn(1)){toast('POPULATION FULL');return}
+    addRecord(spawnJelly(x,y+0.5,z,+$('elastic').value,+$('bounce').value));
+    selectRec(testRecords.length-1);toast('RESPAWNED');return;
+  }
+  const need=KIND_COUNT[armedKind];
+  if(!canSpawn(need)){toast('POPULATION FULL');return}
+  let rec;
+  if(armedKind==='jelly')rec=spawnJelly(4+Math.random()*4,7,-1+Math.random()*5,+$('elastic').value,+$('bounce').value);
+  else if(armedKind==='ragdoll')rec=spawnRagdollRec(5+Math.random()*2,2,-5+Math.random()*2);
+  else rec=spawnCratesRec(+$('bounce').value);
+  addRecord(rec);toast('SPAWNED '+KIND_LABEL[armedKind]);
+}
+
+/* ===================== ROSTER STRIP ===================== */
+function stripKindLabel(r){if(r.kind==='soft')return 'JELLY e'+r.meta.e+' b'+r.meta.b;if(r.kind==='crates')return (r.meta.crash?'CRASH ':'CRATES ')+'×'+r.meta.n;if(r.kind==='ragdoll')return 'RAGDOLL';return r.kind.toUpperCase()}
+function renderStrip(){
+  const total=totalPopulation();
+  $('strip-count').textContent=total;renderDots(total);
+  const list=$('strip-list');list.innerHTML='';
+  if(testRecords.length===0){const d=document.createElement('div');d.className='chip-empty';d.textContent='NO BODIES · SPAWN BELOW';list.appendChild(d);$('strip-more').style.display='none';return}
+  const count=testRecords.length,shown=stripExpanded?count:Math.min(count,STRIP_MAX_ROWS);
+  for(let i=0;i<shown;i++){
+    const r=testRecords[i],k=r.kind==='soft'?'jelly':r.kind;
+    const chip=document.createElement('div');chip.className='chip '+k+(i===selectedIdx?' sel':'');
+    const ck=document.createElement('div');ck.className='ck';ck.textContent=stripKindLabel(r);
+    const cs=document.createElement('div');cs.className='cs'+(recAsleep(r)?'':' awake');cs.textContent=recAsleep(r)?'sleep':'awake';
+    const cx=document.createElement('button');cx.className='cx';cx.textContent='×';cx.onclick=e=>{e.stopPropagation();removeOne(i)};
+    chip.append(ck,cs,cx);chip.onclick=()=>selectRec(i);list.appendChild(chip);
+  }
+  const more=$('strip-more');
+  if(count>STRIP_MAX_ROWS){more.style.display='block';more.textContent=stripExpanded?'LESS':('+'+(count-STRIP_MAX_ROWS)+' MORE')}else more.style.display='none';
+}
+$('strip-more').onclick=()=>{stripExpanded=!stripExpanded;renderStrip()};
+$('strip-clear').onclick=clearTests;
+
+/* ===================== GAUGES ===================== */
+const DOT_MAX=10;
+(function(){const c=$('g-dots');for(let i=0;i<DOT_MAX;i++){const d=document.createElement('span');d.className='gdotp';c.appendChild(d)}})();
+function renderDots(total){const dots=$('g-dots').children;const full=total>=MAX_TEST_BODIES;const lit=Math.round(clamp(total/MAX_TEST_BODIES,0,1)*DOT_MAX);for(let i=0;i<DOT_MAX;i++)dots[i].className='gdotp'+(i<lit?(full?' full':' on'):'')}
+
+/* ===================== WRECK RECORDER (fixed ring buffer) ===================== */
+// Power-of-10: flat pre-allocated memory. REC_BODIES x 7 floats x REC_FRAMES x 4 bytes.
+const REC_BODIES=24;      // max tracked transforms (extras simulate but aren't filmed)
+const REC_FRAMES=300;     // 10s at 30Hz
+const REC_HZ=30;
+const REC_DT=1/REC_HZ;
+const FLOATS_PER_BODY=8;  // px,py,pz, qx,qy,qz,qw, active
+const buffer=new Float32Array(REC_BODIES*FLOATS_PER_BODY*REC_FRAMES); // ~230KB, fixed
+const frameBodyId=new Int32Array(REC_BODIES); // which body index each slot holds, per current frame layout
+let bufWrite=0;      // next frame slot to write (ring head)
+let bufCount=0;      // how many valid frames (<=REC_FRAMES)
+let recAccum=0;      // sample timer
+let recMode='rolling'; // 'rolling' | 'armed'
+let armedRecording=false; // in armed mode, are we actively capturing
+// Tracked bodies: we film the car + up to REC_BODIES-1 test bodies (primary body of each rec)
+const trackList=[]; // {getBody:()=>joltBody, kind, meshRef}
+function trackRec(r){/* tracked lazily in buildTrackList each sample to stay simple + bounded */}
+function untrackRec(r){/* no-op: track list rebuilt each sample */}
+function buildTrackList(){
+  trackList.length=0;
+  trackList.push({body:carBody,kind:'car'}); // slot 0 always the rig
+  for(let i=0;i<testRecords.length&&trackList.length<REC_BODIES;i++){
+    const b=recPrimaryBody(testRecords[i]);
+    if(b)trackList.push({body:b,kind:testRecords[i].kind});
+  }
+}
+function sampleFrame(){
+  buildTrackList();
+  const base=bufWrite*REC_BODIES*FLOATS_PER_BODY;
+  for(let s=0;s<REC_BODIES;s++){
+    const off=base+s*FLOATS_PER_BODY;
+    if(s<trackList.length){
+      const body=trackList[s].body;
+      try{
+        const p=body.GetPosition(),q=body.GetRotation();
+        buffer[off]=p.GetX();buffer[off+1]=p.GetY();buffer[off+2]=p.GetZ();
+        buffer[off+3]=q.GetX();buffer[off+4]=q.GetY();buffer[off+5]=q.GetZ();buffer[off+6]=q.GetW();
+        buffer[off+7]=1;
+      }catch{buffer[off+7]=0}
+    }else{buffer[off+7]=0}
+  }
+  bufWrite=(bufWrite+1)%REC_FRAMES;
+  if(bufCount<REC_FRAMES)bufCount++;
+}
+function recTick(dt){
+  if(recMode==='armed'&&!armedRecording)return; // armed & idle: don't record
+  recAccum+=dt;
+  // bounded: at most a few samples per frame even after a hitch
+  let guard=4;
+  while(recAccum>=REC_DT&&guard-->0){sampleFrame();recAccum-=REC_DT}
+  if(recAccum>REC_DT)recAccum=0; // drop backlog beyond guard (stay bounded)
+}
+// Read frame f (0..bufCount-1, oldest->newest) into a display transform on the tracked bodies.
+function bufferFrameOffset(fOrder){
+  // oldest valid frame index in ring:
+  const oldest=(bufCount<REC_FRAMES)?0:bufWrite;
+  const ring=(oldest+fOrder)%REC_FRAMES;
+  return ring*REC_BODIES*FLOATS_PER_BODY;
+}
+function applyBufferFrame(fOrder){
+  // Move tracked bodies (as kinematic-looking teleports) to the recorded transform.
+  buildTrackList();
+  const base=bufferFrameOffset(fOrder);
+  for(let s=0;s<trackList.length&&s<REC_BODIES;s++){
+    const off=base+s*FLOATS_PER_BODY;
+    if(buffer[off+7]<0.5)continue;
+    const body=trackList[s].body;
+    try{bodyInterface.SetPositionAndRotation(body.GetID(),new Jolt.RVec3(buffer[off],buffer[off+1],buffer[off+2]),new Jolt.Quat(buffer[off+3],buffer[off+4],buffer[off+5],buffer[off+6]),Jolt.EActivation_DontActivate)}catch{}
+  }
+}
+
+/* ===================== MODE SYSTEM ===================== */
+let mode='drive';
+let reviewPlaying=false, reviewFrame=0, reviewInFrame=0, reviewOutFrame=REC_FRAMES-1, reviewAccum=0;
+function setMode(next){
+  if(next===mode)return;
+  // leaving review: unfreeze physics resumes automatically (loop checks mode)
+  mode=next;
+  document.querySelectorAll('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.mode===next));
+  $('drive-controls').classList.toggle('show',next==='drive');
+  $('build-bar').classList.toggle('show',next==='build');
+  $('review-bar').classList.toggle('show',next==='review');
+  $('strip').classList.toggle('show',next!=='drive');
+  $('help-btn').classList.toggle('show',next!=='drive');
+  $('cluster').classList.toggle('dim',next==='review');
+  if(next==='review')enterReview();
+  if(next!=='review'){reviewPlaying=false;$('rv-play').textContent='▶'}
+}
+document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+function enterReview(){
+  if(bufCount<2){$('rv-status').textContent='NO FOOTAGE YET · GO DRIVE';$('rv-status').className='';reviewInFrame=0;reviewOutFrame=0;updateReviewUI();return}
+  reviewInFrame=0;reviewOutFrame=bufCount-1;reviewFrame=0;reviewPlaying=false;$('rv-play').textContent='▶';
+  const hasSoft=testRecords.some(r=>r.kind==='soft');
+  $('rv-status').textContent=(recMode==='armed'?'take loaded':'rolling buffer')+' · scrub, mark, export'+(hasSoft?' · jelly frozen in replay':'');
+  $('rv-status').className='';
+  applyBufferFrame(reviewFrame);updateReviewUI();
+}
+function frameToSec(f){return (f/REC_HZ)}
+function updateReviewUI(){
+  const scrub=$('rv-scrub');scrub.max=Math.max(1,bufCount-1);scrub.value=reviewFrame;
+  $('rv-time').textContent=frameToSec(reviewFrame).toFixed(1)+' / '+frameToSec(Math.max(0,bufCount-1)).toFixed(1)+'s';
+  $('rv-in-t').textContent=frameToSec(reviewInFrame).toFixed(1)+'s';
+  $('rv-out-t').textContent=frameToSec(reviewOutFrame).toFixed(1)+'s';
+  const span=Math.max(1,bufCount-1);
+  $('rv-mark-in').style.left=(reviewInFrame/span*100)+'%';
+  $('rv-mark-out').style.left=(reviewOutFrame/span*100)+'%';
+  const l=Math.min(reviewInFrame,reviewOutFrame)/span*100,rr=Math.max(reviewInFrame,reviewOutFrame)/span*100;
+  $('rv-range').style.left=l+'%';$('rv-range').style.width=(rr-l)+'%';
+}
+$('rv-scrub').addEventListener('input',e=>{reviewFrame=+e.target.value|0;reviewPlaying=false;$('rv-play').textContent='▶';applyBufferFrame(reviewFrame);updateReviewUI()});
+$('rv-play').onclick=()=>{if(bufCount<2)return;reviewPlaying=!reviewPlaying;$('rv-play').textContent=reviewPlaying?'❚❚':'▶';if(reviewPlaying&&reviewFrame>=reviewOutFrame)reviewFrame=reviewInFrame};
+$('rv-set-in').onclick=()=>{reviewInFrame=reviewFrame;if(reviewOutFrame<reviewInFrame)reviewOutFrame=Math.min(bufCount-1,reviewInFrame+1);updateReviewUI();toast('IN '+frameToSec(reviewInFrame).toFixed(1)+'s')};
+$('rv-set-out').onclick=()=>{reviewOutFrame=reviewFrame;if(reviewInFrame>reviewOutFrame)reviewInFrame=Math.max(0,reviewOutFrame-1);updateReviewUI();toast('OUT '+frameToSec(reviewOutFrame).toFixed(1)+'s')};
+$('rv-rec').onclick=()=>{
+  if(recMode==='rolling'){recMode='armed';armedRecording=false;bufCount=0;bufWrite=0;$('rv-rec-label').textContent='ARMED';$('rv-rec').classList.remove('armed');toast('ARMED · press REC to start take')}
+  else if(!armedRecording){armedRecording=true;bufCount=0;bufWrite=0;recAccum=0;$('rv-rec').classList.add('armed');$('rv-rec-label').textContent='● REC';$('rv-status').textContent='RECORDING TAKE · drive then press REC';$('rv-status').className='work';toast('RECORDING')}
+  else{armedRecording=false;$('rv-rec').classList.remove('armed');$('rv-rec-label').textContent='ARMED';$('rv-status').textContent='take captured · '+frameToSec(bufCount).toFixed(1)+'s';$('rv-status').className='done';enterReview()}
+};
+
+/* ===================== EXPORTER (WebM primary, PNG fallback) ===================== */
+let exporting=false;
+function pickVideoMime(){
+  if(typeof MediaRecorder==='undefined'||!MediaRecorder.isTypeSupported)return null;
+  const tries=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  for(const t of tries)if(MediaRecorder.isTypeSupported(t))return t;
+  return null;
+}
+function updateExportFmt(){$('rv-export-fmt').textContent=pickVideoMime()?'WEBM':'PNG'}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}
+function setExportProgress(frac,text,cls){$('rv-export-progress').classList.add('show');$('rv-export-fill').style.width=(frac*100)+'%';if(text){$('rv-status').textContent=text;$('rv-status').className=cls||'work'}}
+function endExportProgress(text,cls){$('rv-export-fill').style.width='100%';setTimeout(()=>$('rv-export-progress').classList.remove('show'),600);$('rv-status').textContent=text;$('rv-status').className=cls}
+
+async function exportClip(){
+  if(exporting)return;
+  if(bufCount<2){toast('NO FOOTAGE');return}
+  exporting=true;$('rv-export').style.opacity='.5';
+  const a=Math.min(reviewInFrame,reviewOutFrame),b=Math.max(reviewInFrame,reviewOutFrame);
+  const nFrames=Math.max(2,b-a+1);
+  reviewPlaying=false;$('rv-play').textContent='▶';
+  const mime=pickVideoMime();
+  try{
+    if(mime){await exportWebM(a,b,nFrames,mime);}
+    else{await exportPNG(a,b,nFrames);}
+  }catch(err){
+    console.error('export failed',err);
+    // last-ditch fallback to PNG if WebM path threw
+    try{await exportPNG(a,b,nFrames);}catch(e2){endExportProgress('EXPORT FAILED',' err');}
+  }
+  exporting=false;$('rv-export').style.opacity='1';
+}
+function stepFor(frac,dtEstimate){return new Promise(r=>requestAnimationFrame(()=>r()))}
+
+async function exportWebM(a,b,nFrames,mime){
+  setExportProgress(0,'RENDERING WEBM…','work');
+  const stream=renderer.domElement.captureStream(REC_HZ);
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6_000_000});
+  const chunks=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  const done=new Promise(res=>rec.onstop=res);
+  rec.start();
+  // Drive the replay at REC_HZ, drawing each recorded frame.
+  for(let f=a;f<=b;f++){
+    applyBufferFrame(f);
+    renderer.render(scene,camera);
+    setExportProgress((f-a)/nFrames);
+    await new Promise(r=>setTimeout(r,1000/REC_HZ));
+  }
+  rec.stop();
+  await done;
+  const blob=new Blob(chunks,{type:mime});
+  const secs=(nFrames/REC_HZ).toFixed(1);
+  downloadBlob(blob,`thunder-wreck_${secs}s.webm`);
+  endExportProgress('SAVED WEBM · '+secs+'s',' done');
+}
+
+async function exportPNG(a,b,nFrames){
+  // Bounded, awaited, one frame at a time — safe on low memory (no giant array kept).
+  setExportProgress(0,'EXPORTING PNG FRAMES…','work');
+  // Cap PNG frame count hard so a weak device never chokes.
+  const PNG_MAX=120;
+  const stride=Math.max(1,Math.ceil(nFrames/PNG_MAX));
+  let count=0,idx=0;
+  for(let f=a;f<=b;f+=stride){
+    applyBufferFrame(f);
+    renderer.render(scene,camera);
+    const blob=await new Promise(res=>renderer.domElement.toBlob(res,'image/png'));
+    if(blob)downloadBlob(blob,`thunder-wreck_frame${String(idx).padStart(3,'0')}.png`);
+    idx++;count++;
+    setExportProgress(count/Math.min(PNG_MAX,nFrames));
+    await new Promise(r=>setTimeout(r,40)); // backpressure
+  }
+  endExportProgress('SAVED '+count+' PNG FRAMES',' done');
+}
+$('rv-export').onclick=exportClip;
+
+/* ===================== INPUT (DRIVE) ===================== */
+const input={throttle:0,steer:0,brake:false,boost:false};const keys=new Set();
+addEventListener('keydown',e=>{keys.add(e.key.toLowerCase());if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()},{passive:false});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+let stickPointer=null;const drive=$('drive'),knob=$('knob');
+function updateStick(e){const r=drive.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,rad=r.width*.34,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy)||1,s=Math.min(1,rad/len),x=dx*s,y=dy*s;knob.style.transform=`translate(${x}px,${y}px)`;input.steer=clamp(x/rad,-1,1);input.throttle=clamp(-y/rad,-1,1)}
+drive.addEventListener('pointerdown',e=>{stickPointer=e.pointerId;drive.setPointerCapture(e.pointerId);updateStick(e)});
+drive.addEventListener('pointermove',e=>{if(e.pointerId===stickPointer)updateStick(e)});
+function releaseStick(e){if(e.pointerId!==stickPointer)return;stickPointer=null;knob.style.transform='translate(0,0)';input.steer=0;input.throttle=0}
+drive.addEventListener('pointerup',releaseStick);drive.addEventListener('pointercancel',releaseStick);
+function holdButton(el,on,off){el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);el.classList.add('on');on()});for(const t of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(t,()=>{el.classList.remove('on');off()})}
+holdButton($('brake'),()=>input.brake=true,()=>input.brake=false);holdButton($('boost'),()=>input.boost=true,()=>input.boost=false);
+$('jump').addEventListener('pointerdown',()=>{bodyInterface.AddImpulse(carBody.GetID(),new Jolt.Vec3(0,4100,0));bodyInterface.ActivateBody(carBody.GetID());toast('KICK')});
+function applyBoost(){const q=carRoot.quaternion,dir=new THREE.Vector3(0,0,1).applyQuaternion(q).normalize();bodyInterface.AddImpulse(carBody.GetID(),new Jolt.Vec3(dir.x*1200,80,dir.z*1200))}
+let boostCooldown=0,previousForward=1;
+function drivePreStep(dt){let forward=input.throttle,right=input.steer;if(keys.has('w')||keys.has('arrowup'))forward=1;if(keys.has('s')||keys.has('arrowdown'))forward=-1;if(keys.has('a')||keys.has('arrowleft'))right=-1;if(keys.has('d')||keys.has('arrowright'))right=1;let brake=0,hand=0;if(input.brake||keys.has('z')||keys.has(' ')){forward=0;hand=1}if(previousForward*forward<0){const inv=carRoot.quaternion.clone().invert(),v=carBody.GetLinearVelocity(),local=new THREE.Vector3(v.GetX(),v.GetY(),v.GetZ()).applyQuaternion(inv);if((forward>0&&local.z<-.2)||(forward<0&&local.z>.2)){forward=0;brake=1}else previousForward=forward}vehicleController.SetDriverInput(forward,right,brake,hand);if(Math.abs(forward)+Math.abs(right)+brake+hand>0)bodyInterface.ActivateBody(carBody.GetID());boostCooldown-=dt;if((input.boost||keys.has('shift'))&&boostCooldown<=0){applyBoost();boostCooldown=.2}}
+
+/* ===================== BUILD BAR WIRING ===================== */
+$('bb-go').onclick=doSpawn;$('crash-test').onclick=crashTest;$('reset-car').onclick=resetCar;
+$('spin-toggle').onclick=()=>{spinnerOn=!spinnerOn;$('spin-toggle').textContent='KINETIC: '+(spinnerOn?'ON':'OFF')};
+document.querySelectorAll('.bb-kind').forEach(btn=>btn.onclick=()=>{if(selectedIsJelly())selectRec(selectedIdx);armedKind=btn.dataset.kind;document.querySelectorAll('.bb-kind').forEach(b=>b.classList.toggle('sel',b===btn));applyArmedMode()});
+$('elastic').oninput=e=>{$('elastic-v').textContent=e.target.value;applyArmedMode()};
+$('bounce').oninput=e=>{$('bounce-v').textContent=(+e.target.value).toFixed(2).replace(/^0/,'')};
+$('gravity').oninput=e=>{const g=+e.target.value;$('gravity-v').textContent=g.toFixed(1);physicsSystem.SetGravity(new Jolt.Vec3(0,-9.81*g,0))};
+$('help-btn').onclick=()=>$('help').classList.add('show');$('help-close').onclick=()=>$('help').classList.remove('show');
+function resetCar(){bodyInterface.SetPositionAndRotation(carBody.GetID(),new Jolt.RVec3(0,2,0),Jolt.Quat.prototype.sRotation(new Jolt.Vec3(0,1,0),Math.PI),Jolt.EActivation_Activate);bodyInterface.SetLinearAndAngularVelocity(carBody.GetID(),new Jolt.Vec3(0,0,0),new Jolt.Vec3(0,0,0));dent.fill(0);dentV.fill(0);toast('RESET')}
+
+/* ===================== SELECTION RING ===================== */
+const selRing=new THREE.Mesh(new THREE.RingGeometry(0.9,1.15,40),new THREE.MeshBasicMaterial({color:0x19e6c8,side:THREE.DoubleSide,transparent:true,opacity:0.85}));
+selRing.rotation.x=-Math.PI/2;selRing.visible=false;scene.add(selRing);let ringPulse=0;
+
+/* ===================== SEED ===================== */
+addRecord(spawnJelly(5,6,2,6,0.12));
+addRecord(spawnRagdollRec(7,2,-5));
+addRecord(spawnCratesRec(0.12));
+syncWheels();applyArmedMode();renderStrip();updateExportFmt();
+$('engine-pill').textContent='JOLT';$('boot-state').textContent='READY';setTimeout(()=>$('boot').style.display='none',300);
+
+/* ===================== TAP-TO-SELECT (BUILD/REVIEW) ===================== */
+const raycaster=new THREE.Raycaster();const ndc=new THREE.Vector2();
+function pickAt(clientX,clientY){
+  const r=renderer.domElement.getBoundingClientRect();
+  ndc.x=((clientX-r.left)/r.width)*2-1;ndc.y=-((clientY-r.top)/r.height)*2+1;
+  raycaster.setFromCamera(ndc,camera);
+  const targets=[];const map=new Map();
+  for(let i=0;i<testRecords.length;i++)for(const m of recMeshes(testRecords[i])){if(m.visible){targets.push(m);map.set(m,i)}}
+  if(targets.length===0)return -1;
+  const hits=raycaster.intersectObjects(targets,false);
+  return hits.length?(map.get(hits[0].object)??-1):-1;
+}
+let camYaw=0,dragId=null,lastPX=0,dragMoved=0,dsx=0,dsy=0;
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.target!==renderer.domElement)return;dragId=e.pointerId;lastPX=e.clientX;dsx=e.clientX;dsy=e.clientY;dragMoved=0;renderer.domElement.setPointerCapture(e.pointerId)});
+renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerId===dragId){camYaw+=(e.clientX-lastPX)*.006;lastPX=e.clientX;dragMoved+=Math.abs(e.clientX-dsx)+Math.abs(e.clientY-dsy)}});
+renderer.domElement.addEventListener('pointerup',e=>{if(e.pointerId!==dragId)return;dragId=null;if(dragMoved<8&&mode==='build'){const idx=pickAt(e.clientX,e.clientY);if(idx>=0)selectRec(idx);else if(selectedIdx>=0){outlineRec(testRecords[selectedIdx],false);selectedIdx=-1;selRing.visible=false;applyArmedMode();renderStrip()}}});
+
+/* ===================== LOOP ===================== */
+let last=performance.now(),acc=0,frameCount=0,fpsTime=last,prevVel=new THREE.Vector3(),stripTick=0;const fixed=1/60;const cameraTarget=new THREE.Vector3();
+function updateCamera(dt){const q=carRoot.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),camYaw));const offset=new THREE.Vector3(0,3.6,-8.8).applyQuaternion(q);const desired=carRoot.position.clone().add(offset);camera.position.lerp(desired,1-Math.exp(-dt*5.5));cameraTarget.lerp(carRoot.position.clone().add(new THREE.Vector3(0,.65,0)),1-Math.exp(-dt*8));camera.lookAt(cameraTarget)}
+const tmp=new THREE.Vector3();
+function bodyCenter(r,out){const meshes=recMeshes(r);out.set(0,0,0);let c=0;for(const m of meshes){m.getWorldPosition(tmp);out.add(tmp);c++}if(c>0)out.multiplyScalar(1/c);return out}
+function projectToScreen(v){tmp.copy(v).project(camera);return {x:(tmp.x*0.5+0.5)*innerWidth,y:(-tmp.y*0.5+0.5)*innerHeight,z:tmp.z}}
+function updateWorldTags(show){
+  for(let i=0;i<testRecords.length;i++){
+    const r=testRecords[i];if(!r.tag)continue;
+    if(!show){r.tag.classList.add('hidden');continue}
+    bodyCenter(r,tmp);const c=tmp.clone();c.y+=0.9;const s=projectToScreen(c);
+    if(s.z>1||s.x<-40||s.x>innerWidth+40||s.y<-20||s.y>innerHeight+20){r.tag.classList.add('hidden');continue}
+    r.tag.classList.remove('hidden');r.tag.classList.toggle('sel',i===selectedIdx);
+    r.tag.style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,-50%)`+(i===selectedIdx?' scale(1.15)':'');
+  }
+}
+function updateSelRing(dt){if(mode!=='build'||selectedIdx<0||selectedIdx>=testRecords.length){selRing.visible=false;return}const r=testRecords[selectedIdx];bodyCenter(r,tmp);selRing.position.set(tmp.x,0.06,tmp.z);selRing.visible=true;ringPulse=(ringPulse+dt*3)%(Math.PI*2);selRing.material.opacity=0.55+0.3*Math.sin(ringPulse)}
+
+function animate(now){requestAnimationFrame(animate);let dt=Math.min(.04,(now-last)/1000);last=now;
+  if(mode==='review'){
+    // FROZEN sim. Replay the buffer instead of stepping physics.
+    if(reviewPlaying&&!exporting&&bufCount>1){
+      reviewAccum+=dt;
+      while(reviewAccum>=REC_DT){reviewFrame++;reviewAccum-=REC_DT;if(reviewFrame>=reviewOutFrame){reviewFrame=reviewInFrame;}}
+      applyBufferFrame(reviewFrame);updateReviewUI();
+    }
+    // sync meshes to the teleported bodies. Rigid bodies + car replay faithfully.
+    // Soft bodies are vertex-driven and can't be teleported per frame, so their mesh
+    // is left frozen during replay rather than reading the frozen live sim.
+    for(const r of rigidRecords)syncObject(r.body,r.obj);for(const r of kinematicRecords)syncObject(r.body,r.obj);syncWheels();
+    updateCamera(dt);updateWorldTags(true);updateSelRing(dt);
+    renderer.render(scene,camera);
+    frameCount++;if(now-fpsTime>500){$('g-fps').textContent=Math.round(frameCount*1000/(now-fpsTime));frameCount=0;fpsTime=now}
+    return;
+  }
+  // DRIVE / BUILD: live physics
+  acc+=dt;let stepGuard=6;while(acc>=fixed&&stepGuard-->0){drivePreStep(fixed);stepSpinner(fixed);jolt.Step(fixed,1);acc-=fixed}
+  if(acc>fixed)acc=0;
+  recTick(dt); // film into ring buffer
+  for(const r of rigidRecords)syncObject(r.body,r.obj);for(const r of softRecords){syncObject(r.body,r.obj);r.update()}for(const r of kinematicRecords)syncObject(r.body,r.obj);syncWheels();
+  const v=carBody.GetLinearVelocity(),cur=new THREE.Vector3(v.GetX(),v.GetY(),v.GetZ()),dv=prevVel.clone().sub(cur),impact=dv.length();
+  if(impact>3.4){strikeSkin(impact,dv);emitSpark(carRoot.position.x,carRoot.position.y+0.3,carRoot.position.z,impact>8?0xff3b30:0xffd23f)}
+  prevVel.copy(cur);updateSkin(dt);updateSparks(dt);updateCamera(dt);updateWorldTags(mode==='build');updateSelRing(dt);
+  cyanLight.position.copy(carRoot.position).add(new THREE.Vector3(0,4,2));
+  $('g-spd').textContent=Math.round(cur.length()*3.6);
+  frameCount++;if(now-fpsTime>500){$('g-fps').textContent=Math.round(frameCount*1000/(now-fpsTime));frameCount=0;fpsTime=now}
+  stripTick+=dt;if(stripTick>0.6&&mode==='build'){stripTick=0;renderStrip()}
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(animate);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight,false);renderer.setPixelRatio(Math.min(devicePixelRatio,2))});
+
+</script>
+</body>
+</html>

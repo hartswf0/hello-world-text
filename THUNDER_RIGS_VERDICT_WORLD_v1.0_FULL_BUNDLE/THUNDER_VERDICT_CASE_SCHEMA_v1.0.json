@@ -1,0 +1,524 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thunder-rigs.local/schema/thunder-verdict-case-v1.0.json",
+  "title": "THUNDER VERDICT CASE v1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "case_id",
+    "source_world_record",
+    "source_samples",
+    "source_facts",
+    "adjudication_event_stream",
+    "parties",
+    "verdict",
+    "exported_at"
+  ],
+  "properties": {
+    "format": {
+      "const": "THUNDER_VERDICT_CASE"
+    },
+    "version": {
+      "const": "1.0"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_world_record": {
+      "type": "object"
+    },
+    "source_samples": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "$ref": "#/$defs/sourceSample"
+      }
+    },
+    "source_facts": {
+      "$ref": "#/$defs/sourceFacts"
+    },
+    "adjudication_event_stream": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/caseEvent"
+      }
+    },
+    "parties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "A",
+        "B"
+      ],
+      "properties": {
+        "A": {
+          "$ref": "#/$defs/party"
+        },
+        "B": {
+          "$ref": "#/$defs/party"
+        }
+      }
+    },
+    "verdict": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/verdict"
+        }
+      ]
+    },
+    "exported_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "items": false
+    },
+    "quat": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "items": false
+    },
+    "sourceSample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tick",
+        "p",
+        "q",
+        "v",
+        "speed",
+        "impact",
+        "material",
+        "topology",
+        "world"
+      ],
+      "properties": {
+        "tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p": {
+          "$ref": "#/$defs/vec3"
+        },
+        "q": {
+          "$ref": "#/$defs/quat"
+        },
+        "v": {
+          "$ref": "#/$defs/vec3"
+        },
+        "speed": {
+          "type": "number",
+          "minimum": 0
+        },
+        "impact": {
+          "type": "number",
+          "minimum": 0
+        },
+        "material": {
+          "enum": [
+            "STEEL",
+            "RUBBER",
+            "ICE",
+            "FOAM",
+            "GEL",
+            "SCRAP"
+          ]
+        },
+        "topology": {
+          "enum": [
+            "RIGID",
+            "HYBRID",
+            "RAGDOLL",
+            "JELLY"
+          ]
+        },
+        "world": {
+          "enum": [
+            "STEEL",
+            "RUBBER",
+            "ICE",
+            "FOAM",
+            "MOON"
+          ]
+        }
+      }
+    },
+    "sourceFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "duration",
+        "avgSpeed",
+        "maxSpeed",
+        "peakImpact",
+        "material",
+        "topology",
+        "world",
+        "materials",
+        "topologies",
+        "worlds",
+        "displacement",
+        "collision"
+      ],
+      "properties": {
+        "duration": {
+          "type": "number",
+          "minimum": 0
+        },
+        "avgSpeed": {
+          "type": "number",
+          "minimum": 0
+        },
+        "maxSpeed": {
+          "type": "number",
+          "minimum": 0
+        },
+        "peakImpact": {
+          "type": "number",
+          "minimum": 0
+        },
+        "material": {
+          "type": "string"
+        },
+        "topology": {
+          "type": "string"
+        },
+        "world": {
+          "type": "string"
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "topologies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "worlds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "displacement": {
+          "type": "number",
+          "minimum": 0
+        },
+        "collision": {
+          "type": "boolean"
+        }
+      }
+    },
+    "caseEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "tick",
+        "type",
+        "payload",
+        "created_at"
+      ],
+      "properties": {
+        "event_id": {
+          "type": "string"
+        },
+        "tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "text",
+        "source",
+        "created_tick"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "OBSERVED",
+            "INFERRED",
+            "HYPOTHETICAL"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string"
+        },
+        "created_tick": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "challenge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "by",
+        "against",
+        "claimId",
+        "reason",
+        "sustained",
+        "judgeReason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "by": {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        "against": {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        "claimId": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sustained": {
+          "type": "boolean"
+        },
+        "judgeReason": {
+          "type": "string"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speedScale",
+        "traction",
+        "delay",
+        "material",
+        "topology",
+        "world"
+      ],
+      "properties": {
+        "speedScale": {
+          "type": "number"
+        },
+        "traction": {
+          "type": "number"
+        },
+        "delay": {
+          "type": "number",
+          "minimum": 0
+        },
+        "material": {
+          "type": "string"
+        },
+        "topology": {
+          "type": "string"
+        },
+        "world": {
+          "type": "string"
+        }
+      }
+    },
+    "score": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "physical",
+            "identity",
+            "provenance",
+            "challenge",
+            "total"
+          ],
+          "properties": {
+            "path": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "physical": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "identity": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "provenance": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "challenge": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        }
+      ]
+    },
+    "party": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "account",
+        "sealed",
+        "model",
+        "claims",
+        "challenges",
+        "submitted",
+        "score"
+      ],
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "account": {
+          "type": "string"
+        },
+        "sealed": {
+          "type": "boolean"
+        },
+        "model": {
+          "$ref": "#/$defs/model"
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "challenges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/challenge"
+          }
+        },
+        "submitted": {
+          "type": "boolean"
+        },
+        "score": {
+          "$ref": "#/$defs/score"
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "winner",
+        "scoreA",
+        "scoreB",
+        "issued_at"
+      ],
+      "properties": {
+        "winner": {
+          "enum": [
+            "A",
+            "B"
+          ]
+        },
+        "scoreA": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "scoreB": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

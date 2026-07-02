@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TROUT TOWN ALL-STARS · Smoky Mountain Roster</title>
+<style>
+  :root{ --ink:#0c0e12; --line:#2a2f38; --chalk:#f3f4f6; --dim:#8b93a1; --creek:#3a7d6e; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--ink);overflow:hidden;
+    font-family:"DIN Alternate","Bahnschrift","Arial Narrow",system-ui,sans-serif;
+    color:var(--chalk);-webkit-font-smoothing:antialiased}
+  #app{position:fixed;inset:0} canvas{display:block}
+  .hud{position:fixed;left:0;right:0;top:0;padding:18px 22px;display:flex;align-items:baseline;gap:14px;
+    pointer-events:none;background:linear-gradient(180deg,rgba(10,11,15,.82),rgba(10,11,15,0));z-index:5}
+  .hud h1{font-size:clamp(14px,1.9vw,21px);letter-spacing:.36em;font-weight:700;text-transform:uppercase}
+  .hud .sub{font-size:11px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase}
+  .legend{position:fixed;right:18px;bottom:18px;z-index:5;border:1px solid var(--line);
+    background:rgba(16,18,24,.82);backdrop-filter:blur(4px);padding:12px 14px;max-width:280px}
+  .legend .lab{font-size:10px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+  .legend ol{list-style:none;font-size:11px;line-height:1.9;letter-spacing:.02em;columns:2;column-gap:14px}
+  .legend ol li{white-space:nowrap;cursor:pointer;transition:color .15s}
+  .legend ol li:hover{color:#fff}
+  .legend ol li b{display:inline-block;width:14px;color:var(--dim)}
+  .hint{position:fixed;left:18px;bottom:18px;z-index:5;font-size:10px;letter-spacing:.26em;
+    color:var(--dim);text-transform:uppercase;line-height:1.8}
+  .hint kbd{border:1px solid var(--line);padding:1px 5px;border-radius:2px;color:#cfd5df;font-family:inherit}
+  .tag{position:fixed;z-index:4;pointer-events:none;transform:translate(-50%,-100%);
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;
+    padding:3px 7px;border:1px solid var(--line);background:rgba(12,14,18,.92);opacity:0;transition:opacity .15s}
+  .tag .n{color:var(--dim);margin-right:6px}
+  .tag .f{color:var(--creek);margin-left:6px;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="hud">
+  <h1>Trout Town All-Stars</h1>
+  <span class="sub">Smoky Mountain Rigs · 09 Entrants</span>
+</div>
+<div class="legend">
+  <div class="lab">Starting Grid · click to focus</div>
+  <ol id="grid">
+    <li data-i="0"><b>1</b>Standard</li>
+    <li data-i="1"><b>2</b>Raft</li>
+    <li data-i="2"><b>3</b>Log Loader</li>
+    <li data-i="3"><b>4</b>Fly Rod</li>
+    <li data-i="4"><b>5</b>Gondola</li>
+    <li data-i="5"><b>6</b>River Boat</li>
+    <li data-i="6"><b>7</b>Tour Tram</li>
+    <li data-i="7"><b>8</b>Snowmobile</li>
+    <li data-i="8"><b>9</b>River Dredge</li>
+  </ol>
+</div>
+<div class="hint"><kbd>drag</kbd> orbit · <kbd>scroll</kbd> zoom · <kbd>hover</kbd> name · <kbd>click</kbd> focus</div>
+<div class="tag" id="tag"><span class="n"></span><span class="t"></span><span class="f"></span></div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js" }}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ===== RENDERER / SCENE / CAMERA ===== */
+const app=document.getElementById('app');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+app.appendChild(renderer.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0c0e12); scene.fog=new THREE.Fog(0x0c0e12,28,70);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,200);
+
+/* ===== PROCEDURAL ENV MAP ===== */
+function buildEnvMap(){
+  const es=new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.SphereGeometry(50,24,12),new THREE.ShaderMaterial({side:THREE.BackSide,
+    uniforms:{top:{value:new THREE.Color(0x3a4660)},bot:{value:new THREE.Color(0x0a0c10)}},
+    vertexShader:`varying vec3 vP; void main(){vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec3 vP; uniform vec3 top; uniform vec3 bot; void main(){float h=clamp(normalize(vP).y*0.5+0.5,0.,1.); gl_FragColor=vec4(mix(bot,top,h),1.);}`})));
+  const lm=new THREE.MeshBasicMaterial({color:0xfff4e0});
+  for(let i=-2;i<=2;i++){const s=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.4,30),lm);s.position.set(i*8,22,0);es.add(s);}
+  const cm=new THREE.MeshBasicMaterial({color:0x6f8bd0});
+  [[-18,8,-10],[18,6,12]].forEach(p=>{const pn=new THREE.Mesh(new THREE.BoxGeometry(14,8,0.5),cm);pn.position.set(p[0],p[1],p[2]);es.add(pn);});
+  const pm=new THREE.PMREMGenerator(renderer); const rt=pm.fromScene(es,0.04); pm.dispose(); return rt.texture;
+}
+const envMap=buildEnvMap(); scene.environment=envMap;
+
+/* ===== LIGHTING ===== */
+scene.add(new THREE.HemisphereLight(0x9fb0c8,0x14181f,0.44));
+scene.add(new THREE.AmbientLight(0xffffff,0.24));
+const key=new THREE.DirectionalLight(0xffffff,1.5); key.position.set(9,19,11); key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+{const d=22,c=key.shadow.camera;c.left=-d;c.right=d;c.top=d;c.bottom=-d;c.near=1;c.far=66;key.shadow.bias=-0.0004;key.shadow.normalBias=0.02;}
+scene.add(key);
+const rim=new THREE.DirectionalLight(0x6f8bd0,0.5); rim.position.set(-11,9,-9); scene.add(rim);
+
+/* ===== GLASS ===== */
+function makeGlass(tint,op){
+  const m=new THREE.MeshPhysicalMaterial({color:tint,metalness:0,roughness:0.06,transparent:true,opacity:op,
+    envMap:envMap,envMapIntensity:1.35,clearcoat:1,clearcoatRoughness:0.08,reflectivity:0.5,side:THREE.DoubleSide,depthWrite:false});
+  m.onBeforeCompile=(sh)=>{sh.uniforms.uRim={value:new THREE.Color(0xbfd2e8)};
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 uRim;')
+      .replace('#include <opaque_fragment>',`float fres=pow(1.0-clamp(dot(normalize(vViewPosition),normal),0.0,1.0),3.0);
+        outgoingLight+=uRim*fres*0.9; diffuseColor.a=clamp(diffuseColor.a+fres*0.5,0.0,0.95); #include <opaque_fragment>`);}
+  return m;
+}
+const GLASS_BLUE=()=>makeGlass(0x2a4866,0.44);
+
+/* ===== PALETTE + HELPERS ===== */
+const C={
+  blue:0x2a4bd0, blueLt:0x4f7be8, sky:0x6cb6e6, white:0xf4f5f7,
+  red:0xba3327, redDk:0x7e231c, orange:0xe07a2a, amber:0xe6a52a,
+  green:0x4f7a3c, greenDk:0x33502a, olive:0x6b6a3a, oliveDk:0x4a4a28,
+  yellow:0xf2c61f, black:0x14171d, steel:0x9aa3b0, chrome:0xd0d6de, dark:0x1a1d24, darker:0x0a0c10,
+  mud:0x6a5a3a, mudDk:0x4a3f28, wood:0xb98a4a, brass:0xcaa14a, rust:0x8a4a2a,
+  bear:0x1e1c1c, bearDk:0x0e0c0c, fur:0x8a6a3a, furLt:0xb08a4a, grey:0x8a929c, greyDk:0x5a626a,
+  raccoon:0x9aa0a6, ringtail:0x3a3f45, crayfish:0xc0502e, crayfishDk:0x8a3418, tan:0xc9a96a, cream:0xe8dcc0
+};
+function paint(hex,o){o=o||{};return new THREE.MeshPhysicalMaterial({color:hex,
+  roughness:o.rough!==undefined?o.rough:0.5,metalness:o.metal!==undefined?o.metal:0.12,
+  flatShading:o.flat!==undefined?o.flat:true,envMap:envMap,envMapIntensity:0.75,clearcoat:o.cc!==undefined?o.cc:0.3,clearcoatRoughness:0.4});}
+function matte(hex,o){o=o||{};return new THREE.MeshStandardMaterial({color:hex,
+  roughness:o.rough!==undefined?o.rough:0.85,metalness:o.metal!==undefined?o.metal:0,flatShading:true,envMap:envMap,envMapIntensity:0.4});}
+function metalMat(hex,o){o=o||{};return new THREE.MeshStandardMaterial({color:hex,
+  roughness:o.rough!==undefined?o.rough:0.3,metalness:0.9,flatShading:true,envMap:envMap,envMapIntensity:1.15});}
+function emiss(color,i){return new THREE.MeshStandardMaterial({color:0xffffff,emissive:color,emissiveIntensity:i||2,roughness:0.3});}
+function box(w,h,d,m){return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);}
+function cyl(rt,rb,h,m,rad){return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,rad||12),m);}
+function cone(r,h,m,rad){return new THREE.Mesh(new THREE.ConeGeometry(r,h,rad||8),m);}
+function sphere(r,m,wf,hf){return new THREE.Mesh(new THREE.SphereGeometry(r,wf||12,hf||9),m);}
+function ico(r,d,m){return new THREE.Mesh(new THREE.IcosahedronGeometry(r,d||1),m);}
+
+function eye(r){r=r||0.08;const g=new THREE.Group();
+  const b=sphere(r,new THREE.MeshStandardMaterial({color:0x070a0d,roughness:0.12,metalness:0.2,envMap:envMap,envMapIntensity:1.1}),10,8);g.add(b);
+  const hi=sphere(r*0.32,new THREE.MeshBasicMaterial({color:0xffffff}),6,5);hi.position.set(r*0.34,r*0.34,r*0.55);g.add(hi);
+  g.userData.eye=true;return g;}
+function standLeg(len,thick,upperM,footM,footH,footD){footH=footH||0.16;footD=footD||thick*1.4;
+  const g=new THREE.Group();const upper=box(thick,len,thick,upperM);upper.position.y=-len/2;g.add(upper);
+  const foot=box(thick*1.15,footH,footD,footM);foot.position.set(0,-len+footH/2,footD*0.12);g.add(foot);return g;}
+function curvedHorn(segs,baseR,tipR,segLen,bend,m){const root=new THREE.Group();let parent=root;
+  for(let i=0;i<segs;i++){const grp=new THREE.Group();grp.position.y=(i===0?0:segLen);grp.rotation.x=bend;parent.add(grp);
+    const r0=THREE.MathUtils.lerp(baseR,tipR,i/segs),r1=THREE.MathUtils.lerp(baseR,tipR,(i+1)/segs);
+    const seg=cyl(r1,r0,segLen,m,8);seg.position.y=segLen/2;grp.add(seg);parent=grp;}return root;}
+function antler(m,s){s=s||1;const g=new THREE.Group();
+  const beam=cyl(0.06*s,0.08*s,0.9*s,m,6);beam.position.y=0.4*s;beam.rotation.z=0.15;g.add(beam);
+  [[0.35,0.3],[0.55,0.55],[0.72,0.35],[0.85,0.6]].forEach(t=>{const tn=cyl(0.04*s,0.025*s,0.3*s,m,6);
+    tn.position.set(0.12*s+t[0]*0.15*s,t[1]*s,0);tn.rotation.z=-0.9;g.add(tn);});
+  return g;}
+
+/* glow sprite */
+let _gt=null;function glowTex(){if(_gt)return _gt;const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');
+  const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.4,'rgba(255,255,255,0.45)');g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g;x.fillRect(0,0,64,64);_gt=new THREE.CanvasTexture(cv);return _gt;}
+function glow(c){return new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(),color:c,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));}
+
+/* ===== PROCEDURAL TROUT SKIN ===== */
+const _skins={};
+function troutSkin(kind){
+  if(_skins[kind]) return _skins[kind];
+  const cv=document.createElement('canvas');cv.width=256;cv.height=128;const x=cv.getContext('2d');
+  let back,mid,belly;
+  if(kind==='brook'){back='#2f4a2a';mid='#5a7a4a';belly='#c9702e';}
+  else if(kind==='rainbow'){back='#3a5040';mid='#7a8a84';belly='#dfe3e6';}
+  else {back='#6b5320';mid='#9a7a3c';belly='#d8c48a';} // brown
+  const grd=x.createLinearGradient(0,0,0,128);grd.addColorStop(0,back);grd.addColorStop(0.55,mid);grd.addColorStop(1,belly);
+  x.fillStyle=grd;x.fillRect(0,0,256,128);
+  if(kind==='rainbow'){x.fillStyle='rgba(214,84,124,0.5)';x.fillRect(0,50,256,28);}
+  if(kind==='brown'){x.fillStyle='rgba(206,150,60,0.3)';x.fillRect(0,54,256,20);}
+  if(kind==='brook'){x.strokeStyle='rgba(196,210,150,0.65)';x.lineWidth=2.2;
+    for(let i=0;i<11;i++){const y=5+i*4;x.beginPath();x.moveTo(0,y);for(let px=0;px<=256;px+=14)x.lineTo(px,y+Math.sin(px*0.11+i)*3);x.stroke();}}
+  for(let i=0;i<80;i++){const px=Math.random()*256,py=Math.random()*128;
+    if(kind==='brook'){if(py>48){x.fillStyle='rgba(120,170,210,0.85)';x.beginPath();x.arc(px,py,3,0,6.283);x.fill();
+        x.fillStyle='#c23a2a';x.beginPath();x.arc(px,py,1.5,0,6.283);x.fill();}}
+    else if(kind==='rainbow'){x.fillStyle='rgba(22,26,22,0.8)';x.beginPath();x.arc(px,py,py<64?2.2:1.2,0,6.283);x.fill();}
+    else{if(Math.random()>0.32){x.fillStyle='rgba(34,22,10,0.82)';x.beginPath();x.arc(px,py,2,0,6.283);x.fill();}
+      else{x.fillStyle='rgba(200,60,40,0.82)';x.beginPath();x.arc(px,py,1.6,0,6.283);x.fill();}}}
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.wrapS=tx.wrapT=THREE.RepeatWrapping;_skins[kind]=tx;return tx;
+}
+function fishMat(kind){return new THREE.MeshStandardMaterial({map:troutSkin(kind),roughness:0.55,metalness:0.1,flatShading:true,envMap:envMap,envMapIntensity:0.5});}
+
+/* stylised low-poly fish body: head +Z, forked tail -Z. Returns {group, tail} */
+function fishBody(len,girth,kind,finHex){
+  const g=new THREE.Group();const m=fishMat(kind);const fin=paint(finHex||C.orange,{rough:0.6});
+  const body=ico(girth,1,m);body.scale.set(1,0.82,len/girth*0.42);g.add(body);
+  const head=cone(girth*0.92,len*0.34,m,7);head.rotation.x=Math.PI/2;head.position.z=len*0.4;head.scale.set(1,0.82,1);g.add(head);
+  const ped=cone(girth*0.6,len*0.3,m,7);ped.rotation.x=-Math.PI/2;ped.position.z=-len*0.4;ped.scale.set(1,0.82,1);g.add(ped);
+  // forked tail fin
+  const tail=new THREE.Group();tail.position.z=-len*0.58;
+  const tu=box(0.05,girth*1.4,girth*0.7,fin);tu.position.set(0,girth*0.5,-girth*0.2);tu.rotation.x=0.4;tail.add(tu);
+  const td=box(0.05,girth*1.4,girth*0.7,fin);td.position.set(0,-girth*0.5,-girth*0.2);td.rotation.x=-0.4;tail.add(td);
+  g.add(tail);
+  // dorsal + adipose
+  const dorsal=box(0.04,girth*0.7,girth*0.9,fin);dorsal.position.set(0,girth*0.85,0);dorsal.rotation.z=0;g.add(dorsal);
+  const adipose=box(0.04,girth*0.3,girth*0.3,fin);adipose.position.set(0,girth*0.8,-len*0.28);g.add(adipose);
+  // pectorals
+  [-1,1].forEach(s=>{const pec=box(0.04,girth*0.5,girth*0.7,fin);pec.position.set(s*girth*0.8,-girth*0.3,len*0.18);pec.rotation.z=s*0.5;g.add(pec);});
+  g.userData.tail=tail;
+  return g;
+}
+function fishEyesMouth(parent,girth,len){
+  [-1,1].forEach(s=>{const e=eye(girth*0.16);e.position.set(s*girth*0.72,girth*0.2,len*0.42);parent.add(e);});
+  const mouth=box(girth*0.5,0.05,girth*0.4,matte(0x1a1410));mouth.position.set(0,-girth*0.25,len*0.54);parent.add(mouth);
+}
+
+/* wheels */
+function wheel(r,w,rim){const g=new THREE.Group();const t=cyl(r,r,w,matte(0x0f1115,{rough:0.95}),14);t.rotation.z=Math.PI/2;t.castShadow=true;g.add(t);
+  const h=cyl(r*0.5,r*0.5,w+0.02,metalMat(rim||C.chrome),8);h.rotation.z=Math.PI/2;g.add(h);return g;}
+function addWheels(group,coords,r,w,rim){coords.forEach(c=>{const wh=wheel(r,w,rim);wh.position.set(c[0],c[1],c[2]);group.add(wh);});}
+
+/* decals */
+function decalCanvas(draw,w,h){w=w||128;h=h||128;const cv=document.createElement('canvas');cv.width=w;cv.height=h;draw(cv.getContext('2d'),w,h);
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;return tx;}
+function decalPlane(drawFn,w,h){const tx=decalCanvas(drawFn,Math.round(w*160),Math.round(h*160));
+  return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tx,roughness:0.5,metalness:0.05,envMap:envMap,envMapIntensity:0.3,transparent:true}));}
+function roundel26(size){return decalPlane((ctx,w,h)=>{ctx.fillStyle='#f4f5f7';ctx.beginPath();ctx.arc(w/2,h/2,w*0.46,0,6.283);ctx.fill();
+  ctx.fillStyle='#14171d';ctx.font='bold '+Math.round(h*0.6)+'px "Arial Narrow",Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('26',w/2,h*0.54);},size,size);}
+function plate26(w,h){return decalPlane((ctx,cw,ch)=>{ctx.fillStyle='#f4f5f7';ctx.fillRect(0,0,cw,ch);ctx.fillStyle='#14171d';
+  ctx.font='bold '+Math.round(ch*0.7)+'px "Arial Narrow",Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('26',cw/2,ch*0.54);},w,h);}
+
+/* contact shadow + water patch */
+let _ct=null;function contactTex(){if(_ct)return _ct;const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d');
+  const g=x.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(0,0,0,0.55)');g.addColorStop(0.6,'rgba(0,0,0,0.25)');g.addColorStop(1,'rgba(0,0,0,0)');
+  x.fillStyle=g;x.fillRect(0,0,128,128);_ct=new THREE.CanvasTexture(cv);return _ct;}
+function contactShadow(w,d){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:contactTex(),transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.y=0.02;return m;}
+let _wt=null;function waterTex(){if(_wt)return _wt;const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d');
+  const g=x.createRadialGradient(64,64,6,64,64,62);g.addColorStop(0,'rgba(58,125,110,0.7)');g.addColorStop(0.7,'rgba(40,90,88,0.4)');g.addColorStop(1,'rgba(30,60,70,0)');
+  x.fillStyle=g;x.fillRect(0,0,128,128);
+  x.strokeStyle='rgba(180,220,215,0.25)';x.lineWidth=1.5;for(let i=0;i<5;i++){x.beginPath();x.arc(64,64,14+i*10,0.6,2.2);x.stroke();}
+  _wt=new THREE.CanvasTexture(cv);return _wt;}
+function waterPatch(w,d){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:waterTex(),transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.y=0.03;return m;}
+
+/* ============================================================
+   1 · STANDARD / BROOK TROUT  — sports car in brookie livery
+   ============================================================ */
+function buildStandard(){
+  const g=new THREE.Group();
+  const skin=fishMat('brook'),dk=matte(C.darker),glass=GLASS_BLUE(),fin=paint(C.orange,{rough:0.6});
+  // low sports-car body wrapped in trout skin
+  const lower=box(1.5,0.5,3.2,skin);lower.position.set(0,0.62,0);g.add(lower);
+  const cabin=box(1.2,0.5,1.5,skin);cabin.position.set(0,1.02,-0.15);g.add(cabin);
+  const wind=box(1.16,0.44,1.4,glass);wind.position.set(0,1.05,-0.1);g.add(wind);
+  const hood=box(1.3,0.16,1.0,skin);hood.position.set(0,0.86,1.3);hood.rotation.x=-0.08;g.add(hood);
+  const trunk=box(1.3,0.16,0.8,skin);trunk.position.set(0,0.9,-1.4);g.add(trunk);
+  // fishy cues: dorsal fin on roof, tail fin at rear, pectoral fins on flanks
+  const dorsal=box(0.05,0.4,0.7,fin);dorsal.position.set(0,1.42,-0.15);g.add(dorsal);
+  const tail=new THREE.Group();tail.position.set(0,0.95,-1.85);
+  const tu=box(0.06,0.7,0.5,fin);tu.position.set(0,0.28,-0.1);tu.rotation.x=0.4;tail.add(tu);
+  const td=box(0.06,0.7,0.5,fin);td.position.set(0,-0.28,-0.1);td.rotation.x=-0.4;tail.add(td);g.add(tail);
+  [-1,1].forEach(s=>{const pec=box(0.05,0.3,0.6,fin);pec.position.set(s*0.78,0.55,0.7);pec.rotation.z=s*0.5;g.add(pec);});
+  // splitter + rear diffuser
+  const split=box(1.6,0.08,0.3,dk);split.position.set(0,0.42,1.75);g.add(split);
+  // headlights + tail lights
+  [-0.5,0.5].forEach(x=>{const h=box(0.22,0.14,0.06,emiss(0xfff4d8,2));h.position.set(x,0.72,1.78);g.add(h);
+    const t=box(0.2,0.1,0.05,emiss(0xff2a1a,1.6));t.position.set(x,0.82,-1.8);g.add(t);});
+  // #26 roundels on doors + hood
+  [-1,1].forEach(s=>{const r=roundel26(0.5);r.position.set(s*0.76,0.7,0.1);r.rotation.y=s*Math.PI/2;g.add(r);});
+  const rh=roundel26(0.45);rh.rotation.x=-Math.PI/2;rh.position.set(0,0.94,1.3);g.add(rh);
+  const wheels=addWheels(g,[[-0.78,0.42,1.15],[0.78,0.42,1.15],[-0.78,0.42,-1.15],[0.78,0.42,-1.15]],0.42,0.34,C.chrome);
+  g.add(contactShadow(2.4,4.0));
+  g.userData.tick=(t)=>{g.position.y=Math.sin(t*1.5)*0.01;tail.rotation.y=Math.sin(t*2.5)*0.08;dorsal.rotation.z=Math.sin(t*3)*0.04;};
+  return g;
+}
+
+/* ============================================================
+   2 · RAFT / HELLBENDER  — whitewater raft that is a salamander
+   ============================================================ */
+function buildRaft(){
+  const g=new THREE.Group();
+  const skin=matte(C.mud,{rough:0.9}),skinD=matte(C.mudDk,{rough:0.9}),vest=paint(0xe07a2a,{rough:0.6}),wood=paint(C.wood,{rough:0.7}),paddle=paint(C.tan,{rough:0.6});
+  g.add(waterPatch(4.6,4.0));
+  // flat wide salamander body = the raft tubes
+  const bodyG=new THREE.Group();bodyG.position.y=0.5;
+  const tube=new THREE.Mesh(new THREE.TorusGeometry(1.5,0.42,10,20),skin);tube.rotation.x=Math.PI/2;tube.scale.set(1,1.5,1);bodyG.add(tube);
+  const floor=box(2.0,0.2,3.4,skinD);floor.position.y=-0.1;bodyG.add(floor);
+  // frilly hellbender skin folds along the flanks
+  [-1,1].forEach(s=>{for(let i=-2;i<=2;i++){const flap=box(0.5,0.24,0.3,skinD);flap.position.set(s*1.55,0.0,i*0.6);flap.rotation.z=s*0.5;bodyG.add(flap);}});
+  // broad flat head at front
+  const head=box(1.4,0.4,1.0,skin);head.position.set(0,0.0,2.1);bodyG.add(head);
+  const jaw=box(1.3,0.2,0.4,skinD);jaw.position.set(0,-0.16,2.5);bodyG.add(jaw);
+  [-1,1].forEach(s=>{const e=eye(0.11);e.position.set(s*0.4,0.24,2.3);bodyG.add(e);});
+  // four splayed stubby legs w/ webbed feet
+  [[-1.4,1.3],[1.4,1.3],[-1.4,-1.3],[1.4,-1.3]].forEach(p=>{const L=new THREE.Group();L.position.set(p[0],-0.1,p[1]);
+    const up=box(0.3,0.24,0.7,skin);up.position.set(Math.sign(p[0])*0.3,0,0);up.rotation.z=Math.sign(p[0])*0.5;L.add(up);
+    const foot=box(0.5,0.1,0.5,skinD);foot.position.set(Math.sign(p[0])*0.6,-0.18,0);L.add(foot);bodyG.add(L);});
+  // tail behind
+  const tail=box(0.6,0.3,1.2,skin);tail.position.set(0,0,-2.2);bodyG.add(tail);
+  const tailTip=cone(0.3,0.7,skinD,6);tailTip.rotation.x=-Math.PI/2;tailTip.position.set(0,0,-2.9);bodyG.add(tailTip);
+  g.add(bodyG);
+  // gear: life vests + rowing frame + crossed paddles
+  [-0.5,0.5].forEach(x=>{const v=box(0.5,0.4,0.5,vest);v.position.set(x,0.75,-0.3);g.add(v);
+    const strap=box(0.52,0.1,0.52,matte(0x2a2f38));strap.position.set(x,0.85,-0.3);g.add(strap);});
+  const frame=box(1.4,0.1,0.1,metalMat(0x6a7280));frame.position.set(0,0.8,0.5);g.add(frame);
+  const paddles=new THREE.Group();
+  [[-1,0.6],[1,-0.4]].forEach(p=>{const pad=new THREE.Group();pad.position.set(p[0]*1.4,0.8,p[1]);
+    const shaft=cyl(0.05,0.05,2.2,paddle,6);shaft.rotation.z=Math.PI/2;shaft.rotation.y=0.3;pad.add(shaft);
+    const blade=box(0.35,0.06,0.5,wood);blade.position.set(p[0]*1.1,-0.1,0);pad.add(blade);paddles.add(pad);});
+  g.add(paddles);
+  g.add(contactShadow(3.4,3.6));
+  g.userData.tick=(t)=>{bodyG.position.y=0.5+Math.sin(t*1.4)*0.03;bodyG.rotation.z=Math.sin(t*1.0)*0.02;paddles.children.forEach((p,i)=>p.rotation.x=Math.sin(t*2+i*Math.PI)*0.2);};
+  return g;
+}
+
+/* ============================================================
+   3 · LOG LOADER / BLACK BEAR  — logging truck + bear + crane
+   ============================================================ */
+function buildLogLoader(){
+  const g=new THREE.Group();
+  const red=paint(C.red),redD=paint(C.redDk),dk=matte(C.dark),glass=GLASS_BLUE(),bear=matte(C.bear,{rough:0.85}),bearD=matte(C.bearDk),log=paint(C.wood,{rough:0.8}),logEnd=paint(0x8a6a3a,{rough:0.8}),cr=metalMat(0x6a7280);
+  // cab
+  const cab=box(1.6,1.3,1.4,red);cab.position.set(0,1.2,1.6);g.add(cab);
+  const wind=box(1.5,0.6,0.1,glass);wind.position.set(0,1.5,2.32);g.add(wind);
+  const hood=box(1.5,0.7,1.2,red);hood.position.set(0,0.85,2.7);g.add(hood);
+  const grille=box(1.3,0.5,0.1,dk);grille.position.set(0,0.85,3.32);g.add(grille);
+  [-0.5,0.5].forEach(x=>{const h=box(0.24,0.16,0.06,emiss(0xfff4d8,2));h.position.set(x,0.95,3.34);g.add(h);});
+  // chassis + rear flatbed
+  const chassis=box(1.3,0.4,5.6,dk);chassis.position.set(0,0.55,-0.4);g.add(chassis);
+  const bunkFront=box(1.7,0.6,0.2,dk);bunkFront.position.set(0,1.2,-0.4);g.add(bunkFront);
+  const bunkRear=box(1.7,0.6,0.2,dk);bunkRear.position.set(0,1.2,-2.6);g.add(bunkRear);
+  // stack of logs
+  const logs=[[-0.5,1.5],[0.5,1.5],[0,1.95],[-0.5,2.4]];
+  logs.forEach((p,i)=>{const l=cyl(0.26,0.26,2.6,log,10);l.rotation.x=Math.PI/2;l.position.set(p[0]*0.9,p[1]*0.0+1.55+Math.floor(i/2)*0.45,-1.5);
+    // position: spread along x, stacked
+    l.position.set([-0.5,0.5,0,-0.5][i]*0.62,1.55+[0,0,0.42,0.42][i],-1.5);g.add(l);
+    const cap=cyl(0.27,0.27,0.05,logEnd,10);cap.rotation.x=Math.PI/2;cap.position.set(l.position.x,l.position.y,-0.2);g.add(cap);});
+  // #26 door decal
+  const rd=plate26(0.5,0.4);rd.position.set(0.81,1.2,1.6);rd.rotation.y=Math.PI/2;g.add(rd);
+  // hydraulic log-loader crane behind cab
+  const base=cyl(0.4,0.5,0.5,redD,8);base.position.set(0.5,1.5,0.3);g.add(base);
+  const crane=new THREE.Group();crane.position.set(0.5,1.75,0.3);
+  const arm1=box(0.24,0.24,1.6,red);arm1.position.set(0,0.4,-0.2);arm1.rotation.x=-0.9;crane.add(arm1);
+  const arm2=new THREE.Group();arm2.position.set(0,0.9,-1.0);
+  const a2=box(0.2,0.2,1.4,red);a2.position.set(0,0.1,-0.5);a2.rotation.x=0.6;arm2.add(a2);
+  const grapple=new THREE.Group();grapple.position.set(0,0.0,-1.3);
+  [-1,1].forEach(s=>{const claw=box(0.1,0.5,0.16,cr);claw.position.set(s*0.15,-0.2,0);claw.rotation.z=s*0.4;grapple.add(claw);});
+  arm2.add(grapple);crane.add(arm2);g.add(crane);
+  // BLACK BEAR sitting on the flatbed, operating
+  const bg=new THREE.Group();bg.position.set(-0.4,1.7,0.2);
+  const torso=box(0.9,1.0,0.8,bear);torso.position.y=0.3;bg.add(torso);
+  const head=new THREE.Group();head.position.set(0,1.0,0.2);
+  const skull=box(0.6,0.55,0.6,bear);head.add(skull);
+  const snout=box(0.34,0.3,0.3,bearD);snout.position.set(0,-0.08,0.42);head.add(snout);
+  const nz=box(0.14,0.1,0.08,matte(0x050608));nz.position.set(0,0.0,0.6);head.add(nz);
+  [-1,1].forEach(s=>{const ear=sphere(0.16,bear,8,7);ear.position.set(s*0.28,0.36,0);head.add(ear);
+    const e=eye(0.07);e.position.set(s*0.16,0.08,0.32);head.add(e);});
+  bg.add(head);
+  [-1,1].forEach(s=>{const arm=box(0.26,0.7,0.26,bear);arm.position.set(s*0.55,0.4,0.2);arm.rotation.x=-0.5;bg.add(arm);});
+  g.add(bg);
+  addWheels(g,[[-0.9,0.5,2.6],[0.9,0.5,2.6],[-0.9,0.5,-1.6],[0.9,0.5,-1.6],[-0.9,0.5,-2.7],[0.9,0.5,-2.7]],0.5,0.4,0x4a5058);
+  g.add(contactShadow(3.0,6.4));
+  g.userData.tick=(t)=>{crane.rotation.y=Math.sin(t*0.5)*0.25;grapple.rotation.x=Math.sin(t*0.5)*0.15;head.rotation.y=Math.sin(t*0.6)*0.15;};
+  return g;
+}
+
+/* ============================================================
+   4 · FLY ROD / WILD TURKEY  — bronze tom rigged with a fly rod
+   ============================================================ */
+function buildFlyRod(){
+  const g=new THREE.Group();
+  const body=paint(0x6b4a2a,{rough:0.7}),bodyLt=paint(0x8a6a3a,{rough:0.7}),tailB=paint(0x9a7a4a,{rough:0.7}),tailD=paint(0x4a3420,{rough:0.7}),
+        headR=paint(0xc23a2a,{rough:0.5}),headB=paint(0x6cb6e6,{rough:0.5}),beak=paint(C.amber,{rough:0.4}),leg=matte(0x8a5a2a),rod=paint(0x2a2018,{rough:0.4}),brass=metalMat(C.brass);
+  // round bronze body
+  const bodyM=ico(1.0,1,body);bodyM.position.set(0,1.2,0);bodyM.scale.set(1,1.05,0.9);g.add(bodyM);
+  const breast=sphere(0.6,bodyLt,12,10);breast.position.set(0,1.0,0.65);g.add(breast);
+  // wings
+  [-1,1].forEach(s=>{const w=box(0.16,0.6,0.8,tailD);w.position.set(s*0.9,1.15,-0.1);w.rotation.z=s*0.15;g.add(w);});
+  // fanned tail (bronze, barred)
+  const fan=new THREE.Group();fan.position.set(0,1.5,-0.9);const N=13;
+  for(let i=0;i<N;i++){const holder=new THREE.Group();const a=(i/(N-1)-0.5)*Math.PI*1.0;holder.rotation.z=-a;
+    const f=box(0.15,1.15,0.06,i%2?tailB:body);f.position.y=0.62;holder.add(f);
+    const tip=box(0.15,0.14,0.07,tailD);tip.position.y=1.18;holder.add(tip);fan.add(holder);}
+  fan.rotation.x=-0.5;g.add(fan);
+  // neck + head (red/blue wild-turkey head)
+  const neck=box(0.28,0.6,0.28,headB);neck.position.set(0,2.0,0.5);neck.rotation.x=-0.2;g.add(neck);
+  const head=new THREE.Group();head.position.set(0,2.35,0.68);
+  const skull=sphere(0.22,headB,10,8);head.add(skull);
+  const bk=cone(0.1,0.28,beak,6);bk.rotation.x=Math.PI/2;bk.position.set(0,-0.02,0.26);head.add(bk);
+  const snood=box(0.05,0.24,0.05,headR);snood.position.set(0,0.06,0.26);snood.rotation.x=0.6;head.add(snood);
+  const wattle=box(0.12,0.28,0.1,headR);wattle.position.set(0,-0.22,0.14);head.add(wattle);
+  [-1,1].forEach(s=>{const e=eye(0.05);e.position.set(s*0.15,0.05,0.14);head.add(e);});
+  g.add(head);
+  // legs
+  [-1,1].forEach(s=>{const L=new THREE.Group();L.position.set(s*0.3,0.6,0.15);
+    const shin=box(0.09,0.6,0.09,leg);shin.position.y=-0.3;L.add(shin);
+    for(let t=-1;t<=1;t++){const toe=box(0.06,0.05,0.24,leg);toe.position.set(t*0.09,-0.58,0.1);toe.rotation.y=t*0.4;L.add(toe);}g.add(L);});
+  // THE FLY ROD leaning across the body (vehicle DNA)
+  const rodG=new THREE.Group();rodG.position.set(1.0,1.1,0.3);rodG.rotation.z=0.9;rodG.rotation.y=-0.3;
+  const shaft=cyl(0.035,0.02,3.4,rod,6);shaft.position.y=1.5;rodG.add(shaft);
+  const grip=cyl(0.07,0.07,0.4,paint(C.wood,{rough:0.6}),8);grip.position.y=0.2;rodG.add(grip);
+  const reel=cyl(0.18,0.18,0.12,brass,12);reel.rotation.z=Math.PI/2;reel.position.set(0,0.5,0.14);rodG.add(reel);
+  const reelHub=cyl(0.06,0.06,0.16,metalMat(0x3a4049),8);reelHub.rotation.z=Math.PI/2;reelHub.position.set(0,0.5,0.16);rodG.add(reelHub);
+  // guides
+  for(let i=1;i<=5;i++){const guide=new THREE.Mesh(new THREE.TorusGeometry(0.03,0.008,6,10),brass);guide.position.y=0.8+i*0.5;guide.rotation.x=Math.PI/2;rodG.add(guide);}
+  g.add(rodG);
+  g.add(contactShadow(2.6,2.8));
+  g.userData.tick=(t)=>{head.rotation.y=Math.sin(t*0.7)*0.14;fan.children.forEach((h,i)=>h.rotation.x=Math.sin(t*2+i*0.4)*0.03);
+    rodG.rotation.z=0.9+Math.sin(t*1.6)*0.04;};
+  return g;
+}
+
+/* ============================================================
+   5 · GONDOLA / RACCOON  — Ober Gatlinburg cabin + goggled bandit
+   ============================================================ */
+function buildGondola(){
+  const g=new THREE.Group();
+  const bluBody=paint(0x3a6a9a,{rough:0.45}),white=paint(C.white),dk=matte(C.dark),glass=GLASS_BLUE(),chrome=metalMat(C.chrome),
+        rac=matte(C.raccoon,{rough:0.8}),racD=matte(0x3a3f45),mask=matte(0x14171d),goggle=paint(0x3b82f6,{rough:0.3,metal:0.3});
+  // rounded gondola cabin
+  const cabin=box(1.7,1.7,1.9,bluBody);cabin.position.y=1.7;g.add(cabin);
+  const topCap=box(1.5,0.3,1.7,white);topCap.position.set(0,2.65,0);g.add(topCap);
+  const skirt=box(1.75,0.4,1.95,white);skirt.position.set(0,0.95,0);g.add(skirt);
+  // windows all round
+  const fz=box(1.2,0.9,0.06,glass);fz.position.set(0,1.8,0.96);g.add(fz);
+  const bz=box(1.2,0.9,0.06,glass);bz.position.set(0,1.8,-0.96);g.add(bz);
+  [-1,1].forEach(s=>{const sw=box(0.06,0.9,1.4,glass);sw.position.set(s*0.86,1.8,0);g.add(sw);});
+  // #26 on side
+  const pl=plate26(0.6,0.5);pl.position.set(0.87,1.4,0.3);pl.rotation.y=Math.PI/2;g.add(pl);
+  // hanger arm + overhead cable
+  const hanger=box(0.12,0.7,0.12,chrome);hanger.position.set(0,3.0,0);g.add(hanger);
+  const clamp=box(0.35,0.16,0.4,chrome);clamp.position.set(0,3.4,0);g.add(clamp);
+  const cable=cyl(0.03,0.03,9,metalMat(0x8a929c));cable.rotation.z=Math.PI/2;cable.position.set(0,3.48,0);g.add(cable);
+  // RACCOON leaning out the front window w/ ski goggles
+  const rg=new THREE.Group();rg.position.set(0,1.75,0.95);
+  const rhead=box(0.7,0.6,0.55,rac);rg.add(rhead);
+  const snout=box(0.3,0.3,0.34,white);snout.position.set(0,-0.12,0.36);rg.add(snout);
+  const nz=cone(0.08,0.14,mask,6);nz.rotation.x=Math.PI/2;nz.position.set(0,-0.05,0.56);rg.add(nz);
+  // bandit mask band
+  const maskBand=box(0.72,0.2,0.1,mask);maskBand.position.set(0,0.08,0.28);rg.add(maskBand);
+  // ski goggles over the mask
+  const gog=box(0.7,0.22,0.1,goggle);gog.position.set(0,0.14,0.32);rg.add(gog);
+  const gogStrap=box(0.74,0.08,0.56,matte(0x2a2f38));gogStrap.position.set(0,0.14,0);rg.add(gogStrap);
+  [-1,1].forEach(s=>{const ear=box(0.2,0.24,0.1,rac);ear.position.set(s*0.28,0.36,0.0);rg.add(ear);
+    const earIn=box(0.1,0.14,0.08,white);earIn.position.set(s*0.28,0.34,0.05);rg.add(earIn);});
+  // little paws gripping the sill
+  [-1,1].forEach(s=>{const paw=box(0.16,0.16,0.2,racD);paw.position.set(s*0.34,-0.34,0.16);rg.add(paw);});
+  g.add(rg);
+  // ringed tail hanging out the side
+  const tail=new THREE.Group();tail.position.set(0.7,1.4,-0.3);
+  for(let i=0;i<6;i++){const ring=cyl(0.16-i*0.012,0.16-i*0.012,0.2,i%2?racD:rac,8);ring.position.set(i*0.16,-i*0.14,0);ring.rotation.z=Math.PI/2-0.3;tail.add(ring);}
+  g.add(tail);
+  g.add(contactShadow(2.4,2.6));
+  g.userData.tick=(t)=>{const sway=Math.sin(t*0.9)*0.05;[cabin,topCap,skirt,fz,bz,rg,tail].forEach(o=>o.rotation.z=sway);
+    g.children.forEach(()=>{});rg.position.z=0.95+Math.sin(t*1.5)*0.03;};
+  return g;
+}
+
+/* ============================================================
+   6 · RIVER BOAT / CATFISH  — jon boat + catfish captain
+   ============================================================ */
+function buildRiverBoat(){
+  const g=new THREE.Group();
+  const boat=paint(C.olive,{rough:0.7}),boatD=paint(C.oliveDk,{rough:0.7}),cat=matte(0x6a7258,{rough:0.8}),catB=matte(0x9a9a7a,{rough:0.8}),hat=paint(C.white),brim=paint(0x1a2a4a),bar=matte(0x2a2018),motor=matte(0x2a2f38),flag=paint(C.red);
+  g.add(waterPatch(4.4,3.4));
+  // flat jon boat hull
+  const hull=box(1.6,0.7,3.6,boat);hull.position.set(0,0.55,0);g.add(hull);
+  const inner=box(1.3,0.4,3.3,boatD);inner.position.set(0,0.75,0);g.add(inner);
+  // angled bow
+  const bow=box(1.4,0.6,0.6,boat);bow.position.set(0,0.6,1.9);bow.rotation.x=0.3;g.add(bow);
+  // bench seats
+  [-0.9,0.9].forEach(z=>{const seat=box(1.2,0.1,0.4,boatD);seat.position.set(0,0.85,z);g.add(seat);});
+  // transom motor at back
+  const mount=box(0.4,0.4,0.2,motor);mount.position.set(0,0.7,-1.85);g.add(mount);
+  const shaft=cyl(0.06,0.06,0.7,motor,8);shaft.position.set(0,0.35,-2.0);g.add(shaft);
+  const prop=cyl(0.14,0.1,0.16,metalMat(0x3a4049),8);prop.position.set(0,0.15,-2.0);g.add(prop);
+  // CATFISH captain standing at the helm
+  const cg=new THREE.Group();cg.position.set(0,1.0,0.3);
+  const cbody=ico(0.7,1,cat);cbody.scale.set(0.85,0.9,1.3);cbody.rotation.x=0.2;cg.add(cbody);
+  const cbelly=box(0.7,0.4,1.0,catB);cbelly.position.set(0,-0.28,0.1);cg.add(cbelly);
+  // broad flat catfish head
+  const chead=box(0.8,0.4,0.7,cat);chead.position.set(0,0.35,0.7);cg.add(chead);
+  const cmouth=box(0.7,0.12,0.2,matte(0x2a2a1a));cmouth.position.set(0,0.2,1.02);cg.add(cmouth);
+  [-1,1].forEach(s=>{const e=eye(0.08);e.position.set(s*0.26,0.5,0.9);cg.add(e);});
+  // whisker barbels
+  const whiskers=new THREE.Group();whiskers.position.set(0,0.28,1.0);
+  [[-1,0.1,0.4],[1,0.1,0.4],[-1,-0.05,0.0],[1,-0.05,0.0],[-0.3,-0.15,0.2],[0.3,-0.15,0.2]].forEach(w=>{const b=cyl(0.02,0.01,0.7,matte(0x4a4a38),5);
+    b.position.set(w[0]*0.3,w[1],w[2]);b.rotation.z=w[0]*0.7;b.rotation.x=0.4;whiskers.add(b);});
+  cg.add(whiskers);
+  // captain's hat
+  const hatBase=cyl(0.34,0.36,0.16,hat,12);hatBase.position.set(0,0.75,0.6);cg.add(hatBase);
+  const hatTop=cyl(0.3,0.34,0.16,hat,12);hatTop.position.set(0,0.9,0.6);cg.add(hatTop);
+  const hatBrim=box(0.5,0.05,0.3,brim);hatBrim.position.set(0,0.68,0.82);cg.add(hatBrim);
+  const badge=box(0.14,0.1,0.03,metalMat(C.brass));badge.position.set(0,0.82,0.77);cg.add(badge);
+  // tail fin
+  const tail=box(0.06,0.7,0.5,cat);tail.position.set(0,0.3,-0.5);tail.rotation.x=0.3;cg.add(tail);
+  g.add(cg);
+  // little flag on a pole
+  const pole=cyl(0.03,0.03,1.0,metalMat(0x6a7280),6);pole.position.set(0.6,1.3,1.5);g.add(pole);
+  const fl=box(0.4,0.26,0.02,flag);fl.position.set(0.78,1.65,1.5);g.add(fl);
+  g.add(contactShadow(2.4,3.6));
+  g.userData.tick=(t)=>{cg.position.y=1.0+Math.sin(t*1.6)*0.03;cg.rotation.z=Math.sin(t*1.1)*0.03;whiskers.rotation.z=Math.sin(t*2.5)*0.06;
+    prop.rotation.z=t*6;fl.rotation.y=Math.sin(t*3)*0.3;};
+  return g;
+}
+
+/* ============================================================
+   7 · TOUR TRAM / RED SQUIRREL  — train of trout cars + conductor
+   ============================================================ */
+function buildTram(){
+  const g=new THREE.Group();
+  const sq=matte(0xb5532a,{rough:0.8}),sqLt=matte(0xd8a06a,{rough:0.8}),sqTail=matte(0xc06a3a,{rough:0.85}),dk=matte(C.darker);
+  // three linked trout cars (rainbow livery)
+  const cars=[];
+  for(let i=0;i<3;i++){
+    const car=new THREE.Group();car.position.set(0,0,1.7-i*1.7);
+    const fb=fishBody(1.9,0.62,'rainbow',C.red);fb.position.y=0.9;fb.scale.set(1,1,1);car.add(fb);
+    // hollow seat area on top (open car)
+    const seat=box(0.7,0.2,0.9,dk);seat.position.set(0,1.28,0);car.add(seat);
+    // #26 plate on the flank
+    const pl=plate26(0.44,0.36);pl.position.set(0.6,1.0,0);pl.rotation.y=Math.PI/2;car.add(pl);
+    // little wheels
+    addWheels(car,[[-0.5,0.3,0.6],[0.5,0.3,0.6],[-0.5,0.3,-0.6],[0.5,0.3,-0.6]],0.3,0.24,0x3a4049);
+    g.add(car);cars.push(car);
+  }
+  // couplers
+  [0,1].forEach(i=>{const cp=cyl(0.05,0.05,0.5,metalMat(0x6a7280),6);cp.rotation.x=Math.PI/2;cp.position.set(0,0.7,0.85-i*1.7);g.add(cp);});
+  // RED SQUIRREL conductor in the lead car
+  const sg=new THREE.Group();sg.position.set(0,1.5,1.7);
+  const body=ico(0.42,1,sq);body.scale.set(1,1.2,0.9);sg.add(body);
+  const belly=box(0.4,0.5,0.2,sqLt);belly.position.set(0,-0.1,0.28);sg.add(belly);
+  const head=new THREE.Group();head.position.set(0,0.5,0.15);
+  const skull=sphere(0.28,sq,10,8);head.add(skull);
+  const snout=box(0.2,0.18,0.22,sqLt);snout.position.set(0,-0.06,0.24);head.add(snout);
+  const nz=box(0.06,0.05,0.05,matte(0x1a1010));nz.position.set(0,-0.02,0.38);head.add(nz);
+  [-1,1].forEach(s=>{const e=eye(0.07);e.position.set(s*0.14,0.06,0.2);head.add(e);
+    // tufted ears
+    const ear=cone(0.08,0.24,sq,6);ear.position.set(s*0.16,0.34,-0.02);head.add(ear);
+    const tuft=cone(0.03,0.12,sqTail,5);tuft.position.set(s*0.16,0.5,-0.02);head.add(tuft);});
+  sg.add(head);
+  // big bushy tail curling up behind
+  const tail=new THREE.Group();tail.position.set(0,0.0,-0.3);
+  for(let i=0;i<5;i++){const seg=sphere(0.24-i*0.02,sqTail,8,7);seg.position.set(0,0.15+i*0.28,-0.1-Math.sin(i*0.5)*0.1);tail.add(seg);}
+  sg.add(tail);
+  // tiny paws on a wheel
+  [-1,1].forEach(s=>{const paw=box(0.1,0.1,0.14,sqLt);paw.position.set(s*0.22,0.05,0.28);sg.add(paw);});
+  g.add(sg);
+  g.add(contactShadow(2.0,5.2));
+  g.userData.tick=(t)=>{cars.forEach((c,i)=>c.position.y=Math.sin(t*2+i*0.8)*0.02);head.rotation.y=Math.sin(t*0.8)*0.16;tail.rotation.x=Math.sin(t*1.6)*0.08;};
+  return g;
+}
+
+/* ============================================================
+   8 · SNOWMOBILE / ELK  — elk head + trout body + snow track
+   ============================================================ */
+function buildSnowmobile(){
+  const g=new THREE.Group();
+  const skin=fishMat('brown'),track=matte(0x14171d,{rough:0.95}),tread=matte(0x2a2f38),ski=paint(C.red,{rough:0.5}),
+        elk=paint(0x7a5a34,{rough:0.75}),elkD=paint(0x4a3420,{rough:0.75}),antl=paint(C.tan,{rough:0.6}),fin=paint(C.orange,{rough:0.6});
+  // trout body over the sled
+  const body=ico(0.75,1,skin);body.position.set(0,1.0,-0.4);body.scale.set(1,0.85,1.9);g.add(body);
+  const dorsal=box(0.05,0.5,0.7,fin);dorsal.position.set(0,1.6,-0.4);g.add(dorsal);
+  // tail fin at rear
+  const tail=new THREE.Group();tail.position.set(0,1.0,-1.9);
+  const tu=box(0.06,0.8,0.5,fin);tu.position.set(0,0.3,-0.1);tu.rotation.x=0.4;tail.add(tu);
+  const td=box(0.06,0.8,0.5,fin);td.position.set(0,-0.3,-0.1);td.rotation.x=-0.4;tail.add(td);g.add(tail);
+  // seat
+  const seat=box(0.6,0.24,1.2,matte(0x1a1d24));seat.position.set(0,1.5,-0.6);g.add(seat);
+  // snowmobile track (rear tread belt)
+  const trackG=new THREE.Group();trackG.position.set(0,0.4,-1.2);
+  const belt=box(0.7,0.5,1.8,track);trackG.add(belt);
+  const treads=[];
+  for(let i=0;i<8;i++){const tr=box(0.76,0.06,0.12,tread);tr.position.set(0,0,-0.8+i*0.22);trackG.add(tr);treads.push(tr);}
+  g.add(trackG);
+  // front skis
+  [-1,1].forEach(s=>{const ln=new THREE.Group();ln.position.set(s*0.55,0.2,1.4);
+    const skiB=box(0.24,0.1,1.2,ski);skiB.position.set(0,0,0);ln.add(skiB);
+    const tip=box(0.24,0.24,0.24,ski);tip.position.set(0,0.1,0.6);tip.rotation.x=0.6;ln.add(tip);
+    const strut=box(0.08,0.5,0.08,metalMat(0x6a7280));strut.position.set(0,0.3,-0.2);ln.add(strut);g.add(ln);});
+  // handlebars
+  const bar=box(0.7,0.06,0.06,metalMat(0x6a7280));bar.position.set(0,1.6,0.9);g.add(bar);
+  [-1,1].forEach(s=>{const grip=cyl(0.05,0.05,0.2,matte(0x2a2f38),8);grip.rotation.z=Math.PI/2;grip.position.set(s*0.3,1.6,0.9);g.add(grip);});
+  // ELK head + antlers at the front
+  const eg=new THREE.Group();eg.position.set(0,1.5,1.5);
+  const neck=box(0.5,0.6,0.5,elk);neck.position.set(0,-0.2,-0.2);neck.rotation.x=0.4;eg.add(neck);
+  const skull=box(0.44,0.5,0.7,elk);eg.add(skull);
+  const snout=box(0.34,0.36,0.5,elkD);snout.position.set(0,-0.12,0.5);eg.add(snout);
+  const nz=box(0.18,0.12,0.1,matte(0x1a1410));nz.position.set(0,-0.05,0.74);eg.add(nz);
+  [-1,1].forEach(s=>{const e=eye(0.08);e.position.set(s*0.24,0.12,0.32);eg.add(e);
+    const ear=cone(0.12,0.3,elk,6);ear.position.set(s*0.32,0.2,-0.1);ear.rotation.z=s*0.6;eg.add(ear);});
+  // big elk antlers
+  [-1,1].forEach(s=>{const A=curvedHorn(6,0.09,0.04,0.34,-0.32,antl);A.position.set(s*0.18,0.34,-0.05);A.rotation.x=-0.5;A.rotation.z=s*0.4;
+    // tines
+    for(let i=0;i<3;i++){const tine=cyl(0.04,0.02,0.34,antl,6);tine.position.set(s*(0.2+i*0.12),0.5+i*0.32,-0.05-i*0.1);tine.rotation.z=s*1.0;eg.add(tine);}
+    eg.add(A);});
+  // #26 on the flank
+  const pl=plate26(0.5,0.4);pl.position.set(0.72,1.0,-0.4);pl.rotation.y=Math.PI/2;g.add(pl);
+  g.add(eg);
+  g.add(contactShadow(2.4,4.4));
+  g.userData.tick=(t)=>{eg.rotation.y=Math.sin(t*0.6)*0.1;tail.rotation.y=Math.sin(t*2.2)*0.08;
+    treads.forEach((tr,i)=>{tr.position.z=-0.8+((i*0.22+t*0.6)%1.76);});};
+  return g;
+}
+
+/* ============================================================
+   9 · RIVER DREDGE / CRAYFISH  — crawdad that is a dredge machine
+   ============================================================ */
+function buildDredge(){
+  const g=new THREE.Group();
+  const shell=paint(C.crayfish,{rough:0.55}),shellD=paint(C.crayfishDk,{rough:0.55}),joint=matte(0x8a3418),
+        mach=metalMat(0x4a5058),pipe=metalMat(0x6a7280),brass=metalMat(C.brass),eyeStalk=matte(C.crayfishDk);
+  g.add(waterPatch(4.6,4.2));
+  // carapace (front body)
+  const carapace=ico(1.0,1,shell);carapace.position.set(0,0.95,0.8);carapace.scale.set(1.1,0.85,1.3);g.add(carapace);
+  const rostrum=cone(0.4,0.9,shellD,6);rostrum.rotation.x=Math.PI/2;rostrum.position.set(0,0.95,2.0);rostrum.scale.set(1,0.6,1);g.add(rostrum);
+  // segmented abdomen/tail curling behind
+  const segs=[];
+  for(let i=0;i<5;i++){const seg=box(1.3-i*0.16,0.5-i*0.04,0.5,i%2?shell:shellD);
+    seg.position.set(0,0.95-i*0.06,-0.2-i*0.55);seg.rotation.x=-i*0.06;g.add(seg);segs.push(seg);}
+  const tailFan=new THREE.Group();tailFan.position.set(0,0.6,-3.0);
+  for(let i=-2;i<=2;i++){const tf=box(0.24,0.1,0.5,shellD);tf.position.set(i*0.24,0,0);tf.rotation.y=i*0.2;tailFan.add(tf);}
+  g.add(tailFan);
+  // two big front claws
+  const claws=[];
+  [-1,1].forEach(s=>{const arm=new THREE.Group();arm.position.set(s*1.0,0.7,1.6);
+    const up=box(0.24,0.24,1.0,shell);up.position.set(s*0.3,0,0.3);up.rotation.y=s*0.5;arm.add(up);
+    const fore=box(0.22,0.22,0.8,shell);fore.position.set(s*0.7,0,0.9);fore.rotation.y=s*0.2;arm.add(fore);
+    const clawG=new THREE.Group();clawG.position.set(s*0.85,0,1.4);
+    const palm=box(0.4,0.36,0.5,shell);clawG.add(palm);
+    const fixed=cone(0.12,0.6,shellD,6);fixed.rotation.x=Math.PI/2;fixed.position.set(s*0.08,0.08,0.5);clawG.add(fixed);
+    const mov=new THREE.Group();mov.position.set(-s*0.1,-0.1,0.2);
+    const movF=cone(0.11,0.55,shellD,6);movF.rotation.x=Math.PI/2;movF.position.z=0.35;mov.add(movF);clawG.add(mov);
+    arm.add(clawG);g.add(arm);claws.push(mov);});
+  // walking legs
+  [[-1,0.4],[1,0.4],[-1,-0.2],[1,-0.2],[-1,-0.8],[1,-0.8]].forEach(p=>{const L=new THREE.Group();L.position.set(p[0]*0.9,0.6,p[1]);
+    const up=box(0.1,0.1,0.5,shellD);up.position.set(p[0]*0.3,-0.1,0);up.rotation.z=p[0]*0.8;L.add(up);
+    const lo=box(0.07,0.4,0.07,joint);lo.position.set(p[0]*0.5,-0.3,0);L.add(lo);g.add(L);});
+  // eye stalks + antennae
+  [-1,1].forEach(s=>{const stalk=cyl(0.05,0.05,0.3,eyeStalk,6);stalk.position.set(s*0.3,1.4,1.9);stalk.rotation.z=s*0.3;g.add(stalk);
+    const e=eye(0.1);e.position.set(s*0.38,1.55,1.95);g.add(e);
+    const ant=cyl(0.03,0.01,1.6,eyeStalk,5);ant.position.set(s*0.4,1.2,2.2);ant.rotation.x=-0.8;ant.rotation.z=s*0.3;g.add(ant);});
+  // DREDGE MACHINERY: intake pipe + hopper + rear propeller
+  const hopper=box(1.0,0.6,0.8,mach);hopper.position.set(0,1.5,0.4);g.add(hopper);
+  const intake=cyl(0.18,0.18,1.2,pipe,8);intake.position.set(0.4,1.0,1.4);intake.rotation.x=1.0;g.add(intake);
+  const exhaust=cyl(0.1,0.1,0.5,pipe,8);exhaust.position.set(-0.4,1.9,0.4);g.add(exhaust);
+  // rear propeller on the tail
+  const propG=new THREE.Group();propG.position.set(0,0.7,-3.3);
+  const hub=cyl(0.1,0.1,0.2,brass,10);hub.rotation.x=Math.PI/2;propG.add(hub);
+  for(let i=0;i<3;i++){const blade=box(0.12,0.5,0.04,brass);blade.position.y=0.28;blade.rotation.z=i*Math.PI*2/3;const bh=new THREE.Group();bh.rotation.z=i*Math.PI*2/3;bh.add(blade);propG.add(bh);}
+  g.add(propG);
+  // #26 on the carapace
+  const pl=plate26(0.55,0.44);pl.position.set(0.9,1.1,0.8);pl.rotation.y=Math.PI/2;g.add(pl);
+  g.add(contactShadow(3.4,4.2));
+  g.userData.tick=(t)=>{propG.rotation.z=t*7;claws.forEach((c,i)=>c.rotation.y=Math.sin(t*2+i*Math.PI)*0.3-0.2);
+    tailFan.rotation.x=Math.sin(t*1.2)*0.06;g.children.forEach(()=>{});};
+  return g;
+}
+
+/* ===== FLOOR ===== */
+const floorMat=new THREE.MeshStandardMaterial({color:0x141720,roughness:0.62,metalness:0.28,envMap:envMap,envMapIntensity:0.55});
+const floor=box(90,0.1,90,floorMat); floor.position.y=-0.06; floor.receiveShadow=true; scene.add(floor);
+
+/* ===== LAYOUT 3×3 ===== */
+const roster=[
+  ['1','Standard','Brook Trout',   buildStandard],
+  ['2','Raft','Hellbender',        buildRaft],
+  ['3','Log Loader','Black Bear',  buildLogLoader],
+  ['4','Fly Rod','Wild Turkey',    buildFlyRod],
+  ['5','Gondola','Raccoon',        buildGondola],
+  ['6','River Boat','Catfish',     buildRiverBoat],
+  ['7','Tour Tram','Red Squirrel', buildTram],
+  ['8','Snowmobile','Elk',         buildSnowmobile],
+  ['9','River Dredge','Crayfish',  buildDredge],
+];
+const GAP=9.2; const items=[]; const tilePos=[];
+roster.forEach((r,i)=>{
+  const col=i%3,row=Math.floor(i/3); const x=(col-1)*GAP,z=(row-1)*GAP;
+  tilePos.push(new THREE.Vector3(x,0,z));
+  const tile=box(GAP-0.3,0.12,GAP-0.3,new THREE.MeshStandardMaterial({color:0x1c2027,roughness:0.85,metalness:0.1,envMap:envMap,envMapIntensity:0.25}));
+  tile.position.set(x,-0.05,z); tile.receiveShadow=true; scene.add(tile);
+  const frame=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(GAP-0.3,0.12,GAP-0.3)),new THREE.LineBasicMaterial({color:0x394150}));
+  frame.position.copy(tile.position); scene.add(frame);
+  const stencil=decalPlane((ctx,w,h)=>{ctx.fillStyle='#1c2027';ctx.fillRect(0,0,w,h);ctx.fillStyle='#aeb6c2';
+    ctx.font='bold '+Math.round(h*0.7)+'px "Arial Narrow",Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(r[0],w/2,h*0.55);},0.9,0.9);
+  stencil.material.transparent=true;
+  stencil.rotation.x=-Math.PI/2; stencil.position.set(x-GAP/2+1.2,0.03,z-GAP/2+1.2); scene.add(stencil);
+  const a=r[3](); a.position.set(x,0,z); a.rotation.y=-0.5;
+  a.traverse(o=>{if(o.isMesh){o.castShadow=true; if(o.receiveShadow!==false) o.receiveShadow=true;}});
+  a.userData.num=r[0]; a.userData.name=r[1]; a.userData.animal=r[2];
+  scene.add(a); items.push(a);
+});
+
+/* ===== ORBIT + FOCUS ===== */
+const target=new THREE.Vector3(0,1.2,0),targetGoal=target.clone();
+let azim=0,polar=0.9,radius=26,radiusGoal=26,dragging=false,px=0,py=0,moved=0;
+const minPolar=0.16,maxPolar=1.46,minR=9,maxR=50;
+function applyCam(){const sp=Math.sin(polar),cp=Math.cos(polar);camera.position.set(target.x+radius*sp*Math.sin(azim),target.y+radius*cp,target.z+radius*sp*Math.cos(azim));camera.lookAt(target);}
+const el=renderer.domElement;
+el.addEventListener('pointerdown',e=>{dragging=true;moved=0;px=e.clientX;py=e.clientY;el.setPointerCapture(e.pointerId);});
+el.addEventListener('pointerup',e=>{dragging=false;if(moved<5)tryPick(e);});
+el.addEventListener('pointerleave',()=>dragging=false);
+el.addEventListener('pointermove',e=>{if(dragging){moved+=Math.abs(e.movementX)+Math.abs(e.movementY);azim-=(e.clientX-px)*0.005;polar=Math.min(maxPolar,Math.max(minPolar,polar-(e.clientY-py)*0.005));px=e.clientX;py=e.clientY;}updateHover(e);});
+el.addEventListener('wheel',e=>{e.preventDefault();radiusGoal=Math.min(maxR,Math.max(minR,radiusGoal+e.deltaY*0.015));},{passive:false});
+let pinchD=0;
+el.addEventListener('touchmove',e=>{if(e.touches.length===2){const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,d=Math.hypot(dx,dy);if(pinchD)radiusGoal=Math.min(maxR,Math.max(minR,radiusGoal+(pinchD-d)*0.05));pinchD=d;e.preventDefault();}},{passive:false});
+el.addEventListener('touchend',()=>pinchD=0);
+function focusOn(i){targetGoal.copy(tilePos[i]).add(new THREE.Vector3(0,1.4,0));radiusGoal=12;}
+function unfocus(){targetGoal.set(0,1.2,0);radiusGoal=26;}
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+const tag=document.getElementById('tag');const tagN=tag.querySelector('.n'),tagT=tag.querySelector('.t'),tagF=tag.querySelector('.f');
+function rootOf(o){while(o.parent&&!o.userData.name)o=o.parent;return o;}
+function updateHover(e){ndc.x=(e.clientX/innerWidth)*2-1;ndc.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(ndc,camera);const hits=ray.intersectObjects(items,true);
+  if(hits.length){const o=rootOf(hits[0].object);if(o.userData.name){tagN.textContent='#'+o.userData.num;tagT.textContent=o.userData.name;tagF.textContent='· '+o.userData.animal;tag.style.left=e.clientX+'px';tag.style.top=(e.clientY-14)+'px';tag.style.opacity='1';el.style.cursor='pointer';return;}}
+  tag.style.opacity='0';el.style.cursor='grab';}
+let focused=-1;
+function tryPick(e){ndc.x=(e.clientX/innerWidth)*2-1;ndc.y=-(e.clientY/innerHeight)*2+1;ray.setFromCamera(ndc,camera);const hits=ray.intersectObjects(items,true);
+  if(hits.length){const o=rootOf(hits[0].object);const i=items.indexOf(o);if(i>=0){if(focused===i){focused=-1;unfocus();}else{focused=i;focusOn(i);}}}else{focused=-1;unfocus();}}
+document.getElementById('grid').addEventListener('click',e=>{const li=e.target.closest('li');if(!li)return;const i=+li.dataset.i;if(focused===i){focused=-1;unfocus();}else{focused=i;focusOn(i);}});
+
+/* ===== ANIMATE ===== */
+const t0=performance.now();
+function loop(){const t=(performance.now()-t0)/1000;
+  radius+=(radiusGoal-radius)*0.08;target.lerp(targetGoal,0.08);applyCam();
+  items.forEach((a,i)=>{const sway=(focused===i)?0:Math.sin(t*0.25+i)*0.28;a.rotation.y=-0.5+sway;if(a.userData.tick)a.userData.tick(t);});
+  renderer.render(scene,camera);requestAnimationFrame(loop);}
+applyCam();loop();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

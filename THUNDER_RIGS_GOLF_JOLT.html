@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050706">
+<meta name="thunder-build" content="wee-course-jolt-topdown-v1">
+<title>THUNDER RIGS · JOLT CAR GOLF</title>
+<style>
+:root{--bg:#050706;--panel:#070a09e8;--ink:#fff;--muted:#8b928e;--cyan:#19e6c8;--gold:#ffd23f;--red:#ff5a4f;--green:#00ff88;--line:#ffffff44;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);touch-action:none;overscroll-behavior:none}
+button{font:inherit;color:inherit}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;outline:0}
+#shade{position:fixed;inset:0;z-index:2;pointer-events:none;background:linear-gradient(#0008,transparent 18%,transparent 74%,#0009)}
+#hud{position:fixed;z-index:10;left:max(9px,env(safe-area-inset-left));top:calc(9px + var(--safe-t));height:48px;display:flex;align-items:stretch;background:var(--panel);border:1px solid #ffffff70;box-shadow:0 8px 28px #000a;backdrop-filter:blur(10px)}
+#brand{min-width:128px;padding:7px 10px;border-right:1px solid #ffffff28;display:flex;flex-direction:column;justify-content:center}
+#brand b{font-size:10px;letter-spacing:.15em;white-space:nowrap}#brand small{font-size:7px;color:var(--cyan);letter-spacing:.16em;margin-top:3px}
+#score{display:grid;grid-template-columns:repeat(3,minmax(42px,auto));height:100%}.stat{padding:6px 9px;text-align:center;border-right:1px solid #ffffff1c;display:flex;flex-direction:column;justify-content:center}.stat:last-child{border-right:0}.stat span{font-size:6px;letter-spacing:.14em;color:#9ba39f}.stat b{font-size:14px;margin-top:2px}
+#engine{position:fixed;z-index:10;left:max(9px,env(safe-area-inset-left));top:calc(63px + var(--safe-t));font-size:7px;letter-spacing:.14em;color:var(--cyan);border:1px solid #19e6c866;background:#000a;padding:5px 7px;pointer-events:none}
+#buttons{position:fixed;z-index:12;right:max(9px,env(safe-area-inset-right));top:calc(9px + var(--safe-t));display:flex;gap:6px}.ui-btn{width:48px;height:48px;border:1px solid #ffffff70;background:var(--panel);font-size:8px;font-weight:800;letter-spacing:.08em;backdrop-filter:blur(10px);cursor:pointer}.ui-btn:active{background:#fff;color:#000}
+#coach{position:fixed;z-index:10;left:50%;bottom:calc(12px + var(--safe-b));transform:translateX(-50%);max-width:calc(100vw - 24px);padding:9px 13px;background:var(--panel);border:1px solid #ffffff55;box-shadow:0 7px 28px #000b;backdrop-filter:blur(10px);font-size:8px;line-height:1.35;letter-spacing:.08em;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}#coach b{color:var(--cyan)}
+#banner{position:fixed;z-index:20;left:50%;top:20%;transform:translate(-50%,-12px);opacity:0;transition:.18s;pointer-events:none;text-align:center;text-shadow:0 5px 26px #000}.show-banner{opacity:1!important;transform:translate(-50%,0)!important}#banner strong{display:block;font-size:clamp(25px,7vw,56px);letter-spacing:-.04em}#banner small{font-size:9px;letter-spacing:.18em;color:var(--gold)}
+#power{position:fixed;z-index:12;left:50%;bottom:calc(48px + var(--safe-b));transform:translateX(-50%);width:min(310px,72vw);height:5px;background:#ffffff1c;border:1px solid #ffffff44;display:none;pointer-events:none}#power.show{display:block}#power-fill{height:100%;width:20%;background:linear-gradient(90deg,var(--cyan),var(--gold),var(--red))}
+#help{position:fixed;inset:0;z-index:80;background:#000e;display:none;place-items:center;padding:18px}#help.show{display:grid}.card{width:min(630px,94vw);max-height:88vh;overflow:auto;background:#070907;border:1px solid #fff;padding:18px;touch-action:pan-y}.card h2{margin:0 0 12px;font-size:17px;letter-spacing:.14em}.card p{font-size:10px;line-height:1.55;color:#a7aaa8;border-top:1px solid #ffffff20;padding-top:9px}.key{color:var(--cyan);font-weight:800}.close{width:100%;height:44px;border:1px solid #fff;background:#111;margin-top:8px;font-weight:800;letter-spacing:.12em}
+#boot{position:fixed;inset:0;z-index:100;background:#050706;display:grid;place-items:center;padding:22px;text-align:center}.boot-card{width:min(560px,92vw)}.boot-kicker{color:var(--cyan);font-size:9px;letter-spacing:.24em}.boot-card h1{font-size:clamp(39px,12vw,86px);line-height:.82;letter-spacing:-.08em;margin:17px 0}.boot-copy{font-size:10px;line-height:1.55;color:#9a9f9c}.loader{height:3px;background:#222;margin:22px auto 10px;max-width:400px;overflow:hidden}.loader i{display:block;height:100%;width:32%;background:var(--cyan);animation:load 1.1s infinite ease-in-out}@keyframes load{0%{transform:translateX(-120%)}100%{transform:translateX(420%)}}#boot-state{font-size:8px;color:#777;letter-spacing:.14em}.boot-error{white-space:pre-wrap;color:#ff8f87!important}
+#toast{position:fixed;z-index:40;left:50%;top:14%;transform:translate(-50%,-10px);opacity:0;transition:.18s;background:#000e;border:1px solid #fff;padding:8px 12px;font-size:8px;letter-spacing:.12em;pointer-events:none}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:620px){#hud{height:44px}#brand{min-width:105px;padding:6px 8px}#brand b{font-size:8px}.stat{padding:5px 7px}.stat b{font-size:12px}#buttons .ui-btn{width:44px;height:44px}#engine{top:calc(58px + var(--safe-t))}}
+@media(max-width:430px){#brand small{display:none}#brand{min-width:91px}.stat{padding:5px 6px}#buttons{top:auto;bottom:calc(12px + var(--safe-b));right:9px}.ui-btn{width:40px!important;height:40px!important}#coach{right:99px;left:9px;transform:none;max-width:none;text-align:left}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<scr'+'ipt src="https://unpkg.com/three@0.160.0/build/three.min.js"><\/scr'+'ipt>')</script>
+</head>
+<body>
+<canvas id="gl"></canvas><div id="shade"></div>
+<div id="hud"><div id="brand"><b>THUNDER RIGS</b><small>JOLT WEE COURSE</small></div><div id="score"><div class="stat"><span>HOLE</span><b id="hole">1/9</b></div><div class="stat"><span>PAR</span><b id="par">2</b></div><div class="stat"><span>STROKES</span><b id="strokes">0</b></div></div></div>
+<div id="engine">JOLT · BOOTING</div>
+<div id="buttons"><button id="reset" class="ui-btn">RESET</button><button id="helpBtn" class="ui-btn">?</button></div>
+<div id="coach">TAP THE BALL TO LINE UP AND HIT TOWARD THE FLAG</div>
+<div id="power"><div id="power-fill"></div></div>
+<div id="banner"><strong id="bannerTitle"></strong><small id="bannerSub"></small></div>
+<div id="toast"></div>
+<div id="help"><div class="card"><h2>JOLT CAR GOLF</h2><p><span class="key">Tap the ball</span> and the physical vehicle finds the back of it, lines up with the cup, accelerates, and makes contact.</p><p><span class="key">Drag from the ball</span> to choose a bank, gap, bumper, or ramp line. Drag length controls the rig's run-up speed.</p><p><span class="key">Tap a ramp</span> and the rig approaches its low edge, locks to the corridor, climbs on Jolt suspension, and releases after the lip.</p><p><span class="key">Tap turf or a bumper</span> to drive there. WASD / arrows temporarily override the automated driver. Space brakes. Shift boosts.</p><p>The car, ball, walls, bumpers, ramps, suspension, gravity, friction, restitution, and impacts are simulated in Jolt. The camera remains a high oblique top-down 3D view.</p><button id="closeHelp" class="close">PLAY</button></div></div>
+<div id="boot"><div class="boot-card"><div class="boot-kicker">THREE.JS + JOLT WASM</div><h1>CAR<br>GOLF</h1><div class="boot-copy">Building a physical nine-hole course with a wheeled rig, rigid golf ball, real banks, real ramps, and a top-down 3D camera.</div><div class="loader"><i></i></div><div id="boot-state">LOADING JOLT</div></div></div>
+<script type="module">
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const TAU=Math.PI*2;
+let toastTimer=0,bannerTimer=0;
+function toast(text){const e=$('toast');e.textContent=text;e.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('show'),1100)}
+function coach(text){$('coach').innerHTML=text}
+function banner(a,b='',ms=900){clearTimeout(bannerTimer);$('bannerTitle').textContent=a;$('bannerSub').textContent=b;$('banner').classList.add('show-banner');bannerTimer=setTimeout(()=>$('banner').classList.remove('show-banner'),ms)}
+function fail(message,error){console.error(message,error||'');$('boot-state').className='boot-error';$('boot-state').textContent=message+(error?'\n'+(error.message||error):'');$('engine').textContent='JOLT · ERROR'}
+if(!window.THREE){fail('Three.js could not load. Open from static HTTPS and check network access.');throw new Error('THREE unavailable')}
+const THREE=window.THREE;
+let initJolt;
+try{({default:initJolt}=await import('https://cdn.jsdelivr.net/npm/jolt-physics@1.0.0/dist/jolt-physics.wasm-compat.js'))}
+catch(first){try{({default:initJolt}=await import('https://unpkg.com/jolt-physics@1.0.0/dist/jolt-physics.wasm-compat.js'))}catch(second){fail('Jolt WASM could not load. Open from a static HTTPS server.',second);throw second}}
+let Jolt;
+try{Jolt=await initJolt()}catch(err){fail('Jolt WASM initialization failed.',err);throw err}
+window.Jolt=Jolt;
+$('boot-state').textContent='BUILDING PHYSICS WORLD';
+
+// ---------- JOLT WORLD ----------
+const LAYER_STATIC=0,LAYER_MOVING=1,NUM_LAYERS=2;
+let settings=new Jolt.JoltSettings();
+settings.mMaxWorkerThreads=Math.max(1,Math.min(3,(navigator.hardwareConcurrency||4)-1));
+const pairFilter=new Jolt.ObjectLayerPairFilterTable(NUM_LAYERS);
+pairFilter.EnableCollision(LAYER_STATIC,LAYER_MOVING);pairFilter.EnableCollision(LAYER_MOVING,LAYER_MOVING);
+const bpStatic=new Jolt.BroadPhaseLayer(0),bpMoving=new Jolt.BroadPhaseLayer(1);
+const bpInterface=new Jolt.BroadPhaseLayerInterfaceTable(NUM_LAYERS,2);
+bpInterface.MapObjectToBroadPhaseLayer(LAYER_STATIC,bpStatic);bpInterface.MapObjectToBroadPhaseLayer(LAYER_MOVING,bpMoving);
+settings.mObjectLayerPairFilter=pairFilter;settings.mBroadPhaseLayerInterface=bpInterface;
+settings.mObjectVsBroadPhaseLayerFilter=new Jolt.ObjectVsBroadPhaseLayerFilterTable(bpInterface,2,pairFilter,NUM_LAYERS);
+const jolt=new Jolt.JoltInterface(settings);Jolt.destroy(settings);
+const physicsSystem=jolt.GetPhysicsSystem();
+const bodyInterface=physicsSystem.GetBodyInterface();
+physicsSystem.SetGravity(new Jolt.Vec3(0,-9.81,0));
+
+// ---------- THREE WORLD ----------
+const renderer=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight,false);
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x07100c);scene.fog=new THREE.FogExp2(0x07100c,.012);
+let viewHeight=62;
+const camera=new THREE.OrthographicCamera(-35,35,35,-35,.1,220);
+camera.position.set(0,58,25);camera.lookAt(0,0,0);
+scene.add(new THREE.HemisphereLight(0xcfe6d9,0x102018,1.9));
+const sun=new THREE.DirectionalLight(0xfff5df,3.1);sun.position.set(-22,44,-18);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-45;sun.shadow.camera.right=45;sun.shadow.camera.top=45;sun.shadow.camera.bottom=-45;scene.add(sun);
+const flagLight=new THREE.PointLight(0xff5a4f,12,18,2);scene.add(flagLight);
+const cyanLight=new THREE.PointLight(0x19e6c8,14,14,2);scene.add(cyanLight);
+function material(color,rough=.65,metal=.03,emissive=0){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal,emissive,emissiveIntensity:emissive?0.45:0})}
+function setShadows(obj){obj.traverse?.(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true}})}
+function sync(body,obj){const p=body.GetPosition(),q=body.GetRotation();obj.position.set(p.GetX(),p.GetY(),p.GetZ());obj.quaternion.set(q.GetX(),q.GetY(),q.GetZ(),q.GetW())}
+const rigidRecords=[];
+function register(body,obj,course=false){setShadows(obj);scene.add(obj);rigidRecords.push({body,obj,course});sync(body,obj);return body}
+function createBody(shape,pos,quat,motion,layer,obj,{mass=0,friction=.75,restitution=.1,course=false}={}){const cs=new Jolt.BodyCreationSettings(shape,new Jolt.RVec3(pos.x,pos.y,pos.z),new Jolt.Quat(quat.x,quat.y,quat.z,quat.w),motion,layer);if(mass>0){cs.mOverrideMassProperties=Jolt.EOverrideMassProperties_CalculateInertia;cs.mMassPropertiesOverride.mMass=mass}const body=bodyInterface.CreateBody(cs);Jolt.destroy(cs);body.SetFriction(friction);body.SetRestitution(restitution);bodyInterface.AddBody(body.GetID(),Jolt.EActivation_Activate);register(body,obj,course);return body}
+function staticBox(pos,size,quat,color,course=true){const shape=new Jolt.BoxShape(new Jolt.Vec3(size.x/2,size.y/2,size.z/2),.035,null);const mesh=new THREE.Mesh(new THREE.BoxGeometry(size.x,size.y,size.z),material(color,.8,.02));return createBody(shape,pos,quat,Jolt.EMotionType_Static,LAYER_STATIC,mesh,{friction:1,restitution:.16,course})}
+function staticSphere(pos,r,color,course=true){const shape=new Jolt.SphereShape(r,null);const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,28,18),material(color,.42,.08,color===0xffd23f?0x2b2100:0));return createBody(shape,pos,new THREE.Quaternion(),Jolt.EMotionType_Static,LAYER_STATIC,mesh,{friction:.8,restitution:.72,course})}
+function destroyRecord(rec){try{bodyInterface.RemoveBody(rec.body.GetID());bodyInterface.DestroyBody(rec.body.GetID())}catch{}scene.remove(rec.obj);rec.obj.traverse?.(n=>{n.geometry?.dispose?.();if(n.material){if(Array.isArray(n.material))n.material.forEach(m=>m.dispose?.());else n.material.dispose?.()}})}
+
+// Permanent turf and outer banks.
+const turf=new THREE.Mesh(new THREE.PlaneGeometry(66,82),material(0x102d20,.96,0));turf.rotation.x=-Math.PI/2;turf.position.y=.005;turf.receiveShadow=true;turf.userData.feature={type:'ground'};scene.add(turf);
+const grid=new THREE.GridHelper(82,82,0x285c45,0x173326);grid.position.y=.025;scene.add(grid);
+staticBox({x:0,y:-.5,z:0},{x:66,y:1,z:82},new THREE.Quaternion(),0x102d20,false);
+for(const w of [
+  {x:0,y:2,z:-41,sx:66,sy:4,sz:1},{x:0,y:2,z:41,sx:66,sy:4,sz:1},
+  {x:-33,y:2,z:0,sx:1,sy:4,sz:82},{x:33,y:2,z:0,sx:1,sy:4,sz:82}
+])staticBox({x:w.x,y:w.y,z:w.z},{x:w.sx,y:w.sy,z:w.sz},new THREE.Quaternion(),0x17372a,false);
+
+// ---------- COURSE DATA ----------
+const holes=[
+{name:'FIRST CONTACT',par:2,car:[0,-28],ball:[0,-20],cup:[0,27],ramps:[[-14,-2,7,11,4,0]],walls:[],bumpers:[]},
+{name:'THE BANK',par:3,car:[0,-29],ball:[0,-20],cup:[18,25],ramps:[],walls:[[0,2,28,2,2.4,0]],bumpers:[[-14,10,2.4],[15,-3,2.1]]},
+{name:'RAMP OUT',par:3,car:[0,-30],ball:[0,-20],cup:[0,28],ramps:[[0,-2,9,15,5.5,0]],walls:[[-15,5,15,2,2.2,0],[15,5,15,2,2.2,0]],bumpers:[]},
+{name:'DOGLEG',par:3,car:[-18,-27],ball:[-14,-20],cup:[18,24],ramps:[[-20,5,7,10,3.5,Math.PI/2]],walls:[[0,0,2,32,2.5,0],[9,15,20,2,2.5,0]],bumpers:[[-12,9,2.3]]},
+{name:'PINBALL',par:4,car:[0,-30],ball:[0,-22],cup:[0,28],ramps:[],walls:[],bumpers:[[-13,-4,2.6],[12,2,2.6],[-10,13,2.6],[11,19,2.6]]},
+{name:'TWIN LAUNCH',par:4,car:[0,-31],ball:[0,-22],cup:[0,29],ramps:[[-10,0,7,12,4.2,.12],[10,0,7,12,4.2,-.12]],walls:[[0,5,6,2,3,0]],bumpers:[]},
+{name:'SIDE POCKET',par:4,car:[-19,-28],ball:[-15,-21],cup:[20,25],ramps:[[17,8,8,12,4.5,Math.PI/2]],walls:[[-2,0,2,35,2.4,0]],bumpers:[[-17,9,2.2],[8,20,2.2]]},
+{name:'THE GATE',par:4,car:[0,-31],ball:[0,-22],cup:[0,29],ramps:[[0,8,7,10,3.8,0]],walls:[[-15,2,22,2,2.6,0],[15,2,22,2,2.6,0]],bumpers:[[-7,15,2.1],[7,15,2.1]]},
+{name:'THUNDER CUP',par:5,car:[0,-33],ball:[0,-24],cup:[0,31],ramps:[[-15,-2,7,11,4.2,.18],[15,7,7,11,4.8,-.18],[0,19,9,12,4.5,0]],walls:[[-18,12,13,2,2.5,0],[18,12,13,2,2.5,0]],bumpers:[[0,2,2.4],[-10,24,2.2],[10,24,2.2]]}
+];
+let holeIndex=0,strokes=0,total=0,courseObjects=[],courseFeatures=[],ramps=[],cupPos=new THREE.Vector3(),ballStart=new THREE.Vector3();
+let ballBody=null,ballMesh=null,ballInWorld=false,sinking=false,sinkTime=0,holeTransition=false,lastSafeBall=new THREE.Vector3();
+
+function rampDirection(r){return new THREE.Vector3(Math.sin(r.rot),0,Math.cos(r.rot)).normalize()}
+function rampLow(r){return new THREE.Vector3(r.x,0,r.z).addScaledVector(rampDirection(r),-r.l/2)}
+function rampHigh(r){return new THREE.Vector3(r.x,r.h,r.z).addScaledVector(rampDirection(r),r.l/2)}
+function addCourseRecord(body,obj,feature){const rec=rigidRecords.find(v=>v.body===body);if(rec)courseObjects.push(rec);obj.userData.feature=feature;courseFeatures.push(obj);return obj}
+function createWall(a){const [x,z,w,d,h,rot=0]=a,q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),rot);const body=staticBox({x,y:h/2,z},{x:w,y:h,z:d},q,0x26322c,true);const obj=rigidRecords.at(-1).obj;addCourseRecord(body,obj,{type:'wall'});}
+function createBumper(a){const [x,z,r]=a;const body=staticSphere({x,y:r,z},r,0xffd23f,true);const obj=rigidRecords.at(-1).obj;addCourseRecord(body,obj,{type:'bumper',x,z,r});const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.72,.11,8,32),new THREE.MeshBasicMaterial({color:0x271f00}));ring.rotation.x=Math.PI/2;ring.position.y=.1;obj.add(ring)}
+function createRamp(a,index){const [x,z,w,l,h,rot=0]=a;const thickness=.42,angle=Math.atan2(h,l);const qYaw=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),rot);const qPitch=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-angle);const q=qYaw.clone().multiply(qPitch);const centerY=l*.5*Math.sin(angle)+thickness*.5*Math.cos(angle)-.08;const body=staticBox({x,y:centerY,z},{x:w,y:thickness,z:l},q,0x143f36,true);const obj=rigidRecords.at(-1).obj;const r={x,z,w,l,h,rot,index,obj};ramps.push(r);addCourseRecord(body,obj,{type:'ramp',ramp:r});
+  const stripe=new THREE.Mesh(new THREE.BoxGeometry(w*.84,.035,l*.86),new THREE.MeshBasicMaterial({color:0x19e6c8,transparent:true,opacity:.2}));stripe.position.y=thickness/2+.025;obj.add(stripe);
+  const lowDot=new THREE.Mesh(new THREE.RingGeometry(.38,.58,24),new THREE.MeshBasicMaterial({color:0x19e6c8,side:THREE.DoubleSide}));lowDot.rotation.x=-Math.PI/2;const low=rampLow(r);lowDot.position.copy(low).setY(.04);scene.add(lowDot);courseObjects.push({body:null,obj:lowDot,visualOnly:true});courseFeatures.push(lowDot);lowDot.userData.feature={type:'ramp',ramp:r};
+}
+function createCup(p){cupPos.set(p[0],.04,p[1]);const group=new THREE.Group();group.position.copy(cupPos);
+  const lip=new THREE.Mesh(new THREE.RingGeometry(1.05,1.38,40),new THREE.MeshStandardMaterial({color:0xf2f2f2,roughness:.8,side:THREE.DoubleSide}));lip.rotation.x=-Math.PI/2;group.add(lip);
+  const dark=new THREE.Mesh(new THREE.CircleGeometry(1.05,40),new THREE.MeshBasicMaterial({color:0x000000,side:THREE.DoubleSide}));dark.rotation.x=-Math.PI/2;dark.position.y=-.01;group.add(dark);
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,8,10),material(0xffffff,.5));pole.position.y=4;group.add(pole);
+  const flag=new THREE.Mesh(new THREE.PlaneGeometry(3.1,1.55),new THREE.MeshBasicMaterial({color:0xff5a4f,side:THREE.DoubleSide}));flag.position.set(1.5,6.8,0);group.add(flag);group.userData.feature={type:'cup'};group.traverse(n=>n.userData.feature={type:'cup'});scene.add(group);courseObjects.push({body:null,obj:group,visualOnly:true});courseFeatures.push(...group.children);flagLight.position.copy(cupPos).add(new THREE.Vector3(0,5,0));}
+function clearCourse(){for(const rec of courseObjects){if(rec.visualOnly||!rec.body){scene.remove(rec.obj);rec.obj.traverse?.(n=>{n.geometry?.dispose?.();if(n.material){if(Array.isArray(n.material))n.material.forEach(m=>m.dispose?.());else n.material.dispose?.()}})}else{const i=rigidRecords.indexOf(rec);if(i>=0)rigidRecords.splice(i,1);destroyRecord(rec)}}courseObjects=[];courseFeatures=[];ramps=[];}
+
+// ---------- PHYSICAL BALL ----------
+function destroyBall(){if(!ballBody)return;if(ballMesh){const fi=courseFeatures.indexOf(ballMesh);if(fi>=0)courseFeatures.splice(fi,1)}const rec=rigidRecords.find(v=>v.body===ballBody);if(rec){const i=rigidRecords.indexOf(rec);if(i>=0)rigidRecords.splice(i,1);if(ballInWorld){try{bodyInterface.RemoveBody(rec.body.GetID())}catch{}}try{bodyInterface.DestroyBody(rec.body.GetID())}catch{}scene.remove(rec.obj);rec.obj.traverse?.(n=>{n.geometry?.dispose?.();if(n.material){if(Array.isArray(n.material))n.material.forEach(m=>m.dispose?.());else n.material.dispose?.()}})}ballBody=null;ballMesh=null;ballInWorld=false}
+function createBall(x,z){destroyBall();const radius=1.05;const shape=new Jolt.SphereShape(radius,null);const geom=new THREE.SphereGeometry(radius,32,20);const matBall=new THREE.MeshStandardMaterial({color:0xf6f6f2,roughness:.48,metalness:.02});const mesh=new THREE.Mesh(geom,matBall);mesh.userData.feature={type:'ball'};
+  // Golf dimples as dark points, parented to the ball.
+  for(let i=0;i<18;i++){const a=i*2.399963,b=Math.acos(1-2*(i+.5)/18),d=.985;const dot=new THREE.Mesh(new THREE.SphereGeometry(.065,7,5),new THREE.MeshBasicMaterial({color:0x777777}));dot.position.set(Math.sin(b)*Math.cos(a)*d,Math.cos(b)*d,Math.sin(b)*Math.sin(a)*d);mesh.add(dot)}
+  ballBody=createBody(shape,{x,y:radius+.06,z},new THREE.Quaternion(),Jolt.EMotionType_Dynamic,LAYER_MOVING,mesh,{mass:7.5,friction:.38,restitution:.42,course:false});ballMesh=mesh;ballInWorld=true;courseFeatures.push(mesh);ballStart.set(x,radius+.06,z);lastSafeBall.copy(ballStart);return ballBody}
+function resetBall(p=ballStart,penalty=false){if(penalty){strokes++;total++;updateHud();banner('OUT OF BOUNDS','ONE-STROKE PENALTY',1000)}createBall(p.x,p.z);bodyInterface.SetLinearAndAngularVelocity(ballBody.GetID(),new Jolt.Vec3(0,0,0),new Jolt.Vec3(0,0,0));sinking=false;sinkTime=0}
+
+// ---------- JOLT VEHICLE ----------
+const carRoot=new THREE.Group();
+const chassis=new THREE.Mesh(new THREE.BoxGeometry(1.9,.62,3.55),new THREE.MeshStandardMaterial({color:0x19e6c8,roughness:.34,metalness:.24,emissive:0x032c25,emissiveIntensity:.5}));chassis.position.y=.3;carRoot.add(chassis);
+const canopy=new THREE.Mesh(new THREE.BoxGeometry(1.35,.52,1.45),new THREE.MeshPhysicalMaterial({color:0x11171a,roughness:.18,metalness:.25,transmission:.16,transparent:true,opacity:.92}));canopy.position.set(0,.76,-.25);carRoot.add(canopy);
+const nose=new THREE.Mesh(new THREE.ConeGeometry(.74,1.08,4),material(0xa855f7,.3,.22));nose.rotation.x=Math.PI/2;nose.rotation.z=Math.PI/4;nose.position.set(0,.27,2.16);carRoot.add(nose);
+const spoiler=new THREE.Mesh(new THREE.BoxGeometry(1.75,.12,.4),material(0xff5a4f,.34,.18));spoiler.position.set(0,.83,-1.58);carRoot.add(spoiler);
+const hW=.95,hH=.24,hL=1.78;
+const carShapeSettings=new Jolt.OffsetCenterOfMassShapeSettings(new Jolt.Vec3(0,-hH,0),new Jolt.BoxShapeSettings(new Jolt.Vec3(hW,hH,hL)));
+const carShape=carShapeSettings.Create().Get();
+const carCS=new Jolt.BodyCreationSettings(carShape,new Jolt.RVec3(0,2,0),Jolt.Quat.prototype.sIdentity(),Jolt.EMotionType_Dynamic,LAYER_MOVING);
+carCS.mOverrideMassProperties=Jolt.EOverrideMassProperties_CalculateInertia;carCS.mMassPropertiesOverride.mMass=720;
+const carBody=bodyInterface.CreateBody(carCS);Jolt.destroy(carCS);carBody.SetFriction(.92);carBody.SetRestitution(.04);bodyInterface.AddBody(carBody.GetID(),Jolt.EActivation_Activate);register(carBody,carRoot,false);
+const vehicleSettings=new Jolt.VehicleConstraintSettings();vehicleSettings.mMaxPitchRollAngle=Math.PI*.46;vehicleSettings.mWheels.clear();
+const wheelParams=[{x:hW,z:1.28,steer:.58,hand:0},{x:-hW,z:1.28,steer:.58,hand:0},{x:hW,z:-1.28,steer:0,hand:2500},{x:-hW,z:-1.28,steer:0,hand:2500}];
+for(const w of wheelParams){const ws=new Jolt.WheelSettingsWV();ws.mPosition=new Jolt.Vec3(w.x,-.2,w.z);ws.mMaxSteerAngle=w.steer;ws.mMaxHandBrakeTorque=w.hand;ws.mRadius=.37;ws.mWidth=.23;ws.mSuspensionMinLength=.16;ws.mSuspensionMaxLength=.5;vehicleSettings.mWheels.push_back(ws)}
+const controllerSettings=new Jolt.WheeledVehicleControllerSettings();controllerSettings.mEngine.mMaxTorque=690;controllerSettings.mTransmission.mClutchStrength=13;controllerSettings.mDifferentials.clear();
+for(const pair of [[0,1],[2,3]]){const dif=new Jolt.VehicleDifferentialSettings();dif.mLeftWheel=pair[0];dif.mRightWheel=pair[1];dif.mLimitedSlipRatio=1.4;dif.mEngineTorqueRatio=.5;controllerSettings.mDifferentials.push_back(dif)}controllerSettings.mDifferentialLimitedSlipRatio=1.45;vehicleSettings.mController=controllerSettings;
+vehicleSettings.mAntiRollBars.clear();for(const pair of [[0,1],[2,3]]){const bar=new Jolt.VehicleAntiRollBar();bar.mLeftWheel=pair[0];bar.mRightWheel=pair[1];vehicleSettings.mAntiRollBars.push_back(bar)}
+const vehicleConstraint=new Jolt.VehicleConstraint(carBody,vehicleSettings);vehicleConstraint.SetVehicleCollisionTester(new Jolt.VehicleCollisionTesterCastCylinder(LAYER_MOVING,.05));physicsSystem.AddConstraint(vehicleConstraint);
+const vehicleController=Jolt.castObject(vehicleConstraint.GetController(),Jolt.WheeledVehicleController);const vehicleStepListener=new Jolt.VehicleConstraintStepListener(vehicleConstraint);physicsSystem.AddStepListener(vehicleStepListener);
+const wheelRight=new Jolt.Vec3(0,1,0),wheelUp=new Jolt.Vec3(1,0,0),wheelMeshes=[];
+for(let i=0;i<4;i++){const w=new THREE.Mesh(new THREE.CylinderGeometry(.37,.37,.23,18),material(0x101010,.9,.03));w.castShadow=true;carRoot.add(w);wheelMeshes.push(w)}
+function syncWheels(){for(let i=0;i<4;i++){const tr=vehicleConstraint.GetWheelLocalTransform(i,wheelRight,wheelUp),p=tr.GetTranslation(),q=tr.GetRotation().GetQuaternion(),w=wheelMeshes[i];w.position.set(p.GetX(),p.GetY(),p.GetZ());w.quaternion.set(q.GetX(),q.GetY(),q.GetZ(),q.GetW())}}
+function setCarPose(x,z,yaw){bodyInterface.SetPositionAndRotation(carBody.GetID(),new Jolt.RVec3(x,1.35,z),Jolt.Quat.prototype.sRotation(new Jolt.Vec3(0,1,0),yaw),Jolt.EActivation_Activate);bodyInterface.SetLinearAndAngularVelocity(carBody.GetID(),new Jolt.Vec3(0,0,0),new Jolt.Vec3(0,0,0));}
+
+// ---------- GAME STATE / AUTO DRIVER ----------
+const auto={mode:'idle',phase:'',target:new THREE.Vector3(),aim:new THREE.Vector3(),ramp:null,power:.8,airShown:false};
+const keys=new Set();let strokeCooldown=0,prevBallSpeed=0,manualLast=0,boostCooldown=0;
+function cancelAuto(){auto.mode='idle';auto.phase='';auto.ramp=null;auto.airShown=false}
+function carState(){const p=carBody.GetPosition(),q=carBody.GetRotation(),v=carBody.GetLinearVelocity();return{p:new THREE.Vector3(p.GetX(),p.GetY(),p.GetZ()),q:new THREE.Quaternion(q.GetX(),q.GetY(),q.GetZ(),q.GetW()),v:new THREE.Vector3(v.GetX(),v.GetY(),v.GetZ())}}
+function ballState(){if(!ballBody)return null;const p=ballBody.GetPosition(),v=ballBody.GetLinearVelocity();return{p:new THREE.Vector3(p.GetX(),p.GetY(),p.GetZ()),v:new THREE.Vector3(v.GetX(),v.GetY(),v.GetZ())}}
+function driveTo(target,label='DRIVE'){auto.mode='drive';auto.phase='go';auto.target.copy(target);auto.target.y=0;markTarget(target);coach(`<b>${label}</b> · TAP ANOTHER FEATURE TO REDIRECT`)}
+function ramBumper(feature){auto.mode='ram';auto.phase='go';auto.target.set(feature.x,0,feature.z);markTarget(auto.target);coach('<b>RAM</b> · THE JOLT VEHICLE WILL HIT THE BUMPER')}
+function rampOut(r){const d=rampDirection(r),low=rampLow(r);auto.mode='ramp';auto.phase='approach';auto.ramp=r;auto.target.copy(low).addScaledVector(d,-5.5);auto.airShown=false;markTarget(low);coach('<b>RAMP OUT</b> · APPROACHING THE LOW EDGE')}
+function strikeBall(aim,power=.82){if(!ballBody||sinking)return;const bs=ballState(),dir=aim.clone().sub(bs.p);dir.y=0;if(dir.lengthSq()<.01)dir.copy(cupPos).sub(bs.p);dir.normalize();auto.mode='strike';auto.phase='approach';auto.aim.copy(aim);auto.power=clamp(power,.35,1.35);auto.target.copy(bs.p).addScaledVector(dir,-5.4);markTarget(bs.p);coach('<b>LINING UP</b> · PHYSICAL CONTACT COUNTS AS THE STROKE')}
+function applyBoost(){const s=carState(),dir=new THREE.Vector3(0,0,1).applyQuaternion(s.q).normalize();bodyInterface.AddImpulse(carBody.GetID(),new Jolt.Vec3(dir.x*920,55,dir.z*920));bodyInterface.ActivateBody(carBody.GetID())}
+function autoInput(dt){const s=carState();let target=auto.target.clone();
+  if(auto.mode==='strike'&&ballBody){const bs=ballState(),dir=auto.aim.clone().sub(bs.p);dir.y=0;if(dir.lengthSq()<.01)dir.copy(cupPos).sub(bs.p);dir.normalize();if(auto.phase==='approach'){target.copy(bs.p).addScaledVector(dir,-5.35);auto.target.copy(target)}else{target.copy(bs.p).addScaledVector(dir,10);auto.target.copy(target)}}
+  if(auto.mode==='ramp'&&auto.ramp){const d=rampDirection(auto.ramp);if(auto.phase==='run')target.copy(rampHigh(auto.ramp)).addScaledVector(d,12)}
+  const to=target.sub(s.p);to.y=0;const dist=to.length();const inv=s.q.clone().invert(),local=to.clone().applyQuaternion(inv);const angle=Math.atan2(local.x,local.z);let steer=clamp(angle*1.35,-1,1),throttle=1,brake=0,hand=0;
+  const localV=s.v.clone().applyQuaternion(inv),forwardSpeed=localV.z;
+  let desired=auto.mode==='strike'?(auto.phase==='hit'?19+auto.power*12:12):auto.mode==='ramp'?(auto.phase==='run'?27:13):auto.mode==='ram'?22:15;
+  if(Math.abs(angle)>1.35)throttle=.28;else if(forwardSpeed>desired)throttle=.08;
+  if(dist<2.1&&auto.mode!=='strike'&&!(auto.mode==='ramp'&&auto.phase==='run')){throttle=0;brake=.8}
+  // Steering assist changes yaw only; translation remains suspension/tire driven.
+  const av=carBody.GetAngularVelocity();const yawRate=clamp(angle*2.7,-2.25,2.25);bodyInterface.SetLinearAndAngularVelocity(carBody.GetID(),carBody.GetLinearVelocity(),new Jolt.Vec3(av.GetX()*.96,yawRate,av.GetZ()*.96));
+  if(auto.mode==='strike'&&auto.phase==='approach'&&dist<1.35&&Math.abs(angle)<.42){auto.phase='hit';toast('COMMITTING TO SHOT');}
+  if(auto.mode==='ramp'&&auto.phase==='approach'&&dist<1.5){auto.phase='run';coach('<b>RAMP CORRIDOR</b> · FULL THROTTLE THROUGH THE LIP')}
+  if((auto.mode==='drive'||auto.mode==='ram')&&dist<1.45){cancelAuto();coach('TAP THE BALL · DRAG FOR A BANK OR RAMP LINE')}
+  if(auto.mode==='ramp'&&auto.phase==='run'){const high=rampHigh(auto.ramp),d=rampDirection(auto.ramp),past=s.p.clone().sub(high).dot(d);if(s.p.y>2.0&&s.v.y>1&&!auto.airShown){auto.airShown=true;banner('RAMP OUT','JOLT SUSPENSION RELEASE',800)}if(past>8){cancelAuto();coach('AIRBORNE OR CLEAR · TAP THE BALL FOR THE NEXT SHOT')}}
+  return{throttle,steer,brake,hand};
+}
+function drivePreStep(dt){let throttle=0,steer=0,brake=0,hand=0;const manual=keys.has('w')||keys.has('arrowup')||keys.has('s')||keys.has('arrowdown')||keys.has('a')||keys.has('arrowleft')||keys.has('d')||keys.has('arrowright')||keys.has(' ');
+  if(manual){manualLast=performance.now();cancelAuto();throttle=(keys.has('w')||keys.has('arrowup')?1:0)-(keys.has('s')||keys.has('arrowdown')?1:0);steer=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0);if(keys.has(' ')){throttle=0;hand=1}}
+  else if(auto.mode!=='idle')({throttle,steer,brake,hand}=autoInput(dt));
+  vehicleController.SetDriverInput(throttle,steer,brake,hand);if(Math.abs(throttle)+Math.abs(steer)+brake+hand>0)bodyInterface.ActivateBody(carBody.GetID());
+  boostCooldown-=dt;if(keys.has('shift')&&boostCooldown<=0){applyBoost();boostCooldown=.24}
+}
+
+// ---------- TARGET / AIM VISUALS ----------
+const marker=new THREE.Mesh(new THREE.RingGeometry(.7,1.0,30),new THREE.MeshBasicMaterial({color:0x19e6c8,transparent:true,opacity:0,side:THREE.DoubleSide}));marker.rotation.x=-Math.PI/2;marker.position.y=.055;scene.add(marker);let markerLife=0;
+function markTarget(p){marker.position.set(p.x,.055,p.z);marker.scale.setScalar(1);markerLife=1;marker.material.opacity=1}
+const aimGeom=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]);const aimLine=new THREE.Line(aimGeom,new THREE.LineDashedMaterial({color:0xffd23f,dashSize:.8,gapSize:.55,linewidth:2}));aimLine.visible=false;scene.add(aimLine);
+function updateAimLine(end){if(!ballMesh)return;aimGeom.setFromPoints([ballMesh.position.clone().add(new THREE.Vector3(0,.2,0)),end.clone().setY(.15)]);aimLine.computeLineDistances();aimLine.visible=true}
+
+// ---------- HOLE FLOW ----------
+function updateHud(){$('hole').textContent=`${holeIndex+1}/9`;$('par').textContent=holes[holeIndex].par;$('strokes').textContent=strokes}
+function loadHole(index){holeTransition=false;sinking=false;sinkTime=0;cancelAuto();clearCourse();holeIndex=(index+holes.length)%holes.length;const h=holes[holeIndex];strokes=0;
+  for(const w of h.walls)createWall(w);for(const b of h.bumpers)createBumper(b);h.ramps.forEach(createRamp);createCup(h.cup);createBall(h.ball[0],h.ball[1]);
+  const dx=h.ball[0]-h.car[0],dz=h.ball[1]-h.car[1],yaw=Math.atan2(dx,dz);setCarPose(h.car[0],h.car[1],yaw);updateHud();banner(`HOLE ${holeIndex+1}`,`${h.name} · PAR ${h.par}`,1450);coach('TAP THE BALL · DRAG FROM IT TO CHOOSE A PHYSICAL SHOT LINE');}
+function beginSink(){if(sinking||holeTransition||!ballBody)return;sinking=true;sinkTime=0;cancelAuto();bodyInterface.RemoveBody(ballBody.GetID());ballInWorld=false;banner('IN THE CUP',`${strokes} STROKE${strokes===1?'':'S'}`,1000);coach('<b>HOLED</b> · THE NEXT COURSE IS LOADING')}
+function finishHole(){if(holeTransition)return;holeTransition=true;const d=strokes-holes[holeIndex].par,word=d<=-2?'EAGLE':d===-1?'BIRDIE':d===0?'PAR':d===1?'BOGEY':`${d>0?'+':''}${d}`;banner(word,`RUN TOTAL ${total}`,1500);setTimeout(()=>loadHole((holeIndex+1)%holes.length),1450)}
+function monitorPhysics(dt){strokeCooldown=Math.max(0,strokeCooldown-dt);const bs=ballState(),cs=carState();if(bs&&!sinking){const ballSpeed=bs.v.length();const horizontal=Math.hypot(bs.p.x-cs.p.x,bs.p.z-cs.p.z);const carSpeed=cs.v.length();if(strokeCooldown<=0&&horizontal<2.75&&carSpeed>2.2&&ballSpeed>Math.max(.9,prevBallSpeed+.25)){strokes++;total++;updateHud();strokeCooldown=.72;banner(`STROKE ${strokes}`,auto.mode==='strike'?'CLEAN CONTACT':'LIVE BALL',620);if(auto.mode==='strike')cancelAuto();coach('<b>BALL LIVE</b> · TAP IT AGAIN WHEN YOU WANT THE NEXT SHOT')}
+    prevBallSpeed=ballSpeed;
+    const dc=Math.hypot(bs.p.x-cupPos.x,bs.p.z-cupPos.z);if(dc<1.15&&bs.p.y<1.65&&ballSpeed<5.4)beginSink();
+    if(ballSpeed<.18&&bs.p.y<1.4)lastSafeBall.copy(bs.p);
+    if(Math.abs(bs.p.x)>36||Math.abs(bs.p.z)>44||bs.p.y<-7)resetBall(lastSafeBall,true);
+  }
+  if(cs.p.y<-7||Math.abs(cs.p.x)>40||Math.abs(cs.p.z)>48){const bs2=ballState()||{p:ballStart};setCarPose(bs2.p.x,bs2.p.z-7,0);cancelAuto();toast('RIG RECOVERED')}
+  if(sinking&&ballMesh){sinkTime+=dt;ballMesh.position.lerp(cupPos.clone().setY(-1.1),1-Math.exp(-dt*7));ballMesh.scale.setScalar(Math.max(.05,1-sinkTime*.75));if(sinkTime>1.15)finishHole()}
+}
+
+// ---------- POINTER OPERATIONS ----------
+const raycaster=new THREE.Raycaster(),pointerNdc=new THREE.Vector2(),groundPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0),rayHit=new THREE.Vector3();
+let pointerState={down:false,id:null,startX:0,startY:0,lastX:0,lastY:0,ballDrag:false,world:new THREE.Vector3()};
+function setPointer(e){const r=renderer.domElement.getBoundingClientRect();pointerNdc.x=((e.clientX-r.left)/r.width)*2-1;pointerNdc.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(pointerNdc,camera);raycaster.ray.intersectPlane(groundPlane,rayHit);return rayHit.clone()}
+function featureAt(e){setPointer(e);const hits=raycaster.intersectObjects([...courseFeatures,ballMesh].filter(Boolean),true);for(const hit of hits){let o=hit.object;while(o&&!o.userData.feature)o=o.parent;if(o?.userData.feature)return o.userData.feature}return{type:'ground',point:rayHit.clone()}}
+renderer.domElement.addEventListener('pointerdown',e=>{e.preventDefault();const f=featureAt(e);pointerState={down:true,id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,ballDrag:f.type==='ball',world:rayHit.clone()};renderer.domElement.setPointerCapture(e.pointerId);if(pointerState.ballDrag){$('power').classList.add('show');updateAimLine(rayHit)}});
+renderer.domElement.addEventListener('pointermove',e=>{if(!pointerState.down||e.pointerId!==pointerState.id)return;e.preventDefault();pointerState.lastX=e.clientX;pointerState.lastY=e.clientY;setPointer(e);pointerState.world.copy(rayHit);if(pointerState.ballDrag){const d=Math.hypot(e.clientX-pointerState.startX,e.clientY-pointerState.startY);$('power-fill').style.width=clamp(d/2.5,18,100)+'%';updateAimLine(rayHit)}});
+renderer.domElement.addEventListener('pointerup',e=>{if(!pointerState.down||e.pointerId!==pointerState.id)return;e.preventDefault();setPointer(e);const drag=Math.hypot(e.clientX-pointerState.startX,e.clientY-pointerState.startY);$('power').classList.remove('show');aimLine.visible=false;
+  if(pointerState.ballDrag&&drag>18){strikeBall(rayHit.clone(),clamp(drag/150,.35,1.35))}
+  else{const f=featureAt(e);if(f.type==='ball')strikeBall(cupPos.clone(),.82);else if(f.type==='ramp')rampOut(f.ramp);else if(f.type==='bumper')ramBumper(f);else if(f.type==='cup'){markTarget(cupPos);coach('<b>FLAG LINE SET</b> · TAP THE BALL TO COMMIT')}else driveTo(rayHit.clone(),'DRIVE')}
+  pointerState.down=false;pointerState.ballDrag=false;
+});
+renderer.domElement.addEventListener('pointercancel',()=>{pointerState.down=false;pointerState.ballDrag=false;$('power').classList.remove('show');aimLine.visible=false});
+addEventListener('keydown',e=>{keys.add(e.key.toLowerCase());if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key.toLowerCase()))e.preventDefault()},{passive:false});addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+
+// ---------- CAMERA / FRAME ----------
+const cameraFocus=new THREE.Vector3();let last=performance.now(),acc=0;const fixed=1/60;
+function updateCamera(dt){const cs=carState(),bs=ballState()||{p:cupPos};const focus=cs.p.clone().add(bs.p).multiplyScalar(.5);focus.lerp(cupPos,.12);focus.y=0;cameraFocus.lerp(focus,1-Math.exp(-dt*4));const spread=Math.max(cs.p.distanceTo(bs.p),bs.p.distanceTo(cupPos),cs.p.distanceTo(cupPos)*.65);viewHeight=lerp(viewHeight,clamp(43+spread*.32,48,76),1-Math.exp(-dt*3));const aspect=innerWidth/innerHeight;camera.left=-viewHeight*aspect/2;camera.right=viewHeight*aspect/2;camera.top=viewHeight/2;camera.bottom=-viewHeight/2;camera.updateProjectionMatrix();camera.position.copy(cameraFocus).add(new THREE.Vector3(0,58,26));camera.lookAt(cameraFocus);cyanLight.position.copy(cs.p).add(new THREE.Vector3(0,5,0));}
+function animate(now){requestAnimationFrame(animate);const dt=Math.min(.04,(now-last)/1000);last=now;acc+=dt;while(acc>=fixed){drivePreStep(fixed);jolt.Step(fixed,1);monitorPhysics(fixed);acc-=fixed}for(const r of rigidRecords)if(r.body&&r.obj&&!(sinking&&r.body===ballBody))sync(r.body,r.obj);syncWheels();if(markerLife>0){markerLife=Math.max(0,markerLife-dt*.7);marker.material.opacity=markerLife;const s=1+(1-markerLife)*1.8;marker.scale.setScalar(s)}updateCamera(dt);renderer.render(scene,camera)}
+function resize(){renderer.setSize(innerWidth,innerHeight,false);renderer.setPixelRatio(Math.min(devicePixelRatio,2))}addEventListener('resize',resize);
+$('reset').onclick=()=>loadHole(holeIndex);$('helpBtn').onclick=()=>$('help').classList.add('show');$('closeHelp').onclick=()=>$('help').classList.remove('show');
+
+loadHole(0);syncWheels();$('engine').textContent='JOLT · ACTIVE · TOP-DOWN 3D';$('boot-state').textContent='COURSE READY';setTimeout(()=>$('boot').style.display='none',350);requestAnimationFrame(animate);
+window.__thunderGolf={Jolt,physicsSystem,carBody,get ballBody(){return ballBody},loadHole,holes,auto,strikeBall,rampOut};
+</script>
+</body>
+</html>

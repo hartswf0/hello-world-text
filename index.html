@@ -1,0 +1,2553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World Prototype Index</title>
+  <style>
+    :root {
+      --white: #fff;
+      --black: #000;
+      --family-color: #f2c94c;
+      --family-ink: #000;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--white);
+      color: var(--black);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+      overflow: hidden;
+    }
+
+    button, input, textarea, select {
+      color: inherit;
+      font: inherit;
+      border-radius: 0;
+    }
+
+    .app {
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(280px, 34vw) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    header {
+      grid-column: 1 / -1;
+      min-height: 52px;
+      display: grid;
+      grid-template-columns: minmax(200px, 34vw) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      align-items: center;
+      border-bottom: 2px solid var(--black);
+      background: var(--white);
+      z-index: 5;
+    }
+
+    .brand, .top-actions {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .brand {
+      border-right: 2px solid var(--black);
+      align-items: flex-start;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.05;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .brand small {
+      font-size: 10px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .muted { display: none; }
+    .top-actions { min-width: 0; }
+
+    .search {
+      width: 100%;
+      border: 2px solid var(--black);
+      background: var(--white);
+      height: 36px;
+      padding: 0 9px;
+      outline: none;
+    }
+
+    .search:focus { outline: 3px solid var(--black); outline-offset: -6px; }
+
+    .family-nav {
+      grid-column: 1 / -1;
+      border-top: 2px solid var(--black);
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      background: var(--white);
+    }
+
+    .family-link {
+      --nav-color: var(--family-color);
+      --nav-ink: var(--family-ink);
+      flex: 0 0 auto;
+      min-width: 132px;
+      min-height: 40px;
+      border: 0;
+      border-right: 2px solid var(--black);
+      background: var(--white);
+      color: var(--black);
+      padding: 6px 8px;
+      display: grid;
+      align-content: center;
+      gap: 1px;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: none;
+      box-shadow: inset 0 -7px 0 var(--nav-color);
+    }
+
+    .family-link b,
+    .family-link span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .family-link b {
+      font-size: 10px;
+      line-height: 1;
+      text-transform: uppercase;
+      font-weight: 950;
+    }
+
+    .family-link span {
+      font-size: 9px;
+      line-height: 1.1;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .family-link:hover,
+    .family-link.active {
+      background: var(--nav-color);
+      color: var(--nav-ink);
+      box-shadow: none;
+    }
+
+    .icon-btn, .pill, .select {
+      border: 2px solid var(--black);
+      background: var(--white);
+      min-height: 36px;
+      padding: 0 9px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .icon-btn {
+      width: 36px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .icon-btn:hover, .pill:hover, .seg button:hover, .rate:hover { background: var(--black); color: var(--white); }
+    .select { min-width: 116px; height: 36px; }
+    .status-strip { display: none; }
+
+    aside, main, .inspector {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    aside {
+      border-right: 2px solid var(--black);
+      background: var(--white);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .filters {
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      border-bottom: 2px solid var(--black);
+    }
+
+    .family-page {
+      --page-color: var(--family-color);
+      --page-ink: var(--family-ink);
+      border: 2px solid var(--black);
+      background: var(--page-color);
+      color: var(--page-ink);
+      padding: 7px;
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .family-page b,
+    .family-page span {
+      display: block;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .family-page b {
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .family-page span {
+      font-size: 10px;
+      line-height: 1.25;
+      font-weight: 850;
+    }
+
+    .family-page .family-best {
+      border-top: 2px solid currentColor;
+      padding-top: 5px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 6px;
+      align-items: center;
+    }
+
+    .seg {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .seg button {
+      border: 2px solid var(--black);
+      background: var(--white);
+      min-height: 32px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+      margin-left: -2px;
+      text-transform: uppercase;
+    }
+
+    .seg button:first-child { margin-left: 0; }
+    .seg button.active { background: var(--black); color: var(--white); }
+
+    .list {
+      overflow: auto;
+      padding: 0;
+    }
+
+    .family {
+      --section-color: var(--family-color);
+      --section-ink: var(--family-ink);
+      margin: 0;
+    }
+
+    .family-head {
+      position: sticky;
+      top: 0;
+      background: var(--section-color);
+      color: var(--section-ink);
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .family-head span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .family-head a {
+      color: inherit;
+      text-decoration: none;
+      border: 2px solid currentColor;
+      padding: 2px 5px;
+      font-size: 9px;
+      flex: 0 0 auto;
+    }
+
+    .family-head a:hover { background: var(--section-ink); color: var(--section-color); }
+
+    .branch-line {
+      width: 10px;
+      align-self: stretch;
+      border-left: 2px solid var(--black);
+      border-bottom: 2px solid var(--black);
+      flex: 0 0 auto;
+      margin-left: 2px;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr) auto;
+      gap: 8px;
+      width: 100%;
+      margin: 0;
+      padding: 8px;
+      border: 0;
+      border-bottom: 2px solid var(--black);
+      background: var(--white);
+      text-align: left;
+      cursor: pointer;
+      align-items: center;
+      box-shadow: inset 5px 0 0 var(--item-color, var(--family-color));
+    }
+
+    .item:hover, .item.active { background: var(--black); color: var(--white); }
+    .item.active .branch-line, .item:hover .branch-line { border-color: var(--white); }
+
+    .dot {
+      width: 18px;
+      height: 18px;
+      border: 2px solid currentColor;
+      margin: auto;
+      background: transparent;
+    }
+
+    .item[data-rating="good"] .dot::after { content: "✓"; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+    .item[data-rating="bad"] .dot::after { content: "X"; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+    .item[data-rating="maybe"] .dot::after { content: "?"; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+
+    .item-title {
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-path {
+      margin-top: 1px;
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badges { display: flex; gap: 4px; align-items: center; }
+    .badge, .video-badge {
+      min-width: 20px;
+      height: 18px;
+      display: inline-grid;
+      place-items: center;
+      border: 2px solid currentColor;
+      background: transparent;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .video-badge {
+      min-width: 36px;
+      padding: 0 4px;
+      background: var(--item-color, var(--family-color));
+      color: var(--item-ink, var(--family-ink));
+    }
+
+    .item:hover .video-badge,
+    .item.active .video-badge {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      background: var(--white);
+      min-width: 0;
+    }
+
+    .preview-bar {
+      min-height: 44px;
+      padding: 6px 8px;
+      background: var(--white);
+      border-bottom: 2px solid var(--black);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .preview-title {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .preview-title b {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .preview-title code {
+      display: block;
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .frame-wrap {
+      min-height: 0;
+      padding: 0;
+      display: grid;
+      background:
+        linear-gradient(135deg, var(--white) 0 49%, var(--black) 49% 51%, var(--white) 51% 100%) 0 0 / 24px 24px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--white);
+    }
+
+    .inspector {
+      border-top: 2px solid var(--black);
+      background: var(--white);
+      overflow: hidden;
+      padding: 0;
+      display: grid;
+      grid-template-columns: minmax(170px, 240px) minmax(0, 1fr) minmax(190px, 270px);
+    }
+
+    .panel {
+      background: var(--white);
+      border: 0;
+      border-right: 2px solid var(--black);
+      padding: 8px;
+      margin: 0;
+      min-width: 0;
+    }
+
+    .panel:last-child { border-right: 0; }
+
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .rating-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+    }
+
+    .rate {
+      min-height: 32px;
+      border: 2px solid var(--black);
+      background: var(--white);
+      font-weight: 850;
+      cursor: pointer;
+      margin: -2px 0 0 -2px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .rate.active { background: var(--black); color: var(--white); }
+
+    label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 850;
+      margin: 7px 0 4px;
+    }
+
+    textarea, .tag-input {
+      width: 100%;
+      border: 2px solid var(--black);
+      background: var(--white);
+      padding: 7px;
+      outline: none;
+      resize: vertical;
+      font-size: 12px;
+    }
+
+    textarea { min-height: 72px; max-height: 18vh; }
+    textarea:focus, .tag-input:focus { outline: 3px solid var(--black); outline-offset: -6px; }
+
+    .lineage {
+      display: grid;
+      gap: 0;
+      margin-top: 0;
+      max-height: 154px;
+      overflow: auto;
+    }
+
+    .lineage-node {
+      display: grid;
+      grid-template-columns: 16px minmax(0, 1fr);
+      gap: 6px;
+      align-items: start;
+      width: 100%;
+      font-size: 11px;
+      border-bottom: 2px solid var(--black);
+      border-top: 0;
+      border-right: 0;
+      border-left: 0;
+      padding: 5px 0;
+      cursor: pointer;
+      background: var(--white);
+      text-align: left;
+    }
+
+    .lineage-node::before {
+      content: "";
+      width: 10px;
+      height: 20px;
+      border-left: 2px solid var(--black);
+      border-bottom: 2px solid var(--black);
+      margin-left: 4px;
+    }
+
+    .lineage-node:hover, .lineage-node.active { background: var(--black); color: var(--white); }
+    .lineage-node:hover::before, .lineage-node.active::before { border-color: var(--white); }
+    .lineage-node strong { display: block; text-transform: uppercase; }
+
+    .table {
+      display: grid;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .table div {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .table b {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 10px;
+      transform: translateX(-50%);
+      background: var(--black);
+      color: var(--white);
+      padding: 8px 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+      z-index: 20;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 1050px) {
+      .app { grid-template-columns: minmax(250px, 38vw) minmax(0, 1fr); }
+      header { grid-template-columns: minmax(250px, 38vw) minmax(0, 1fr); }
+      .inspector { grid-template-columns: 1fr; overflow: auto; max-height: 260px; }
+      .panel { border-right: 0; border-bottom: 2px solid var(--black); }
+      .panel:last-child { border-bottom: 0; }
+    }
+
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+      .app, header {
+        height: auto;
+        min-height: 100%;
+        display: block;
+      }
+      header {
+        position: sticky;
+        top: 0;
+      }
+      .brand {
+        min-height: 38px;
+        border-right: 0;
+        border-bottom: 2px solid var(--black);
+      }
+      .brand small { display: none; }
+      .top-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 116px;
+        border-bottom: 2px solid var(--black);
+      }
+      aside {
+        height: 34vh;
+        border-right: 0;
+        border-bottom: 2px solid var(--black);
+      }
+      main {
+        height: auto;
+        min-height: 66vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .preview-bar {
+        position: sticky;
+        top: 130px;
+        z-index: 4;
+      }
+      .frame-wrap {
+        height: 55vh;
+        min-height: 360px;
+        border-bottom: 2px solid var(--black);
+      }
+      .inspector {
+        display: block;
+        max-height: none;
+        overflow: visible;
+      }
+      .panel { border-right: 0; border-bottom: 2px solid var(--black); }
+      .panel:last-child { border-bottom: 0; }
+      .lineage { max-height: 180px; }
+    }
+
+    /* Soft catalogue pass: closer to the compact mobile studies. */
+    :root {
+      --white: #f7f9f8;
+      --black: #151918;
+      --paper: #e8eeee;
+      --surface: #f7f9f8;
+      --surface-2: #eef3f2;
+      --line: #aeb9b6;
+      --line-soft: #d5ddda;
+      --muted-ink: #65706d;
+      --shadow: 0 12px 34px rgba(18, 26, 24, .12);
+      --shadow-tight: 0 3px 12px rgba(18, 26, 24, .10);
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--black);
+    }
+
+    button, input, textarea, select { border-radius: 6px; }
+
+    .app {
+      grid-template-columns: minmax(270px, 32vw) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 10px;
+      background: var(--paper);
+    }
+
+    header, aside, main, .inspector {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow-tight);
+      overflow: hidden;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      grid-template-columns: minmax(220px, 32vw) minmax(0, 1fr);
+    }
+
+    .brand {
+      border-right: 1px solid var(--line-soft);
+      color: var(--black);
+    }
+
+    .brand small,
+    .item-path,
+    .preview-title code,
+    label,
+    .table span {
+      color: var(--muted-ink);
+    }
+
+    .search,
+    .icon-btn,
+    .pill,
+    .select,
+    .seg button,
+    .rate,
+    textarea,
+    .tag-input {
+      border: 1px solid var(--line);
+      background: #fbfcfc;
+    }
+
+    .pill,
+    .pill:visited {
+      color: var(--black);
+    }
+
+    .search:focus,
+    textarea:focus,
+    .tag-input:focus {
+      outline: 2px solid #53d2c4;
+      outline-offset: 0;
+    }
+
+    .family-nav {
+      border-top: 1px solid var(--line-soft);
+      background: var(--surface);
+    }
+
+    .family-link {
+      min-width: 124px;
+      min-height: 36px;
+      border-right: 1px solid var(--line-soft);
+      background: var(--surface);
+      box-shadow: inset 0 -4px 0 var(--nav-color);
+    }
+
+    .family-link:hover,
+    .family-link.active {
+      background: #edf8f5;
+      color: var(--black);
+      box-shadow: inset 0 -4px 0 var(--nav-color);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .filters {
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--surface);
+    }
+
+    .family-page {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--black);
+      box-shadow: inset 4px 0 0 var(--page-color);
+    }
+
+    .family-page .family-best {
+      border-top: 1px solid var(--line);
+    }
+
+    .seg {
+      gap: 4px;
+    }
+
+    .seg button {
+      margin-left: 0;
+      min-height: 30px;
+    }
+
+    .seg button.active,
+    .rate.active {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    .icon-btn:hover,
+    .pill:hover,
+    .seg button:hover,
+    .rate:hover {
+      background: #e9f6f3;
+      color: var(--black);
+      border-color: #74cfc2;
+    }
+
+    .list {
+      background: var(--surface-2);
+      padding: 5px;
+    }
+
+    .family {
+      margin-bottom: 7px;
+    }
+
+    .family:last-child {
+      margin-bottom: 0;
+    }
+
+    .family-head {
+      background: var(--surface);
+      color: var(--black);
+      border: 1px solid var(--line-soft);
+      border-radius: 6px;
+      box-shadow: inset 4px 0 0 var(--section-color);
+    }
+
+    .family-head a {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      color: var(--black);
+      background: #fbfcfc;
+    }
+
+    .family-head a:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .branch-line {
+      border-left: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .item {
+      margin-top: 5px;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      background: #fbfcfc;
+      box-shadow: inset 4px 0 0 var(--item-color, var(--family-color));
+      transition: background .14s ease, border-color .14s ease;
+    }
+
+    .item:hover,
+    .item.active {
+      background: #eaf8f5;
+      color: var(--black);
+      border-color: #78cbc1;
+    }
+
+    .item.active .branch-line,
+    .item:hover .branch-line {
+      border-color: #78cbc1;
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+    }
+
+    .badge,
+    .video-badge {
+      height: 17px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      font-size: 9px;
+    }
+
+    .video-badge {
+      border-color: transparent;
+    }
+
+    .item:hover .video-badge,
+    .item.active .video-badge {
+      background: #fbfcfc;
+      color: var(--black);
+    }
+
+    .preview-bar {
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .frame-wrap {
+      padding: 6px;
+      background:
+        linear-gradient(135deg, transparent 0 49%, rgba(21, 25, 24, .08) 49% 51%, transparent 51% 100%) 0 0 / 22px 22px,
+        var(--surface-2);
+    }
+
+    iframe {
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px var(--line-soft);
+    }
+
+    .inspector {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--line);
+    }
+
+    .panel {
+      border-right: 1px solid var(--line-soft);
+      background: var(--surface);
+    }
+
+    .panel h2 {
+      color: var(--black);
+    }
+
+    .rate {
+      margin: 0;
+    }
+
+    .rating-grid {
+      gap: 4px;
+    }
+
+    textarea,
+    .tag-input {
+      line-height: 1.35;
+    }
+
+    .lineage {
+      gap: 4px;
+    }
+
+    .lineage-node {
+      grid-template-columns: minmax(0, 1fr);
+      border: 1px solid var(--line-soft);
+      border-radius: 6px;
+      padding: 6px;
+      background: #fbfcfc;
+    }
+
+    .lineage-node > span:first-child,
+    .lineage-node::before {
+      display: none;
+    }
+
+    .lineage-node:hover,
+    .lineage-node.active {
+      background: #eaf8f5;
+      color: var(--black);
+      border-color: #78cbc1;
+    }
+
+    .lineage-node:hover::before,
+    .lineage-node.active::before {
+      border-color: #78cbc1;
+    }
+
+    .toast {
+      border-radius: 7px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 1050px) {
+      .app {
+        grid-template-columns: minmax(250px, 38vw) minmax(0, 1fr);
+      }
+
+      header {
+        grid-template-columns: minmax(250px, 38vw) minmax(0, 1fr);
+      }
+
+      .inspector {
+        grid-template-columns: 1fr;
+        max-height: 260px;
+      }
+
+      .panel {
+        border-right: 0;
+        border-bottom: 1px solid var(--line-soft);
+      }
+    }
+
+    @media (max-width: 760px) {
+      html,
+      body {
+        height: auto;
+        min-height: 100%;
+      }
+
+      body {
+        overflow: auto;
+        background: var(--paper);
+      }
+
+      .app {
+        display: block;
+        height: auto;
+        min-height: 100dvh;
+        padding: 8px;
+      }
+
+      header {
+        display: block;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        margin: -8px -8px 8px;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .brand {
+        min-height: 34px;
+        padding: 7px 10px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      h1 {
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .brand small {
+        display: none;
+      }
+
+      .top-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 112px;
+        gap: 6px;
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--line-soft);
+      }
+
+      .search,
+      .select {
+        height: 32px;
+        min-height: 32px;
+        font-size: 11px;
+      }
+
+      .family-nav {
+        gap: 5px;
+        padding: 0 8px 7px;
+        border-top: 0;
+        scrollbar-width: none;
+      }
+
+      .family-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .family-link {
+        min-width: 102px;
+        min-height: 31px;
+        padding: 5px 7px;
+        border: 1px solid var(--line-soft);
+        border-radius: 6px;
+        box-shadow: inset 0 -3px 0 var(--nav-color);
+      }
+
+      .family-link b {
+        font-size: 8px;
+      }
+
+      .family-link span {
+        font-size: 7px;
+      }
+
+      aside {
+        height: min(42dvh, 360px);
+        min-height: 250px;
+        margin-bottom: 8px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+
+      .filters {
+        padding: 7px;
+        gap: 5px;
+      }
+
+      .family-page {
+        padding: 6px 7px;
+        gap: 3px;
+      }
+
+      .family-page b {
+        font-size: 10px;
+      }
+
+      .family-page span {
+        font-size: 8px;
+      }
+
+      .family-page .family-best {
+        padding-top: 4px;
+      }
+
+      .seg {
+        gap: 4px;
+      }
+
+      .seg button {
+        min-height: 28px;
+        font-size: 9px;
+      }
+
+      .list {
+        padding: 5px;
+      }
+
+      .family {
+        margin-bottom: 6px;
+      }
+
+      .family-head {
+        padding: 5px 7px;
+        font-size: 9px;
+      }
+
+      .family-head a {
+        padding: 2px 5px;
+        font-size: 7px;
+      }
+
+      .item {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px;
+        padding: 7px;
+      }
+
+      .branch-line {
+        display: none;
+      }
+
+      .item-title {
+        font-size: 11px;
+        line-height: 1.1;
+      }
+
+      .item-path {
+        margin-top: 2px;
+        font-size: 8px;
+        line-height: 1.2;
+      }
+
+      .badges {
+        gap: 3px;
+      }
+
+      .badge,
+      .video-badge {
+        min-width: 18px;
+        height: 16px;
+        padding: 0 3px;
+        font-size: 8px;
+      }
+
+      .dot {
+        width: 15px;
+        height: 15px;
+      }
+
+      main {
+        min-height: 0;
+        margin-bottom: 8px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .preview-bar {
+        position: static;
+        min-height: 39px;
+        padding: 6px;
+        gap: 5px;
+      }
+
+      .preview-title b {
+        font-size: 11px;
+      }
+
+      .preview-title code {
+        font-size: 8px;
+      }
+
+      .pill,
+      .icon-btn {
+        min-height: 31px;
+        height: 31px;
+        font-size: 10px;
+      }
+
+      .icon-btn {
+        width: 31px;
+      }
+
+      .frame-wrap {
+        height: 52dvh;
+        min-height: 318px;
+        padding: 5px;
+        border-bottom: 0;
+      }
+
+      .inspector {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        max-height: none;
+        overflow: visible;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px;
+        box-shadow: var(--shadow-tight);
+      }
+
+      .panel:last-child {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel h2 {
+        margin-bottom: 6px;
+        font-size: 10px;
+      }
+
+      .rate {
+        min-height: 30px;
+        font-size: 9px;
+      }
+
+      label {
+        margin: 7px 0 4px;
+        font-size: 9px;
+      }
+
+      textarea,
+      .tag-input {
+        padding: 7px;
+        font-size: 12px;
+      }
+
+      textarea {
+        min-height: 86px;
+        max-height: none;
+      }
+
+      .lineage {
+        max-height: 190px;
+      }
+
+      .lineage-node {
+        grid-template-columns: minmax(0, 1fr);
+        font-size: 10px;
+      }
+
+      .lineage-node::before {
+        display: none;
+      }
+
+      .table {
+        gap: 5px;
+        font-size: 10px;
+      }
+
+      .table div {
+        grid-template-columns: 50px minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 430px) {
+      .app {
+        padding: 6px;
+      }
+
+      header {
+        margin: -6px -6px 6px;
+      }
+
+      .top-actions {
+        grid-template-columns: minmax(0, 1fr) 104px;
+        padding: 6px;
+      }
+
+      .family-nav {
+        padding: 0 6px 6px;
+      }
+
+      .family-link {
+        min-width: 96px;
+      }
+
+      aside {
+        height: 40dvh;
+        min-height: 232px;
+        margin-bottom: 6px;
+      }
+
+      .filters,
+      .panel {
+        padding: 6px;
+      }
+
+      .preview-title code {
+        display: none;
+      }
+
+      .pill {
+        min-width: 52px;
+        padding: 0 7px;
+      }
+
+      .frame-wrap {
+        height: 49dvh;
+        min-height: 286px;
+      }
+
+      .inspector {
+        gap: 6px;
+      }
+    }
+
+    /* Catalog board pass: closer to the reference studies. */
+    :root {
+      --paper: #dfe7e8;
+      --surface: #f3f6f6;
+      --surface-2: #e9efef;
+      --line: #bac6c6;
+      --line-soft: #d8e0df;
+      --muted-ink: #5f6d6d;
+      --shadow: 0 12px 28px rgba(32, 43, 43, .16);
+      --shadow-tight: 0 4px 14px rgba(32, 43, 43, .13);
+    }
+
+    body {
+      background: radial-gradient(circle at 50% -12%, #edf2f2 0, var(--paper) 48%, #d8e1e2 100%);
+    }
+
+    .app {
+      width: min(100%, 1268px);
+      height: 100dvh;
+      margin: 0 auto;
+      padding: 18px 18px 10px;
+      gap: 12px;
+      grid-template-columns: minmax(310px, 32%) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) minmax(160px, 33vh);
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 8px;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .brand {
+      align-items: center;
+      min-height: 0;
+      padding: 1px 0 8px;
+      border: 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(24px, 3vw, 32px);
+      line-height: .95;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 6px;
+      font-size: clamp(13px, 1.55vw, 18px);
+      line-height: 1.1;
+      color: #1f2727;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .top-actions {
+      width: min(820px, 100%);
+      height: auto;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(243, 246, 246, .88);
+      box-shadow: var(--shadow-tight);
+    }
+
+    .search,
+    .select {
+      height: 31px;
+      min-height: 31px;
+      font-size: 11px;
+      border-radius: 5px;
+    }
+
+    .search::placeholder {
+      color: #889493;
+    }
+
+    .family-nav {
+      width: 100%;
+      padding: 0;
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      box-shadow: var(--shadow-tight);
+      background: rgba(243, 246, 246, .9);
+      overflow: hidden;
+    }
+
+    .family-link {
+      min-width: 118px;
+      min-height: 37px;
+      padding: 6px 8px;
+      border-right: 1px solid var(--line-soft);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: inset 0 -4px 0 color-mix(in srgb, var(--nav-color) 92%, white 8%);
+    }
+
+    .family-link b {
+      font-size: 9px;
+      line-height: 1.05;
+    }
+
+    .family-link span {
+      font-size: 7px;
+      line-height: 1.2;
+    }
+
+    header,
+    aside,
+    main,
+    .inspector {
+      border-color: var(--line);
+    }
+
+    aside,
+    main,
+    .inspector {
+      box-shadow: var(--shadow);
+    }
+
+    .filters {
+      padding: 7px;
+    }
+
+    .family-page {
+      padding: 7px 8px;
+      border-radius: 0;
+      background: #eef4f3;
+      box-shadow: inset 5px 0 0 color-mix(in srgb, var(--page-color) 88%, white 12%);
+    }
+
+    .family-page b {
+      font-size: 10px;
+      line-height: 1.05;
+    }
+
+    .family-page span {
+      font-size: 8px;
+      line-height: 1.25;
+    }
+
+    .seg button {
+      min-height: 30px;
+      border-radius: 5px;
+      font-size: 9px;
+    }
+
+    .list {
+      padding: 6px;
+      background: #e7eeee;
+    }
+
+    .family-head {
+      position: relative;
+      top: auto;
+      min-height: 29px;
+      padding: 5px 7px;
+      border-radius: 5px;
+      font-size: 9px;
+      box-shadow: inset 4px 0 0 color-mix(in srgb, var(--section-color) 90%, white 10%);
+    }
+
+    .family-head a {
+      padding: 2px 5px;
+      font-size: 7px;
+      border-radius: 4px;
+    }
+
+    .item {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+      min-height: 48px;
+      margin-top: 5px;
+      padding: 7px;
+      border-radius: 5px;
+      box-shadow: inset 4px 0 0 color-mix(in srgb, var(--item-color, var(--family-color)) 88%, white 12%);
+    }
+
+    .branch-line {
+      display: none;
+    }
+
+    .item-title {
+      font-size: 11px;
+      line-height: 1.15;
+    }
+
+    .item-path {
+      margin-top: 3px;
+      font-size: 8px;
+      line-height: 1.2;
+    }
+
+    .badges {
+      gap: 3px;
+    }
+
+    .badge,
+    .video-badge {
+      min-width: 18px;
+      height: 15px;
+      padding: 0 3px;
+      border-radius: 4px;
+      font-size: 7px;
+    }
+
+    .dot {
+      width: 15px;
+      height: 15px;
+    }
+
+    .preview-bar {
+      min-height: 42px;
+      padding: 7px;
+    }
+
+    .preview-title b {
+      font-size: 12px;
+      line-height: 1.1;
+    }
+
+    .preview-title code {
+      margin-top: 1px;
+      font-size: 8px;
+    }
+
+    .pill,
+    .icon-btn {
+      min-height: 33px;
+      height: 33px;
+      border-radius: 5px;
+      font-size: 10px;
+    }
+
+    .icon-btn {
+      width: 33px;
+    }
+
+    .frame-wrap {
+      padding: 6px;
+      background:
+        linear-gradient(135deg, transparent 0 49%, rgba(32, 43, 43, .07) 49% 51%, transparent 51% 100%) 0 0 / 20px 20px,
+        #e7eeee;
+    }
+
+    iframe {
+      border-radius: 5px;
+      background: #f7f9f8;
+    }
+
+    .inspector {
+      min-height: 0;
+      grid-template-columns: minmax(210px, 240px) minmax(0, 1fr) minmax(210px, 270px);
+    }
+
+    .panel {
+      padding: 9px;
+    }
+
+    .panel h2 {
+      margin-bottom: 7px;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .rate {
+      min-height: 31px;
+      border-radius: 5px;
+      font-size: 9px;
+    }
+
+    label {
+      margin: 7px 0 4px;
+      font-size: 8px;
+    }
+
+    textarea,
+    .tag-input {
+      border-radius: 5px;
+      font-size: 11px;
+    }
+
+    textarea {
+      min-height: 88px;
+    }
+
+    .lineage-node {
+      min-height: 40px;
+      border-radius: 5px;
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .table {
+      gap: 4px;
+      font-size: 10px;
+    }
+
+    @media (min-width: 761px) and (max-height: 760px) {
+      .brand {
+        padding-bottom: 5px;
+      }
+
+      h1 {
+        font-size: 23px;
+      }
+
+      .brand small {
+        font-size: 13px;
+        margin-top: 3px;
+      }
+
+      .app {
+        padding-top: 10px;
+        grid-template-rows: auto minmax(0, 1fr) minmax(132px, 29vh);
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        background: var(--paper);
+      }
+
+      .app {
+        width: 100%;
+        height: auto;
+        min-height: 100dvh;
+      }
+
+      header {
+        gap: 0;
+        background: rgba(243, 246, 246, .96);
+        border: 1px solid var(--line);
+        border-top: 0;
+        box-shadow: var(--shadow-tight);
+        overflow: hidden;
+      }
+
+      .brand {
+        align-items: flex-start;
+        padding: 8px 10px 6px;
+        text-align: left;
+      }
+
+      h1 {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+        line-height: 1;
+      }
+
+      .brand small {
+        display: block;
+        max-width: 100%;
+        margin-top: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 10px;
+        line-height: 1.15;
+        color: var(--muted-ink);
+      }
+
+      .top-actions {
+        width: 100%;
+        margin: 0;
+        border: 0;
+        border-top: 1px solid var(--line-soft);
+        border-bottom: 1px solid var(--line-soft);
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      .family-nav {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+
+      .family-link {
+        border-radius: 5px;
+      }
+
+      aside,
+      main {
+        box-shadow: var(--shadow-tight);
+      }
+
+      .inspector {
+        box-shadow: none;
+      }
+    }
+
+    /* Operations-first pass: keep the top chrome shallow and useful. */
+    .app {
+      padding: 8px;
+      gap: 8px;
+      grid-template-columns: minmax(310px, 32%) minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) minmax(145px, 30vh);
+    }
+
+    header {
+      grid-template-columns: minmax(148px, 210px) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      gap: 0;
+      background: rgba(243, 246, 246, .94);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      box-shadow: var(--shadow-tight);
+      overflow: hidden;
+    }
+
+    .brand {
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 43px;
+      padding: 7px 10px;
+      border-right: 1px solid var(--line-soft);
+      text-align: left;
+    }
+
+    h1 {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .brand small {
+      display: none;
+    }
+
+    .top-actions {
+      width: 100%;
+      height: 43px;
+      margin: 0;
+      padding: 5px;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .top-actions > * {
+      min-width: 0;
+    }
+
+    .search,
+    .select {
+      width: 100%;
+      min-width: 0;
+      height: 31px;
+      min-height: 31px;
+    }
+
+    .family-nav {
+      grid-column: 1 / -1;
+      border: 0;
+      border-top: 1px solid var(--line-soft);
+      border-radius: 0;
+      box-shadow: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .family-link {
+      min-height: 33px;
+      padding: 5px 8px;
+    }
+
+    .item > span,
+    .preview-title,
+    .panel {
+      min-width: 0;
+    }
+
+    .item-title,
+    .item-path {
+      display: block;
+    }
+
+    .preview-bar {
+      min-height: 39px;
+      padding: 5px 7px;
+    }
+
+    .frame-wrap {
+      padding: 5px;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        padding: 6px;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        margin: -6px -6px 6px;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0 0 7px 7px;
+      }
+
+      .brand {
+        display: none;
+      }
+
+      .top-actions {
+        height: 42px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 104px;
+        gap: 5px;
+        padding: 5px 6px;
+        border: 0;
+      }
+
+      .family-nav {
+        display: none;
+      }
+
+      .family-link {
+        min-width: 92px;
+        min-height: 29px;
+        padding: 4px 6px;
+      }
+
+      .family-link b {
+        font-size: 8px;
+      }
+
+      .family-link span {
+        font-size: 7px;
+      }
+
+      .inspector {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <h1>Hello World Index</h1>
+        <small>Lineage / iframe / verdict / notes</small>
+      </div>
+      <div class="top-actions">
+        <input id="search" class="search" type="search" placeholder="Search prototypes, paths, tags, notes">
+        <select id="familyFilter" class="select" aria-label="Family filter"></select>
+      </div>
+      <nav id="familyNav" class="family-nav" aria-label="Family pages"></nav>
+    </header>
+
+    <aside>
+      <div class="filters">
+        <div id="familyPage" class="family-page"></div>
+        <div class="seg" id="ratingFilter">
+          <button class="active" data-filter="all">All</button>
+          <button data-filter="good">Good</button>
+          <button data-filter="bad">Bad</button>
+          <button data-filter="maybe">Maybe</button>
+        </div>
+      </div>
+      <div id="list" class="list"></div>
+    </aside>
+
+    <main>
+      <div class="preview-bar">
+        <div class="preview-title">
+          <b id="activeTitle">Pick a prototype</b>
+          <code id="activePath"></code>
+        </div>
+        <a id="openLink" class="pill" href="#" target="_blank" rel="noopener">Open</a>
+        <button id="reloadBtn" class="icon-btn" title="Reload iframe">↻</button>
+        <button id="copyBtn" class="icon-btn" title="Copy iframe embed">⧉</button>
+      </div>
+      <div class="frame-wrap">
+        <iframe id="preview" title="Prototype preview"></iframe>
+      </div>
+    </main>
+
+    <section class="inspector">
+      <div class="panel">
+        <h2>Verdict</h2>
+        <div class="rating-grid">
+          <button class="rate" data-rate="good">Good</button>
+          <button class="rate" data-rate="maybe">Maybe</button>
+          <button class="rate" data-rate="bad">Bad</button>
+          <button class="rate" data-rate="untested">Untested</button>
+        </div>
+        <label for="tags">Flags</label>
+        <input id="tags" class="tag-input" placeholder="playable, broken, keeper, needs-audio">
+        <label for="notes">Notes</label>
+        <textarea id="notes" rows="8" placeholder="What works, what breaks, what to borrow, what to delete..."></textarea>
+      </div>
+
+      <div class="panel">
+        <h2>Lineage</h2>
+        <div id="lineage" class="lineage"></div>
+      </div>
+
+      <div class="panel">
+        <h2>File</h2>
+        <div class="table">
+          <div><span>Family</span><b id="metaFamily"></b></div>
+          <div><span>Page</span><b id="metaPage"></b></div>
+          <div><span>Variant</span><b id="metaVariant"></b></div>
+          <div><span>Video</span><b id="metaVideo"></b></div>
+          <div><span>Evidence</span><b id="metaEvidence"></b></div>
+          <div><span>Source</span><b id="metaSource"></b></div>
+          <div><span>Embed</span><b id="metaEmbed"></b></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const files = [
+      "hello-world-000.html",
+      "hello-world-001.html",
+      "hello-world-003.html",
+      "hello-world-004-openai.html",
+      "hello-world-004-openai (1).html",
+      "hello-world-004-openai (2).html",
+      "files (27)/hello-world-004-openai.html",
+      "files (28)/hello-world-004-openai.html",
+      "thunderhead-openai-production/game/hello-world-004-openai.html",
+      "HELLO_WORLD_SNEAK_thunder_rigs.html",
+      "thunder-rigs.html",
+      "garage.html",
+      "garage-thunder-rigs.html",
+      "garage-thunder-rigs (1).html",
+      "garage-trout-town.html",
+      "garage-artifacts.html",
+      "garage-animals.html",
+      "garage-animals (1).html",
+      "THUNDER_RIGS_MINIMAL_OPERATOR.html",
+      "THUNDER_RIGS_CONSEQUENCE_ENGINE.html",
+      "THUNDER_RIGS_CONSEQUENCE_FILM_STUDIO.html",
+      "THUNDER_RIGS_MATERIAL_MORPH_SANDBOX.html",
+      "THUNDER_RIGS_JOLT_PHYSICS_UPGRADE.html",
+      "THUNDER_RIGS_WRECK_RALLY_OFFLINE.html",
+      "THUNDER_RIGS_WRECK_RALLY_EDGE_EXPLOSION.html",
+      "THUNDER_RIGS_WRECK_RECALL_GAME.html",
+      "THUNDER_RIGS_WRECK_RECALL_CLEAR_STAGE.html",
+      "THUNDER_RIGS_WRECK_DIRECTOR_COMPILER.html",
+      "THUNDER_RIGS_WRECK_OP_FORECAST.html",
+      "THUNDER_RIGS_GOLF.html",
+      "THUNDER_RIGS_GOLF_JOLT.html",
+      "THUNDER_RIGS_GOLF_JOLT_FUN.html",
+      "THUNDER_RIGS_GOLF_FILM_OPERATOR.html",
+      "THUNDER_RIGS_PUTT_OP_JOLT.html",
+      "THUNDER_RIGS_FUTURE_FLEET.html",
+      "THUNDER_RIGS_PROTOCOL_KERNEL_v0.3_BUNDLE (1)/THUNDER_RIGS_PROTOCOL_KERNEL_v0.3.html",
+      "THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL_BUNDLE/THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL.html",
+      "COLLISION_TRACE_WRECK_TABLE.html",
+      "COLLISION_TRACE_JOLT_3D/index.html",
+      "COLLISION_TRACE_JOLT_3D 2/index.html",
+      "paris-model.html",
+      "paris-model (1).html",
+      "paris-model (2).html",
+      "paris-model (3).html",
+      "VERDICT_ENGINE_PARIS_MODEL.html",
+      "VERDICT_ENGINE_PARIS_MODEL_STARTUP_FIXED.html",
+      "inverse-kernel.html",
+      "operator-studio-14.html",
+      "files (26)/operator-studio-14.html",
+      "files (27)/THUNDER_FORGE.html"
+    ];
+
+    const titleOverrides = {
+      "HELLO_WORLD_SNEAK_thunder_rigs.html": "Hello World Sneak: Thunder Rigs",
+      "THUNDER_RIGS_PROTOCOL_KERNEL_v0.3_BUNDLE (1)/THUNDER_RIGS_PROTOCOL_KERNEL_v0.3.html": "Thunder Rigs Protocol Kernel v0.3",
+      "THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL_BUNDLE/THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL.html": "Thunder Rigs Verdict World v1.0",
+      "COLLISION_TRACE_JOLT_3D/index.html": "Collision Trace Jolt 3D",
+      "COLLISION_TRACE_JOLT_3D 2/index.html": "Collision Trace Jolt 3D Copy"
+    };
+
+    const familyMeta = {
+      "Hello World": { slug: "hello-world", color: "#edca55", ink: "#111", note: "Origin builds and OpenAI variants" },
+      "Thunder Rigs": { slug: "thunder-rigs", color: "#ef8079", ink: "#111", note: "Rig sandboxes, material engines, and film operators" },
+      "Garage": { slug: "garage", color: "#82addb", ink: "#111", note: "Inspectable 3D asset garages" },
+      "Golf": { slug: "golf", color: "#8ac89a", ink: "#111", note: "Golf physics, shot cameras, and operator takes" },
+      "Wreck": { slug: "wreck", color: "#d9798e", ink: "#111", note: "Crash, recall, forecast, and director workflows" },
+      "Collision Trace": { slug: "collision-trace", color: "#6fc9c4", ink: "#111", note: "Counterfactual collision traces and JOLT timelines" },
+      "Paris / Verdict": { slug: "paris-verdict", color: "#b997db", ink: "#111", note: "Evidence, replay, and adjudication models" },
+      "Operator / Forge": { slug: "operator-forge", color: "#e2a163", ink: "#111", note: "Operator studios and forge tooling" },
+      "Other": { slug: "other", color: "#aeb8bf", ink: "#111", note: "Unsorted prototypes" }
+    };
+
+    const familyOrder = [
+      "Hello World",
+      "Thunder Rigs",
+      "Garage",
+      "Golf",
+      "Wreck",
+      "Collision Trace",
+      "Paris / Verdict",
+      "Operator / Forge",
+      "Other"
+    ];
+
+    const videoTiers = {
+      studio: { score: 5, badge: "REC+", label: "Native film studio" },
+      capture: { score: 4, badge: "REC", label: "Native canvas recorder" },
+      replay: { score: 3, badge: "PLAY", label: "Replay / world record" },
+      camera: { score: 2, badge: "CAM", label: "Record-ready visual" },
+      index: { score: 1, badge: "IDX", label: "Index / reference" }
+    };
+
+    const videoOverrides = {
+      "THUNDER_RIGS_CONSEQUENCE_FILM_STUDIO.html": videoProfile("studio", "MediaRecorder + captureStream, directed wreck takes, replay theater, downloadable clip.", 508),
+      "THUNDER_RIGS_WRECK_RECALL_GAME.html": videoProfile("studio", "Canvas video, hidden telemetry, source-take locking, recall workflow.", 506),
+      "THUNDER_RIGS_WRECK_RECALL_CLEAR_STAGE.html": videoProfile("studio", "Canvas video capture plus replay theater for cleared-stage wreck takes.", 504),
+      "THUNDER_RIGS_WRECK_DIRECTOR_COMPILER.html": videoProfile("studio", "Best candidate: video, material audio, telemetry, and fallback scene replay.", 510),
+      "THUNDER_RIGS_WRECK_OP_FORECAST.html": videoProfile("studio", "Video with audio, clip theater, forecast source take, and replay/export controls.", 507),
+      "THUNDER_RIGS_GOLF_FILM_OPERATOR.html": videoProfile("studio", "60 fps canvas capture, replay cameras, WebM save, and WorldRecord export.", 509),
+      "THUNDER_RIGS_PUTT_OP_JOLT.html": videoProfile("studio", "Film/replay modes with canvas capture, audio, save, and WorldRecord sidecar.", 507),
+      "THUNDER_RIGS_MINIMAL_OPERATOR.html": videoProfile("studio", "Compact film mode with canvas capture, replay render, and data export.", 505),
+      "THUNDER_RIGS_FUTURE_FLEET.html": videoProfile("studio", "Fleet film/replay modes with canvas capture and WorldRecord export.", 504),
+      "thunder-rigs.html": videoProfile("capture", "Rolling action buffer with replay marks and MediaRecorder export.", 405),
+      "THUNDER_RIGS_WRECK_RALLY_OFFLINE.html": videoProfile("capture", "Replay frames can render through canvas.captureStream to a saved WebM.", 403),
+      "THUNDER_RIGS_WRECK_RALLY_EDGE_EXPLOSION.html": videoProfile("capture", "Replay video export via canvas.captureStream and MediaRecorder.", 404),
+      "operator-studio-14.html": videoProfile("capture", "Operator canvas export uses captureStream and MediaRecorder.", 402),
+      "files (26)/operator-studio-14.html": videoProfile("capture", "Operator canvas export copy with captureStream and MediaRecorder.", 401),
+      "THUNDER_RIGS_PROTOCOL_KERNEL_v0.3_BUNDLE (1)/THUNDER_RIGS_PROTOCOL_KERNEL_v0.3.html": videoProfile("replay", "Strong WorldRecord export; video requires external or added recorder."),
+      "THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL_BUNDLE/THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL.html": videoProfile("replay", "Source capture, replay review, and exported verdict case record."),
+      "VERDICT_ENGINE_PARIS_MODEL.html": videoProfile("replay", "Deterministic source replay and exported verdict record."),
+      "VERDICT_ENGINE_PARIS_MODEL_STARTUP_FIXED.html": videoProfile("replay", "Verdict replay flow with fixed startup path and record export."),
+      "COLLISION_TRACE_JOLT_3D/index.html": videoProfile("replay", "JOLT snapshots and history timeline; no native video encoder detected."),
+      "COLLISION_TRACE_JOLT_3D 2/index.html": videoProfile("replay", "JOLT snapshots and history timeline copy; no native video encoder detected."),
+      "COLLISION_TRACE_WRECK_TABLE.html": videoProfile("replay", "Collision trace table is useful evidence, but not a native video recorder."),
+      "paris-model.html": videoProfile("replay", "Courtroom source replay and exported record; no native video encoder detected."),
+      "paris-model (1).html": videoProfile("replay", "Paris replay variant; no native video encoder detected."),
+      "paris-model (2).html": videoProfile("replay", "Paris replay variant; no native video encoder detected."),
+      "paris-model (3).html": videoProfile("replay", "Physics/replay variant with deterministic record logic.")
+    };
+
+    const storeKey = "hello-world-prototype-index.v1";
+    const savedActivePath = localStorage.getItem("hello-world-prototype-index.active");
+    let reviews = readReviews();
+    let activePath = savedActivePath || files[0];
+    let ratingFilterValue = "all";
+    let familyFilterValue = readFamilyRoute();
+    let searchValue = "";
+
+    const els = {
+      familyNav: document.getElementById("familyNav"),
+      familyPage: document.getElementById("familyPage"),
+      list: document.getElementById("list"),
+      search: document.getElementById("search"),
+      familyFilter: document.getElementById("familyFilter"),
+      preview: document.getElementById("preview"),
+      activeTitle: document.getElementById("activeTitle"),
+      activePath: document.getElementById("activePath"),
+      openLink: document.getElementById("openLink"),
+      reloadBtn: document.getElementById("reloadBtn"),
+      copyBtn: document.getElementById("copyBtn"),
+      ratingFilter: document.getElementById("ratingFilter"),
+      rates: [...document.querySelectorAll(".rate")],
+      tags: document.getElementById("tags"),
+      notes: document.getElementById("notes"),
+      lineage: document.getElementById("lineage"),
+      metaFamily: document.getElementById("metaFamily"),
+      metaPage: document.getElementById("metaPage"),
+      metaVariant: document.getElementById("metaVariant"),
+      metaVideo: document.getElementById("metaVideo"),
+      metaEvidence: document.getElementById("metaEvidence"),
+      metaSource: document.getElementById("metaSource"),
+      metaEmbed: document.getElementById("metaEmbed"),
+      toast: document.getElementById("toast")
+    };
+
+    const prototypes = files.map((path, index) => {
+      const file = path.split("/").pop();
+      const folder = path.includes("/") ? path.split("/").slice(0, -1).join("/") : "root";
+      const base = file.replace(/\.html?$/i, "");
+      const copy = (base.match(/\((\d+)\)$/) || [])[1];
+      const family = getFamily(path);
+      const meta = familyMeta[family] || familyMeta.Other;
+      return {
+        path,
+        index,
+        folder,
+        file,
+        title: titleOverrides[path] || prettify(base),
+        family,
+        familySlug: meta.slug,
+        familyColor: meta.color,
+        familyInk: meta.ink,
+        video: getVideoCapability(path, family),
+        lineage: getLineageKey(path),
+        variant: copy ? `copy ${copy}` : getVariant(path, index),
+        nested: path.includes("/")
+      };
+    });
+
+    init();
+
+    function init() {
+      fillFamilyFilter();
+      renderFamilyNav();
+      renderFamilyPage();
+      bind();
+      select(savedActivePath ? pathForFamilyPage(activePath) : (topPrototypeForFamily(familyFilterValue)?.path || activePath), false);
+      render();
+      updateStats();
+    }
+
+    function bind() {
+      els.search.addEventListener("input", () => {
+        searchValue = els.search.value.trim().toLowerCase();
+        render();
+      });
+      els.familyFilter.addEventListener("change", () => {
+        setFamilyPage(els.familyFilter.value, true);
+      });
+      els.ratingFilter.addEventListener("click", event => {
+        const btn = event.target.closest("button[data-filter]");
+        if (!btn) return;
+        ratingFilterValue = btn.dataset.filter;
+        [...els.ratingFilter.children].forEach(b => b.classList.toggle("active", b === btn));
+        render();
+      });
+      els.rates.forEach(btn => btn.addEventListener("click", () => setRating(btn.dataset.rate)));
+      els.tags.addEventListener("input", saveCurrentReview);
+      els.notes.addEventListener("input", saveCurrentReview);
+      els.reloadBtn.addEventListener("click", () => {
+        els.preview.src = cacheBust(activePath);
+        toast("Reloaded preview");
+      });
+      els.copyBtn.addEventListener("click", copyEmbed);
+      window.addEventListener("keydown", event => {
+        if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
+        if (event.key === "ArrowUp") { event.preventDefault(); step(-1); }
+        if (event.key === "ArrowDown") { event.preventDefault(); step(1); }
+        if (event.key === "1") setRating("good");
+        if (event.key === "2") setRating("maybe");
+        if (event.key === "3") setRating("bad");
+        if (event.key === "4") setRating("untested");
+      });
+      window.addEventListener("hashchange", () => setFamilyPage(readFamilyRoute(), false));
+    }
+
+    function fillFamilyFilter() {
+      els.familyFilter.innerHTML = `<option value="all">All families</option>` +
+        familyOrder.map(f => `<option value="${escapeAttr(f)}">${escapeHtml(f)}</option>`).join("");
+      els.familyFilter.value = familyFilterValue;
+    }
+
+    function renderFamilyNav() {
+      const entries = [
+        { value: "all", label: "All families", meta: { color: "#000", ink: "#fff" } },
+        ...familyOrder.map(f => ({ value: f, label: f, meta: familyMeta[f] }))
+      ];
+      els.familyNav.innerHTML = "";
+      entries.forEach(entry => {
+        const stats = getFamilyStats(entry.value);
+        const link = document.createElement("a");
+        link.className = "family-link";
+        link.href = routeForFamily(entry.value);
+        link.classList.toggle("active", entry.value === familyFilterValue);
+        link.style.setProperty("--nav-color", entry.meta.color);
+        link.style.setProperty("--nav-ink", entry.meta.ink);
+        link.innerHTML = `
+          <b>${escapeHtml(entry.label)}</b>
+          <span>${stats.count} files · ${stats.best ? stats.best.video.badge : "NONE"}</span>
+        `;
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          setFamilyPage(entry.value, true);
+        });
+        els.familyNav.appendChild(link);
+      });
+    }
+
+    function renderFamilyPage() {
+      const isAll = familyFilterValue === "all";
+      const meta = isAll ? { color: "#000", ink: "#fff", note: "All prototype families" } : (familyMeta[familyFilterValue] || familyMeta.Other);
+      const stats = getFamilyStats(familyFilterValue);
+      const label = isAll ? "All families" : familyFilterValue;
+      const scope = isAll ? `${stats.familyCount} families` : meta.note;
+      const best = stats.best ? `${stats.best.video.badge} ${stats.best.title}` : "No files";
+      els.familyPage.style.setProperty("--page-color", meta.color);
+      els.familyPage.style.setProperty("--page-ink", meta.ink);
+      els.familyPage.innerHTML = `
+        <b>${escapeHtml(label)}</b>
+        <span>${escapeHtml(scope)} · ${stats.count} files · ${stats.recorders} native recorders</span>
+        <span class="family-best"><b>${stats.best ? stats.best.video.score : 0}/5</b><span>${escapeHtml(best)}</span></span>
+      `;
+    }
+
+    function setFamilyPage(value, updateRoute) {
+      const next = value === "all" || familyMeta[value] ? value : "all";
+      familyFilterValue = next;
+      els.familyFilter.value = next;
+      if (updateRoute && location.hash !== routeForFamily(next)) {
+        location.hash = routeForFamily(next);
+      }
+      const nextPath = pathForFamilyPage(activePath);
+      if (nextPath !== activePath) select(nextPath, false);
+      renderFamilyNav();
+      renderFamilyPage();
+      render();
+      updateStats();
+    }
+
+    function getFamilyStats(family) {
+      const members = prototypes.filter(p => family === "all" || p.family === family);
+      const best = members.reduce((winner, p) => {
+        if (!winner) return p;
+        if (p.video.priority !== winner.video.priority) return p.video.priority > winner.video.priority ? p : winner;
+        return p.index < winner.index ? p : winner;
+      }, null);
+      return {
+        count: members.length,
+        familyCount: new Set(members.map(p => p.family)).size,
+        recorders: members.filter(p => p.video.score >= 4).length,
+        best
+      };
+    }
+
+    function pathForFamilyPage(path) {
+      if (familyFilterValue === "all") return path;
+      const current = prototypes.find(p => p.path === path);
+      if (current && current.family === familyFilterValue) return path;
+      return topPrototypeForFamily(familyFilterValue)?.path || path;
+    }
+
+    function topPrototypeForFamily(family) {
+      return prototypes
+        .filter(p => family === "all" || p.family === family)
+        .slice()
+        .sort((a, b) => b.video.priority - a.video.priority || a.index - b.index)[0];
+    }
+
+    function routeForFamily(family) {
+      if (family === "all") return "#families";
+      return `#family/${familyMeta[family]?.slug || "other"}`;
+    }
+
+    function readFamilyRoute() {
+      const hash = decodeURIComponent(location.hash.replace(/^#/, ""));
+      const hashSlug = hash.startsWith("family/") ? hash.slice(7) : hash;
+      const querySlug = new URLSearchParams(location.search).get("family") || "";
+      return familyFromSlug(hashSlug || querySlug);
+    }
+
+    function familyFromSlug(value) {
+      const raw = String(value || "").trim().toLowerCase();
+      if (!raw || raw === "families" || raw === "all") return "all";
+      const normalized = raw.replace(/^family\//, "").replace(/\s+/g, "-");
+      return familyOrder.find(f => {
+        const meta = familyMeta[f];
+        return meta.slug === normalized || f.toLowerCase() === raw;
+      }) || "all";
+    }
+
+    function render() {
+      const filtered = getFiltered();
+      const byFamily = new Map();
+      familyOrder.forEach(f => byFamily.set(f, []));
+      filtered.forEach(p => byFamily.get(p.family).push(p));
+
+      els.list.innerHTML = "";
+      for (const family of familyOrder) {
+        const group = byFamily.get(family).slice().sort((a, b) => b.video.priority - a.video.priority || a.index - b.index);
+        if (!group.length) continue;
+        const meta = familyMeta[family] || familyMeta.Other;
+        const stats = getFamilyStats(family);
+        const section = document.createElement("section");
+        section.className = "family";
+        section.id = `family-${meta.slug}`;
+        section.style.setProperty("--section-color", meta.color);
+        section.style.setProperty("--section-ink", meta.ink);
+        section.innerHTML = `
+          <div class="family-head">
+            <span>${escapeHtml(family)} · ${group.length} shown · best ${stats.best ? stats.best.video.badge : "none"}</span>
+            <a href="${routeForFamily(family)}">Page</a>
+          </div>
+        `;
+        section.querySelector("a").addEventListener("click", event => {
+          event.preventDefault();
+          setFamilyPage(family, true);
+        });
+        group.forEach(p => section.appendChild(itemButton(p)));
+        els.list.appendChild(section);
+      }
+    }
+
+    function itemButton(p) {
+      const review = reviews[p.path] || {};
+      const button = document.createElement("button");
+      button.className = "item";
+      button.dataset.rating = review.rating || "untested";
+      button.dataset.video = p.video.tier;
+      button.classList.toggle("active", p.path === activePath);
+      button.style.setProperty("--item-color", p.familyColor);
+      button.style.setProperty("--item-ink", p.familyInk);
+      button.innerHTML = `
+        <span class="branch-line"></span>
+        <span>
+          <span class="item-title">${escapeHtml(p.title)}</span>
+          <span class="item-path">${escapeHtml(p.video.label)} · ${escapeHtml(p.path)}</span>
+        </span>
+        <span class="badges">
+          <span class="video-badge" title="${escapeAttr(p.video.evidence)}">${escapeHtml(p.video.badge)}</span>
+          <span class="dot"></span>
+          ${review.notes ? '<span class="badge">N</span>' : ''}
+          ${p.nested ? '<span class="badge">DIR</span>' : ''}
+        </span>
+      `;
+      button.addEventListener("click", () => select(p.path, true));
+      return button;
+    }
+
+    function select(path, shouldRender = true) {
+      const p = prototypes.find(x => x.path === path) || prototypes[0];
+      activePath = p.path;
+      localStorage.setItem("hello-world-prototype-index.active", activePath);
+      const review = reviews[activePath] || {};
+      els.preview.src = activePath;
+      els.activeTitle.textContent = p.title;
+      els.activePath.textContent = p.path;
+      els.openLink.href = p.path;
+      els.tags.value = review.tags || "";
+      els.notes.value = review.notes || "";
+      document.documentElement.style.setProperty("--family-color", p.familyColor);
+      document.documentElement.style.setProperty("--family-ink", p.familyInk);
+      els.metaFamily.textContent = p.family;
+      els.metaPage.textContent = routeForFamily(p.family);
+      els.metaVariant.textContent = p.variant;
+      els.metaVideo.textContent = `${p.video.badge} ${p.video.label} (${p.video.score}/5)`;
+      els.metaEvidence.textContent = p.video.evidence;
+      els.metaSource.textContent = p.folder;
+      els.metaEmbed.textContent = `<iframe src="${p.path}"></iframe>`;
+      els.rates.forEach(btn => btn.classList.toggle("active", (review.rating || "untested") === btn.dataset.rate));
+      renderLineage(p);
+      if (shouldRender) render();
+    }
+
+    function renderLineage(p) {
+      const siblings = prototypes.filter(x => x.lineage === p.lineage);
+      els.lineage.innerHTML = siblings.map(s => {
+        const r = reviews[s.path] || {};
+        const rating = r.rating ? ` · ${r.rating}` : "";
+        return `<button class="lineage-node${s.path === activePath ? " active" : ""}" data-path="${escapeAttr(s.path)}"><span></span><span><strong>${escapeHtml(s.title)} · ${escapeHtml(s.video.badge)}</strong>${escapeHtml(s.video.label)} · ${escapeHtml(s.path)}${escapeHtml(rating)}</span></button>`;
+      }).join("");
+      els.lineage.querySelectorAll(".lineage-node").forEach(node => {
+        node.addEventListener("click", () => select(node.dataset.path, true));
+      });
+    }
+
+    function setRating(rating) {
+      reviews[activePath] = reviews[activePath] || {};
+      reviews[activePath].rating = rating;
+      persist();
+      select(activePath, true);
+      updateStats();
+    }
+
+    function saveCurrentReview() {
+      reviews[activePath] = reviews[activePath] || {};
+      reviews[activePath].tags = els.tags.value;
+      reviews[activePath].notes = els.notes.value;
+      persist();
+      updateStats();
+      render();
+    }
+
+    function step(delta) {
+      const filtered = getFiltered();
+      const idx = Math.max(0, filtered.findIndex(p => p.path === activePath));
+      const next = filtered[(idx + delta + filtered.length) % filtered.length];
+      if (next) select(next.path, true);
+    }
+
+    function getFiltered() {
+      return prototypes.filter(p => {
+        const r = reviews[p.path] || {};
+        const rating = r.rating || "untested";
+        const haystack = [p.title, p.path, p.family, p.variant, p.video.badge, p.video.label, p.video.evidence, r.tags, r.notes].join(" ").toLowerCase();
+        return (familyFilterValue === "all" || p.family === familyFilterValue) &&
+          (ratingFilterValue === "all" || rating === ratingFilterValue) &&
+          (!searchValue || haystack.includes(searchValue));
+      });
+    }
+
+    function updateStats() {
+      const values = Object.values(reviews);
+      const stats = getFamilyStats(familyFilterValue);
+      const label = familyFilterValue === "all" ? "Index" : familyFilterValue;
+      document.title = `${label} ${stats.recorders}REC ${values.filter(r => r.rating === "good").length}G ${values.filter(r => r.rating === "bad").length}X`;
+    }
+
+    async function copyEmbed() {
+      const html = `<iframe src="${activePath}" title="${(prototypes.find(p => p.path === activePath) || {}).title || "Prototype"}"></iframe>`;
+      try {
+        await navigator.clipboard.writeText(html);
+        toast("Copied iframe embed");
+      } catch {
+        toast(html);
+      }
+    }
+
+    function toast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(() => els.toast.classList.remove("show"), 1600);
+    }
+
+    function persist() {
+      localStorage.setItem(storeKey, JSON.stringify(reviews));
+    }
+
+    function readReviews() {
+      try { return JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; }
+      catch { return {}; }
+    }
+
+    function videoProfile(tier, evidence, priority) {
+      const base = videoTiers[tier] || videoTiers.index;
+      return { tier, score: base.score, priority: priority || base.score * 100, badge: base.badge, label: base.label, evidence };
+    }
+
+    function getVideoCapability(path, family) {
+      if (videoOverrides[path]) return videoOverrides[path];
+      const p = path.toLowerCase();
+      if (p.includes("film") && (p.includes("operator") || p.includes("studio"))) {
+        return videoProfile("studio", "Film/operator build name; inspect first for capture workflow.");
+      }
+      if (p.includes("verdict") || p.includes("paris") || p.includes("protocol")) {
+        return videoProfile("replay", "Replay or exported record workflow detected by family/name.");
+      }
+      if (p.includes("collision_trace")) {
+        return videoProfile("replay", "Collision trace lineage favors state history over native video.");
+      }
+      if (p.includes("jolt") || p.includes("garage") || p.includes("golf") || p.includes("thunder")) {
+        return videoProfile("camera", "Animated canvas/WebGL scene; external capture or added recorder needed.");
+      }
+      if (family === "Operator / Forge") {
+        return videoProfile("camera", "Operator or forge tool; visually recordable, no native recorder detected.");
+      }
+      if (family === "Hello World") {
+        return videoProfile("index", "Lineage prototype; no native recorder detected.");
+      }
+      return videoProfile("camera", "Interactive visual file; no native recorder detected.");
+    }
+
+    function getFamily(path) {
+      const p = path.toLowerCase();
+      if (p.includes("hello-world") || p.includes("hello_world")) return "Hello World";
+      if (p.includes("garage")) return "Garage";
+      if (p.includes("golf") || p.includes("putt")) return "Golf";
+      if (p.includes("wreck")) return "Wreck";
+      if (p.includes("collision_trace")) return "Collision Trace";
+      if (p.includes("paris") || p.includes("verdict")) return "Paris / Verdict";
+      if (p.includes("operator") || p.includes("forge")) return "Operator / Forge";
+      if (p.includes("thunder_rigs") || p.includes("thunder-rigs") || p.includes("thunderhead")) return "Thunder Rigs";
+      return "Other";
+    }
+
+    function getLineageKey(path) {
+      return path
+        .replace(/^files \(\d+\)\//, "")
+        .replace(/^thunderhead-openai-production\/game\//, "")
+        .replace(/^COLLISION_TRACE_JOLT_3D 2\//, "COLLISION_TRACE_JOLT_3D/")
+        .replace(/\s\(\d+\)(?=\.html$)/, "")
+        .replace(/_STARTUP_FIXED/, "")
+        .replace(/_CLEAR_STAGE/, "")
+        .replace(/_EDGE_EXPLOSION/, "")
+        .replace(/_JOLT_FUN/, "_JOLT")
+        .toLowerCase();
+    }
+
+    function getVariant(path, index) {
+      if (path.includes("files (")) return path.split("/")[0];
+      if (path.includes("thunderhead-openai-production")) return "production";
+      if (path.includes("_STARTUP_FIXED")) return "startup fixed";
+      if (path.includes("_CLEAR_STAGE")) return "clear stage";
+      if (path.includes("_EDGE_EXPLOSION")) return "edge explosion";
+      if (path.includes("_JOLT_FUN")) return "jolt fun";
+      if (path.includes("_JOLT")) return "jolt";
+      if (path.includes("_FILM")) return "film";
+      if (path.includes("_v")) return (path.match(/v[\d.]+/i) || ["versioned"])[0];
+      return `prototype ${String(index + 1).padStart(2, "0")}`;
+    }
+
+    function prettify(base) {
+      return base
+        .replace(/\s\(\d+\)$/, "")
+        .replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .replace(/\bHtml\b/g, "HTML")
+        .replace(/\bJolt\b/g, "JOLT")
+        .replace(/\bAi\b/g, "AI");
+    }
+
+    function cacheBust(path) {
+      return `${path}${path.includes("?") ? "&" : "?"}reload=${Date.now()}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[ch]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+  </script>
+</body>
+</html>

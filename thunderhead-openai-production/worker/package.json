@@ -1,0 +1,13 @@
+{
+  "name": "thunderhead-ai-gateway",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node thunder-ai-worker.test.mjs",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

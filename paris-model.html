@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>THE PARIS MODEL · VERDICT ENGINE</title>
+<style>
+/* ============================================================
+   THE PARIS MODEL — studio doctrine
+   absolute black/white + named accents. no border-radius on
+   rectangular containers. no emoji glyphs (all marks vector/CSS).
+   IBM Plex Mono. mobile-first. Power-of-10 named loop ceilings.
+   ============================================================ */
+:root{
+  --bg:#000; --ink:#fff; --dim:#8b8b8b; --dimmer:#5a5a5a; --line:#262626; --line2:#3a3a3a;
+  --teal:#19e6c8; --amber:#ffd23f; --red:#ff2e2e; --blue:#3b82f6;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;height:100dvh;background:var(--bg);color:var(--ink);font-family:var(--mono);overflow:hidden;overscroll-behavior:none}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+.mono{font-family:var(--mono)}
+/* --- app frame --- */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:calc(var(--safe-t) + 12px) 14px calc(var(--safe-b) + 8px);overflow:hidden}
+/* --- top brand bar --- */
+#topbar{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding-bottom:12px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:600;letter-spacing:.14em;font-size:clamp(15px,4.4vw,22px)}
+.brand .slash{color:var(--teal);font-weight:700}
+.brand .sub{color:var(--dim);font-weight:400;letter-spacing:.16em;font-size:clamp(7px,2vw,10px)}
+.hw{display:flex;align-items:center;gap:9px;border:1px solid var(--red);padding:6px 12px;font-size:11px;letter-spacing:.14em;font-weight:600}
+.hw .h{color:var(--red)} .hw .bar{color:var(--dimmer)} .hw .w{color:var(--ink)}
+/* --- step header --- */
+#stephead{position:relative;flex:0 0 auto;border:1px solid var(--line);padding:16px 16px;margin-bottom:14px;display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+#stephead .corner{position:absolute;width:14px;height:14px;border:1px solid var(--teal)}
+#stephead .c-tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
+#stephead .c-tr{top:-1px;right:-1px;border-left:none;border-bottom:none}
+#stephead .c-bl{bottom:-1px;left:-1px;border-right:none;border-top:none}
+#stephead .c-br{bottom:-1px;right:-1px;border-left:none;border-top:none}
+#stephead h1{margin:0;font-size:clamp(24px,7.5vw,40px);font-weight:500;letter-spacing:.02em;line-height:1}
+#stephead h1 em{font-style:normal;color:var(--dim)}
+.stepno{color:var(--teal);letter-spacing:.18em;font-size:clamp(11px,3vw,15px);white-space:nowrap}
+.stepno b{color:var(--ink);font-weight:600}
+/* --- scroll body --- */
+#body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#body::-webkit-scrollbar{width:5px} #body::-webkit-scrollbar-thumb{background:var(--line2)}
+/* --- footer --- */
+#foot{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);margin-top:10px;padding-top:8px;font-size:9px;letter-spacing:.1em;color:var(--dimmer)}
+#foot .creed{color:var(--dim)} #foot .sess{display:flex;align-items:center;gap:8px}
+.signal{display:inline-flex;align-items:flex-end;gap:2px;height:11px}
+.signal i{width:2px;background:var(--teal)} .signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:9px}.signal i:nth-child(4){height:11px}
+.signal.off i{background:var(--dimmer)}
+/* --- generic panel --- */
+.panel{position:relative;border:1px solid var(--line);padding:16px}
+.panel + .panel{margin-top:14px}
+.panel.teal{border-color:var(--teal)} .panel.blue{border-color:var(--blue)} .panel.amber{border-color:var(--amber)} .panel.red{border-color:var(--red)}
+.panel .brk{position:absolute;width:12px;height:12px}
+.panel .b-tl{top:-1px;left:-1px;border-top:1px solid;border-left:1px solid}
+.panel .b-tr{top:-1px;right:-1px;border-top:1px solid;border-right:1px solid}
+.panel .b-bl{bottom:-1px;left:-1px;border-bottom:1px solid;border-left:1px solid}
+.panel .b-br{bottom:-1px;right:-1px;border-bottom:1px solid;border-right:1px solid}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.phead .lhs{display:flex;align-items:center;gap:8px;color:var(--teal);letter-spacing:.12em;font-size:11px;font-weight:600}
+.phead .dot{width:7px;height:7px;background:var(--teal);flex:0 0 auto}
+.phead .rhs{color:var(--dim);letter-spacing:.12em;font-size:10px}
+.hint{font-size:10px;line-height:1.5;color:var(--dim);letter-spacing:.04em}
+/* --- info strip --- */
+.infostrip{display:flex;align-items:center;gap:12px;border:1px solid var(--line);padding:11px 14px;margin-top:14px;font-size:10px;line-height:1.5;color:var(--dim);letter-spacing:.04em}
+.infostrip .i{flex:0 0 auto;width:26px;height:26px;border:1px solid var(--dim);display:grid;place-items:center;font-weight:700;font-style:italic}
+.infostrip .rule{margin-left:auto;flex:0 0 auto;border:1px solid var(--teal);color:var(--teal);padding:6px 10px;font-size:9px;letter-spacing:.1em;white-space:nowrap}
+/* --- big action button --- */
+.action{position:relative;width:100%;display:flex;align-items:center;gap:16px;border:1px solid var(--teal);padding:18px 18px;letter-spacing:.06em;text-align:left;transition:background .12s}
+.action:active{background:#0d0d0d}
+.action[disabled]{opacity:.35;pointer-events:none}
+.action .ico{flex:0 0 auto;width:30px;height:30px;position:relative}
+.action .tx{flex:1 1 auto}
+.action .tx b{display:block;font-size:clamp(15px,4.5vw,20px);font-weight:600;color:var(--teal);letter-spacing:.03em}
+.action .tx span{display:block;font-size:9px;color:var(--dim);letter-spacing:.08em;margin-top:4px}
+.action .arw{flex:0 0 auto;color:var(--teal);font-size:20px}
+.action.amber{border-color:var(--amber)} .action.amber .tx b,.action.amber .arw{color:var(--amber)}
+.action.red{border-color:var(--red)} .action.red .tx b,.action.red .arw{color:var(--red)}
+.action.ghost{border-color:var(--line2)} .action.ghost .tx b,.action.ghost .arw{color:var(--ink)}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:520px){.action-row{grid-template-columns:1fr}}
+/* --- text entry --- */
+.entry{width:100%;min-height:150px;resize:none;background:#050505;border:1px solid var(--line);padding:16px;font-size:14px;line-height:1.6;letter-spacing:.02em;color:var(--ink);outline:none}
+.entry:focus{border-color:var(--teal)}
+.entry::placeholder{color:var(--dimmer)}
+.entry-foot{display:flex;justify-content:flex-end;font-size:10px;color:var(--dim);letter-spacing:.1em;margin-top:6px}
+/* --- modality toggle --- */
+.modrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:520px){.modrow{grid-template-columns:1fr}}
+.modbtn{display:flex;align-items:center;gap:12px;border:1px solid var(--line2);padding:14px}
+.modbtn .box{flex:0 0 auto;width:20px;height:20px;border:1px solid var(--teal)}
+.modbtn .lab b{display:block;font-size:14px;letter-spacing:.08em;font-weight:600}
+.modbtn .lab span{display:block;font-size:9px;color:var(--dim);margin-top:3px;letter-spacing:.04em}
+.modbtn.on{border-color:var(--teal)} .modbtn.on .box{background:var(--teal)}
+.eyebrow{font-size:9px;letter-spacing:.16em;color:var(--dim);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--line2)}
+/* --- canvas viewport --- */
+.viewport{position:relative;width:100%;aspect-ratio:1 / 1;background:#000;border:1px solid var(--line);overflow:hidden}
+.viewport.wide{aspect-ratio:16 / 10}
+.viewport canvas{display:block;width:100%;height:100%}
+.vp-tag{position:absolute;top:10px;left:12px;font-size:9px;letter-spacing:.14em;color:var(--teal);pointer-events:none;display:flex;align-items:center;gap:6px}
+.vp-tag .dot{width:6px;height:6px;background:var(--teal)}
+.vp-tr{position:absolute;top:10px;right:12px;font-size:9px;letter-spacing:.12em;color:var(--dim);pointer-events:none}
+.vp-claims{position:absolute;top:36px;left:12px;border:1px solid var(--line2);padding:8px 12px;font-size:11px;letter-spacing:.12em;color:var(--ink);pointer-events:none;background:#000a}
+.vp-compass{position:absolute;inset:0;pointer-events:none}
+.vp-N,.vp-S{position:absolute;left:50%;transform:translateX(-50%);color:var(--dim);font-size:10px;letter-spacing:.1em}
+.vp-N{top:8px}.vp-S{bottom:8px}
+.vp-arrows{position:absolute;top:50%;left:0;right:0;display:flex;justify-content:space-between;padding:0 8px;transform:translateY(-50%);color:var(--dimmer);font-size:18px;pointer-events:none}
+/* --- video / playback control bar --- */
+.playbar{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-top:none;padding:12px 14px}
+.playbar button{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line2);display:grid;place-items:center;color:var(--teal)}
+.playbar .time{font-size:11px;color:var(--dim);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.playbar .track{flex:1 1 auto;height:2px;background:var(--line2);position:relative}
+.playbar .track .fill{position:absolute;left:0;top:0;bottom:0;background:var(--teal)}
+.playbar .track .head{position:absolute;top:-4px;width:2px;height:10px;background:var(--teal)}
+.playbar .track .tick{position:absolute;top:0;bottom:0;width:1px;background:#000}
+/* --- scene controls --- */
+.scenectl{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);margin-top:14px}
+.scenectl > div{padding:14px;display:flex;align-items:center;gap:12px;border-right:1px solid var(--line)}
+.scenectl > div:last-child{border-right:none}
+.scenectl .ci{flex:0 0 auto;width:26px;height:26px;position:relative;color:var(--teal)}
+.scenectl .cl b{display:block;font-size:13px;letter-spacing:.08em;color:var(--teal)}
+.scenectl .cl span{display:block;font-size:9px;color:var(--dim);letter-spacing:.06em;margin-top:2px}
+@media(max-width:520px){.scenectl{grid-template-columns:1fr}.scenectl > div{border-right:none;border-bottom:1px solid var(--line)}.scenectl > div:last-child{border-bottom:none}}
+/* --- confrontation split --- */
+.split .side{position:relative}
+.split .side + .side{margin-top:16px}
+.side-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid;border-bottom:none}
+.side.pros .side-head{border-color:var(--blue)} .side.pros .lab{color:var(--blue)}
+.side.def .side-head{border-color:var(--amber)} .side.def .lab{color:var(--amber)}
+.side-head .lab{display:flex;align-items:center;gap:8px;letter-spacing:.12em;font-size:11px;font-weight:600}
+.side-head .lab .dot{width:7px;height:7px;background:currentColor}
+.side-head .cam{color:var(--dim);font-size:9px;letter-spacing:.1em}
+.side-claim{padding:11px 14px;border:1px solid;border-top:none;border-bottom:none;font-size:11px;letter-spacing:.06em;color:var(--dim)}
+.side.pros .side-claim{border-color:var(--blue)} .side.def .side-claim{border-color:var(--amber)}
+.side-claim b{color:var(--ink)}
+.side .viewport{border-color:inherit}
+.side.pros .viewport{border-color:var(--blue)} .side.def .viewport{border-color:var(--amber)}
+.credbar{display:flex;align-items:center;gap:6px;position:absolute;bottom:10px;right:12px;background:#000c;border:1px solid var(--line2);padding:8px 10px;pointer-events:none}
+.credbar .pip{width:12px;height:12px;border:1px solid}
+.side.pros .credbar .pip{border-color:var(--blue)} .side.pros .credbar .pip.on{background:var(--blue)}
+.side.def .credbar .pip{border-color:var(--amber)} .side.def .credbar .pip.on{background:var(--amber)}
+/* --- claim list for challenge --- */
+.claimlist{margin-top:16px;border:1px solid var(--line)}
+.claimlist .ci{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.claimlist .ci:last-child{border-bottom:none}
+.claimlist .ci:active{background:#0a0a0a}
+.claimlist .ci .stamp{flex:0 0 auto;width:16px;height:16px;border:1px solid var(--teal);margin-top:2px}
+.claimlist .ci.witnessed .stamp{background:var(--teal)}
+.claimlist .ci .txt{flex:1 1 auto;font-size:12px;line-height:1.5;letter-spacing:.02em}
+.claimlist .ci .txt .meta{display:block;font-size:9px;color:var(--dim);letter-spacing:.08em;margin-top:5px}
+.claimlist .ci .flag{flex:0 0 auto;border:1px solid var(--red);color:var(--red);padding:6px 9px;font-size:8px;letter-spacing:.1em}
+.claimlist .ci.flagged{border-left:2px solid var(--red)}
+.claimlist .ci.flagged .flag{background:var(--red);color:#000}
+/* --- ruling --- */
+.ruling-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.ruling-grid{grid-template-columns:1fr}}
+.analysis .arow{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:14px}
+.analysis .arow:last-child{border-bottom:none;margin-bottom:0}
+.analysis .ak{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:11px;letter-spacing:.1em;font-weight:600;margin-bottom:7px}
+.analysis .ak .plus{color:var(--teal)}
+.analysis .av{font-size:11px;line-height:1.5;color:var(--dim);letter-spacing:.04em}
+.verdict-card{border:1px solid var(--line);padding:20px;margin-top:16px}
+.vc-q{font-size:clamp(16px,4.6vw,22px);line-height:1.35;text-align:center;letter-spacing:.02em;margin:6px 0 20px;font-weight:500}
+.vc-sep{height:1px;background:var(--line);margin:16px 0}
+.vc-lab{font-size:9px;letter-spacing:.14em;color:var(--teal);display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.vc-lab::before{content:"";width:7px;height:7px;background:var(--teal)}
+.zonechip{width:96px;height:64px;border:1px solid var(--red);color:var(--red);display:grid;place-items:center;margin:0 auto;letter-spacing:.14em;font-size:13px;font-weight:600;position:relative}
+.zonechip.witnessed{border-color:var(--teal);color:var(--teal)}
+.zonechip.ambiguous{border-color:var(--amber);color:var(--amber)}
+.zonechip .cc{position:absolute;width:10px;height:10px;border:1px solid currentColor}
+.zonechip .cc.tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
+.zonechip .cc.tr{top:-1px;right:-1px;border-left:none;border-bottom:none}
+.zonechip .cc.bl{bottom:-1px;left:-1px;border-right:none;border-top:none}
+.zonechip .cc.br{bottom:-1px;right:-1px;border-left:none;border-top:none}
+.status-big{text-align:center;font-size:clamp(26px,8vw,44px);font-weight:600;letter-spacing:.08em;color:var(--red)}
+.status-big.overruled{color:var(--teal)}
+/* --- verdict / scores --- */
+.prevail{border:1px solid var(--teal);padding:22px 18px;display:flex;align-items:center;gap:18px}
+.prevail .gv{flex:0 0 auto;width:52px;height:52px;position:relative}
+.prevail .pt{flex:1 1 auto}
+.prevail .pt b{display:block;font-size:clamp(20px,6.5vw,34px);color:var(--teal);letter-spacing:.04em;font-weight:600;line-height:1}
+.prevail .pt span{display:block;font-size:11px;color:var(--dim);letter-spacing:.04em;margin-top:8px;line-height:1.4}
+.scorecard{border:1px solid;padding:16px;margin-top:14px;display:flex;gap:16px;align-items:flex-start}
+.scorecard.pros{border-color:var(--blue)} .scorecard.def{border-color:var(--amber)}
+.scorecard .sci{flex:0 0 auto;width:44px;height:52px;position:relative}
+.scorecard .scbody{flex:1 1 auto}
+.scorecard .scname{font-size:clamp(16px,5vw,22px);letter-spacing:.06em;font-weight:600;margin-bottom:2px}
+.scorecard.pros .scname{color:var(--blue)} .scorecard.def .scname{color:var(--amber)}
+.scorecard .sclab{font-size:9px;color:var(--dim);letter-spacing:.1em;margin-bottom:14px}
+.metricrow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:520px){.metricrow{grid-template-columns:1fr}}
+.metric .mk{font-size:9px;letter-spacing:.14em;color:var(--dim);margin-bottom:6px}
+.scorecard.pros .metric .mk{color:var(--blue)} .scorecard.def .metric .mk{color:var(--amber)}
+.metric .mv{font-size:clamp(20px,6vw,30px);font-weight:600;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px}
+.metric .mv small{font-size:11px;color:var(--dim);font-weight:400}
+.metric .mbar{height:4px;background:#ffffff14;margin-top:8px;position:relative}
+.metric .mbar .mf{position:absolute;left:0;top:0;bottom:0}
+.scorecard.pros .metric .mbar .mf{background:var(--blue)} .scorecard.def .metric .mbar .mf{background:var(--amber)}
+.metric .mscale{display:flex;justify-content:space-between;font-size:8px;color:var(--dimmer);margin-top:4px}
+/* --- ledger --- */
+.ledger{border:1px solid var(--line);margin-top:16px}
+.ledger .lh{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--line);color:var(--teal);letter-spacing:.12em;font-size:11px;font-weight:600}
+.ledger .lh .n{color:var(--dim);font-size:10px}
+.ledger .lcols{display:grid;grid-template-columns:120px 1fr 150px;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:9px;letter-spacing:.14em;color:var(--dim)}
+.ledger .lrow{display:grid;grid-template-columns:120px 1fr 150px;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:center}
+.ledger .lrow:last-child{border-bottom:none}
+.ledger .lrow .st{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.06em}
+.ledger .lrow .st .box{width:14px;height:14px;border:1px solid var(--ink)}
+.ledger .lrow.witnessed .st .box{background:var(--ink)} .ledger .lrow.witnessed .st{color:var(--ink)}
+.ledger .lrow.inferred .st .box{background:none} .ledger .lrow.inferred .st{color:var(--dim)}
+.ledger .lrow.fabricated .st{color:var(--red);text-decoration:line-through}
+.ledger .lrow.fabricated .st .box{border-color:var(--red);position:relative}
+.ledger .lrow.fabricated .st .box::before,.ledger .lrow.fabricated .st .box::after{content:"";position:absolute;inset:0;margin:auto;width:16px;height:1px;background:var(--red)}
+.ledger .lrow.fabricated .st .box::before{transform:rotate(45deg)}
+.ledger .lrow.fabricated .st .box::after{transform:rotate(-45deg)}
+.ledger .lrow .cl{font-size:11px;line-height:1.45}
+.ledger .lrow .sr{font-size:9px;color:var(--dim);letter-spacing:.04em;line-height:1.4}
+.ledger .lrow .au{font-size:8px;letter-spacing:.1em;margin-top:4px}
+.ledger .lrow .au.pros{color:var(--blue)} .ledger .lrow .au.def{color:var(--amber)}
+@media(max-width:640px){
+  .ledger .lcols{display:none}
+  .ledger .lrow{grid-template-columns:1fr;gap:8px}
+}
+/* --- meta box (verdict footer) --- */
+.metabox{border:1px solid var(--line);padding:16px;margin-top:14px;font-size:10px;letter-spacing:.08em;color:var(--dim);line-height:1.9}
+.metabox .mr{display:flex;justify-content:space-between} .metabox .mr b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+/* --- barrier / waiting overlay --- */
+.barrier{border:1px solid var(--line2);padding:22px;margin-top:16px;text-align:center}
+.barrier .spin{width:34px;height:34px;border:2px solid var(--line2);border-top-color:var(--teal);border-radius:50%;margin:0 auto 16px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.barrier b{display:block;font-size:14px;letter-spacing:.1em;margin-bottom:8px}
+.barrier span{font-size:10px;color:var(--dim);letter-spacing:.06em;line-height:1.5}
+.barrier .who{display:flex;justify-content:center;gap:18px;margin-top:16px;font-size:9px;letter-spacing:.1em}
+.barrier .who .p{display:flex;align-items:center;gap:7px;color:var(--dim)}
+.barrier .who .p .d{width:8px;height:8px;border:1px solid var(--dim)}
+.barrier .who .p.ready{color:var(--teal)} .barrier .who .p.ready .d{background:var(--teal);border-color:var(--teal)}
+/* --- lobby --- */
+.lobby-hero{text-align:center;padding:8px 0 4px}
+.lobby-hero .kick{font-size:10px;letter-spacing:.3em;color:var(--teal)}
+.lobby-hero h2{font-size:clamp(38px,13vw,86px);line-height:.82;letter-spacing:-.05em;margin:16px 0 6px;font-weight:600}
+.lobby-hero .paris{color:var(--dim);font-weight:400}
+.lobby-hero p{font-size:11px;line-height:1.7;color:var(--dim);max-width:460px;margin:14px auto 0;letter-spacing:.03em}
+.codebox{border:1px solid var(--teal);padding:20px;margin-top:22px;text-align:center}
+.codebox .cl{font-size:9px;letter-spacing:.18em;color:var(--dim);margin-bottom:12px}
+.codebox .code{font-size:clamp(30px,10vw,52px);letter-spacing:.3em;color:var(--teal);font-weight:600;font-variant-numeric:tabular-nums}
+.codebox .st{font-size:10px;color:var(--dim);letter-spacing:.06em;margin-top:14px}
+.join-in{width:100%;border:1px solid var(--line2);background:#050505;padding:16px;text-align:center;font-size:clamp(22px,8vw,34px);letter-spacing:.3em;text-transform:uppercase;margin-top:14px;outline:none}
+.join-in:focus{border-color:var(--teal)}
+.rolepick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+@media(max-width:520px){.rolepick{grid-template-columns:1fr}}
+.err{border:1px solid var(--red);color:#ff9d96;padding:12px 14px;margin-top:14px;font-size:10px;letter-spacing:.04em;line-height:1.5}
+/* --- svg mark helpers (drawn, never emoji) --- */
+svg.mk{width:100%;height:100%;display:block;stroke-linecap:square;stroke-linejoin:miter}
+.hide{display:none!important}
+.center-note{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.06em;padding:30px 10px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="brand">
+      <span>VERDICT ENGINE</span><span class="slash">//</span>
+      <span class="sub">THE PARIS MODEL</span>
+    </div>
+    <div class="hw"><span class="h">HELLO</span><span class="bar">|</span><span class="w">WORLD</span></div>
+  </div>
+
+  <div id="stephead" class="hide">
+    <span class="corner c-tl"></span><span class="corner c-tr"></span><span class="corner c-bl"></span><span class="corner c-br"></span>
+    <h1 id="steptitle">—</h1>
+    <span class="stepno" id="stepno">STEP <b>00</b> OF 07</span>
+  </div>
+
+  <div id="body"><!-- screens render here --></div>
+
+  <div id="foot">
+    <span>VERDICT ENGINE v1.0.0</span>
+    <span class="creed">TRUTH ISN'T GIVEN. IT'S RECONSTRUCTED.</span>
+    <span class="sess"><span id="sesslabel">NO SESSION</span><span class="signal off" id="sig"><i></i><i></i><i></i><i></i></span></span>
+  </div>
+</div>
+
+<!-- PeerJS for 2-peer transport -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<!-- Three.js via importmap (studio doctrine) -->
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ============================================================
+   0 · CONSTANTS & TINY HELPERS
+   Power-of-10 named ceilings on every loop.
+   ============================================================ */
+const MAX_CLAIMS      = 10;   // claims a party may enter per deposition
+const MAX_CHALLENGES  = 10;   // challenges a party may raise
+const MAX_FACTS       = 10;   // facts in a ground-truth partition
+const MAX_OBJECTS     = 10;   // vehicles/props in a wreck
+const MAX_NET_RETRY   = 10;   // reconnection attempts
+const MAX_POLL_TICKS  = 1000; // barrier poll ceiling
+
+const $  = sel => document.querySelector(sel);
+const el = (tag, cls, html) => { const n=document.createElement(tag); if(cls)n.className=cls; if(html!=null)n.innerHTML=html; return n; };
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const uid=(p='id')=>p+'_'+Math.random().toString(36).slice(2,9);
+const roomCode=()=>{const A='ACDEFHJKLMNPRTUVWXY34679';let s='';for(let i=0;i<4;i++)s+=A[Math.floor(Math.random()*A.length)];return s;};
+
+/* Drawn vector marks — never emoji glyphs. */
+const MK = {
+  gavel:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="11" height="6" transform="rotate(-40 8.5 7)"/><line x1="12" y1="13" x2="24" y2="25"/><line x1="17" y1="26" x2="27" y2="26"/></svg>`,
+  scale:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="15" y1="4" x2="15" y2="26"/><line x1="6" y1="9" x2="24" y2="9"/><path d="M6 9 L2 17 h8 z"/><path d="M24 9 L20 17 h8 z"/><line x1="10" y1="26" x2="20" y2="26"/></svg>`,
+  shield:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M15 3 L25 7 V15 C25 22 15 27 15 27 C15 27 5 22 5 15 V7 Z"/></svg>`,
+  lock:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="7" y="13" width="16" height="12"/><path d="M10 13 V9 a5 5 0 0 1 10 0 V13"/></svg>`,
+  replay:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M23 15 a8 8 0 1 1-3-6"/><path d="M23 5 v5 h-5"/></svg>`,
+  check:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="15" cy="15" r="11"/><path d="M9 15 l4 4 l8-9"/></svg>`,
+  export:`<svg class="mk" viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M15 4 v14"/><path d="M10 9 l5-5 l5 5"/><path d="M6 18 v7 h18 v-7"/></svg>`,
+  play:`<svg class="mk" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 6 v12 l9-6 z"/></svg>`,
+  pause:`<svg class="mk" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="7" y="6" width="4" height="12"/><rect x="13" y="6" width="4" height="12"/></svg>`,
+  crosshair:`<svg class="mk" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="13" cy="13" r="6"/><line x1="13" y1="0" x2="13" y2="5"/><line x1="13" y1="21" x2="13" y2="26"/><line x1="0" y1="13" x2="5" y2="13"/><line x1="21" y1="13" x2="26" y2="13"/></svg>`,
+  doc:`<svg class="mk" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="3" width="16" height="20"/><line x1="8" y1="8" x2="18" y2="8"/><line x1="8" y1="12" x2="18" y2="12"/><line x1="8" y1="16" x2="14" y2="16"/></svg>`,
+  orbit:`<svg class="mk" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.4"><ellipse cx="13" cy="13" rx="11" ry="5"/><circle cx="13" cy="13" r="2.5" fill="currentColor"/></svg>`,
+  labels:`<svg class="mk" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 2"><rect x="4" y="4" width="18" height="18"/></svg>`,
+  grid:`<svg class="mk" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="4" y="4" width="18" height="18"/><line x1="10" y1="4" x2="10" y2="22"/><line x1="16" y1="4" x2="16" y2="22"/><line x1="4" y1="10" x2="22" y2="10"/><line x1="4" y1="16" x2="22" y2="16"/></svg>`,
+};
+
+/* ============================================================
+   1 · MATCH STATE  (host-authoritative canonical model)
+   Every invariant is enforced against THIS object, not the DOM.
+   ============================================================ */
+const STATE = {
+  step: 0,                 // 0 lobby, 1..7 the spine
+  role: null,              // 'pros' | 'def'  (this client)
+  isHost: false,
+  peerReady: false,        // transport connected
+  match: null,             // the canonical MATCH object (below)
+};
+
+/* Canonical match shape (host owns; guest holds a synced copy):
+   {
+     id, code,
+     wreck: GroundTruth | null,     // generated live, shared to both
+     replayUsed: {pros,def},
+     sealed:  {pros:Account|null, def:Account|null},   // step1 blind accounts
+     claims:  {pros:[Claim], def:[Claim]},             // step2 depositions
+     scenes:  {pros:SceneSpec|null, def:SceneSpec|null},// step3 reconstructions
+     challenges:[Challenge],                            // step4 flags
+     rulings:[Ruling],                                  // step5 judge output
+     verdict: Verdict | null,                           // step6 result
+     barriers:{ [phase]: {pros:bool, def:bool} },       // lockstep gates
+   }
+   Claim  := {id, author, text, modality:'WITNESSED'|'INFER'}
+   Fact   := {id, text, zone:'WITNESSED'|'AMBIGUOUS'|'HIDDEN', truth:bool, ref?}
+   Challenge := {id, by, targetClaimId, kind:'FACT'|'SOURCE'}
+   Ruling := {id, challengeId, claimText, zone, sustained:bool, citation, rule, factId}
+*/
+
+function newMatch(code){
+  return {
+    id: uid('match'), code,
+    wreck: null,
+    replayUsed:{pros:false,def:false},
+    sealed:{pros:null,def:null},
+    claims:{pros:[],def:[]},
+    scenes:{pros:null,def:null},
+    challenges:[],
+    rulings:[],
+    verdict:null,
+    barriers:{}
+  };
+}
+const other = r => r==='pros'?'def':'pros';
+const roleName = r => r==='pros'?'PROSECUTION':'DEFENSE';
+
+/* ============================================================
+   2 · TRANSPORT  (PeerJS, 2-peer, host-authoritative)
+   Host holds canonical STATE.match and broadcasts snapshots.
+   Guest sends intents; host applies them and re-broadcasts.
+   Turn-based & low-bandwidth: a snapshot per phase transition.
+   ============================================================ */
+const NET = {
+  peer:null, conn:null, retries:0,
+  onOpen:()=>{}, onData:()=>{},
+};
+
+function netHost(onCode){
+  const code = roomCode();
+  STATE.match = newMatch(code);
+  const peerId = 'PARIS-'+code;
+  NET.peer = new Peer(peerId, {debug:1});
+  NET.peer.on('open', ()=>{ onCode(code); setSession('HOST · '+code, false); });
+  NET.peer.on('connection', c=>{
+    NET.conn = c;
+    c.on('open', ()=>{
+      STATE.peerReady=true; setSession('LINKED · '+code, true);
+      broadcast();              // send initial snapshot to guest
+      NET.onOpen();
+    });
+    c.on('data', d=>hostReceive(d));
+    c.on('close', ()=>onPeerLost());
+  });
+  NET.peer.on('error', e=>onNetErr(e));
+}
+
+function netJoin(code, onOk, onErr){
+  code = code.toUpperCase().trim();
+  NET.peer = new Peer(undefined,{debug:1});
+  NET.peer.on('open', ()=>{
+    const c = NET.peer.connect('PARIS-'+code, {reliable:true});
+    NET.conn = c;
+    c.on('open', ()=>{
+      STATE.peerReady=true; setSession('LINKED · '+code, true);
+      onOk();
+    });
+    c.on('data', d=>guestReceive(d));
+    c.on('error', e=>onErr(e));
+    c.on('close', ()=>onPeerLost());
+    setTimeout(()=>{ if(!STATE.peerReady) onErr(new Error('No host at '+code)); }, 9000);
+  });
+  NET.peer.on('error', e=>onErr(e));
+}
+
+/* HOST: receive a guest intent, mutate canonical match, rebroadcast. */
+function hostReceive(msg){
+  if(!msg||!msg.type) return;
+  applyIntent(msg);          // authoritative mutation
+  broadcast();
+  routeAfterMutation(msg);
+}
+/* GUEST: receive a snapshot or directive from host. */
+function guestReceive(msg){
+  if(msg.type==='SNAPSHOT'){ STATE.match = msg.match; render(); }
+  else if(msg.type==='GOTO'){ STATE.step=msg.step; render(); }
+}
+
+function broadcast(){ send({type:'SNAPSHOT', match:STATE.match}); }
+function send(obj){ try{ NET.conn && NET.conn.open && NET.conn.send(obj); }catch(e){} }
+
+/* Guest emits an intent to the host (host applies + rebroadcasts). */
+function intent(type, payload){
+  if(STATE.isHost){ applyIntent({type,...payload}); broadcast(); routeAfterMutation({type,...payload}); }
+  else send({type,...payload});
+}
+
+function onNetErr(e){
+  if(String(e).includes('unavailable-id')){ /* host id taken; regenerate */ }
+}
+function onPeerLost(){
+  STATE.peerReady=false; setSession('PEER LOST',false);
+}
+
+/* ============================================================
+   3 · INTENT APPLICATION  (the rules live here — host only)
+   These functions ENFORCE the theory's invariants.
+   ============================================================ */
+function applyIntent(m){
+  const M = STATE.match; if(!M) return;
+  switch(m.type){
+    case 'SEAL_ACCOUNT': {
+      // INVARIANT: a sealed account is immutable once set.
+      if(M.sealed[m.role]) return;                       // already sealed → ignore
+      M.sealed[m.role] = { text:m.text.slice(0,2000), at:Date.now() };
+      markBarrier('SEAL', m.role);
+      break;
+    }
+    case 'USE_REPLAY': {
+      if(!M.replayUsed[m.role]) M.replayUsed[m.role]=true; // one replay, tracked
+      break;
+    }
+    case 'SUBMIT_DEPOSITION': {
+      // INVARIANT: a claim is not evidence until it carries a modality.
+      const claims = (m.claims||[]).slice(0,MAX_CLAIMS).map(c=>({
+        id:uid('cl'), author:m.role,
+        text:String(c.text||'').slice(0,240),
+        modality: c.modality==='WITNESSED'?'WITNESSED':'INFER'   // default to INFER
+      })).filter(c=>c.text.trim());
+      M.claims[m.role]=claims;
+      markBarrier('DEPO', m.role);
+      break;
+    }
+    case 'SUBMIT_SCENE': {
+      M.scenes[m.role]=m.scene||null;
+      markBarrier('SCENE', m.role);
+      break;
+    }
+    case 'RAISE_CHALLENGES': {
+      // INVARIANT: challenge is costed — recorded per party, capped.
+      const raised = (m.challenges||[]).slice(0,MAX_CHALLENGES);
+      // clear this party's prior challenges, then add
+      M.challenges = M.challenges.filter(c=>c.by!==m.role);
+      for(const ch of raised){
+        M.challenges.push({id:uid('ch'), by:m.role, targetClaimId:ch.targetClaimId, kind:ch.kind||'FACT'});
+      }
+      markBarrier('CONFRONT', m.role);
+      break;
+    }
+    case 'SET_WRECK': {            // host authored the wreck → store on canonical
+      M.wreck = m.wreck;
+      break;
+    }
+    case 'SET_RULINGS': {          // host judge produced rulings
+      M.rulings = m.rulings;
+      break;
+    }
+    case 'SET_VERDICT': {
+      M.verdict = m.verdict;
+      break;
+    }
+    case 'READY_STEP': {
+      markBarrier('STEP'+m.step, m.role);
+      break;
+    }
+  }
+}
+
+function markBarrier(phase, role){
+  const M=STATE.match;
+  M.barriers[phase] = M.barriers[phase] || {pros:false,def:false};
+  M.barriers[phase][role]=true;
+}
+function barrierMet(phase){
+  const b = STATE.match.barriers[phase];
+  return !!(b && b.pros && b.def);
+}
+
+/* After any authoritative mutation, host decides if the phase advances. */
+function routeAfterMutation(m){
+  if(!STATE.isHost) return;
+  const M=STATE.match;
+
+  // STEP 1 → both sealed → generate wreck already exists; advance to DEPOSITION
+  if(barrierMet('SEAL') && M.step<2){ gotoStep(2); }
+
+  // STEP 2 → both depositions in → RECONSTRUCTION
+  if(barrierMet('DEPO') && M.step<3){ gotoStep(3); }
+
+  // STEP 3 → both scenes in → CONFRONTATION
+  if(barrierMet('SCENE') && M.step<4){ gotoStep(4); }
+
+  // STEP 4 → both challenge-sets in → run judge, then RULING
+  if(barrierMet('CONFRONT') && M.step<5){
+    runJudge().then(()=>gotoStep(5));
+  }
+  broadcast();
+}
+
+/* Host drives the shared step; tells guest via GOTO + snapshot. */
+function gotoStep(n){
+  STATE.match.step=n; STATE.step=n;
+  send({type:'GOTO', step:n});
+  broadcast();
+  render();
+}
+
+/* ============================================================
+   4 · CLAUDE-IN-CLAUDE  (live generative surfaces, no seeds)
+   (a) generateWreck  — host authors a fresh accident + partition
+   (b) runJudge       — host referee rules per challenge vs GT graph
+   Both call the Anthropic API through the artifact bridge.
+   ============================================================ */
+async function claudeJSON(systemPrompt, userPrompt){
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-6", max_tokens:1600,
+      system:systemPrompt,
+      messages:[{role:"user",content:userPrompt}]
+    })
+  });
+  const data = await res.json();
+  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join("");
+  const clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+/* (a) Author a wreck. Non-deterministic. Host-only, then shared. */
+async function generateWreck(){
+  const sys = `You author a single road-traffic collision as STRUCTURED GROUND TRUTH for an adversarial courtroom-reconstruction game. Two human players will each reconstruct THIS wreck from a video and argue opposing accounts of fault. Return ONLY JSON, no prose, no markdown.
+
+Partition every fact into a visibility zone:
+- "WITNESSED": the on-scene video shows it unambiguously. Contradicting it is perjury.
+- "AMBIGUOUS": the video is unclear (bad angle, fast, partial). Fair inference lives here.
+- "HIDDEN": the video does NOT show it (off-frame, occluded, before the clip). Asserting it as witnessed is fabrication.
+
+The true fault MUST turn on a HIDDEN or AMBIGUOUS fact, so honest copying of the video is insufficient to win — the players must argue.
+
+Schema:
+{
+ "title": "<=6 word slug",
+ "camera":"CAM_XX :: LOCATION_NAME",
+ "clip":{"start":"MM:SS.CC","end":"MM:SS.CC"},
+ "objects":[ {"id":"veh_a","type":"sedan|suv|truck|cyclist|pedestrian","color":"gray|red|blue|amber|white","from":"N|S|E|W","to":"N|S|E|W","role":"ego|other","start":[x,z],"end":[x,z],"heading":deg} ],  // 2-4 objects, coords in [-6..6]
+ "facts":[ {"id":"f1","text":"<one plain sentence>","zone":"WITNESSED|AMBIGUOUS|HIDDEN","truth":true|false} ],  // 8-10 facts, mixed zones, some false
+ "fault":{"liable":"veh_a|veh_b|shared","reason":"<one sentence, references a HIDDEN or AMBIGUOUS fact id>"},
+ "conditions":{"time":"day|dusk|night","weather":"clear|rain|fog","light":"green|amber|red|none"}
+}`;
+  const usr = `Author one fresh wreck now. Make the fault genuinely contestable. Vary the scenario from any generic template.`;
+  const w = await claudeJSON(sys,usr);
+  // clamp sizes to Power-of-10 ceilings
+  w.objects=(w.objects||[]).slice(0,MAX_OBJECTS);
+  w.facts=(w.facts||[]).slice(0,MAX_FACTS);
+  return w;
+}
+
+/* (b) Judge one challenge against the ground-truth graph.
+   INVARIANT: the judge may ONLY cite fact ids present in the graph. */
+async function judgeChallenge(challenge, claim, wreck){
+  const sys = `You are a NEUTRAL REFEREE-JUDGE in an adversarial wreck-reconstruction game. You rule on ONE challenge. You may cite ONLY facts from the provided ground-truth graph, by their id. You may NOT invent facts. Return ONLY JSON.
+
+Ruling law:
+- A claim stamped "WITNESSED" is PERJURY if the matching fact's zone is HIDDEN (the video cannot witness it), or if it contradicts a WITNESSED fact whose truth is true.
+- A claim stamped "INFER" is never perjury; judge only its plausibility against WITNESSED/AMBIGUOUS facts.
+- If the challenge is correct (the claim is a fabrication or contradicts the record) → sustained=true.
+- If the challenge misfires (the claim was a legitimate inference or matches the record) → sustained=false (overruled), and the challenger pays.
+
+Schema:
+{ "factId":"<id from graph or empty>", "zone":"WITNESSED|AMBIGUOUS|HIDDEN", "sustained":true|false,
+  "citation":"<one sentence citing the fact and why>", "rule":"<the ruling law applied, one clause>" }`;
+  const usr = JSON.stringify({
+    challenge:{kind:challenge.kind},
+    claim:{text:claim.text, modality:claim.modality},
+    ground_truth:{ facts:wreck.facts, fault:wreck.fault }
+  });
+  const r = await claudeJSON(sys,usr);
+  // guard: reject any factId not in the graph
+  if(r.factId && !wreck.facts.some(f=>f.id===r.factId)) r.factId='';
+  return r;
+}
+
+/* Run the judge over ALL challenges, compute verdict. Host-only. */
+async function runJudge(){
+  const M=STATE.match; if(!M.wreck) return;
+  const rulings=[];
+  const allClaims = [...M.claims.pros, ...M.claims.def];
+  const byId = id => allClaims.find(c=>c.id===id);
+  let tick=0;
+  for(const ch of M.challenges){
+    if(tick++>MAX_POLL_TICKS) break;
+    const claim = byId(ch.targetClaimId);
+    if(!claim) continue;
+    try{
+      const r = await judgeChallenge(ch, claim, M.wreck);
+      rulings.push({
+        id:uid('rl'), challengeId:ch.id, by:ch.by,
+        claimId:claim.id, claimText:claim.text, claimAuthor:claim.author,
+        zone:r.zone, sustained:!!r.sustained, citation:r.citation, rule:r.rule, factId:r.factId
+      });
+    }catch(e){
+      rulings.push({id:uid('rl'), challengeId:ch.id, by:ch.by, claimId:claim.id,
+        claimText:claim.text, claimAuthor:claim.author, zone:'AMBIGUOUS',
+        sustained:false, citation:'Ruling unavailable — challenge dismissed.', rule:'no-ruling', factId:''});
+    }
+  }
+  M.rulings=rulings;
+  M.verdict = computeVerdict();
+  broadcast();
+}
+
+/* ============================================================
+   5 · VERDICT SCORING
+   witnessed-fidelity + inference-plausibility, per party,
+   with perjury (sustained fabrication) as heavy penalty and
+   misfired challenges crediting the opponent.
+   ============================================================ */
+function computeVerdict(){
+  const M=STATE.match;
+  const score = role=>{
+    const claims=M.claims[role]||[];
+    const wit = claims.filter(c=>c.modality==='WITNESSED');
+    const inf = claims.filter(c=>c.modality==='INFER');
+    // rulings where THIS party's claim was challenged & sustained = fabrication caught
+    const fabCaught = M.rulings.filter(r=>r.claimAuthor===role && r.sustained).length;
+    // challenges THIS party raised that were overruled = misfire penalty
+    const misfires = M.rulings.filter(r=>r.by===role && !r.sustained).length;
+    // challenges THIS party raised that were sustained = points
+    const hits = M.rulings.filter(r=>r.by===role && r.sustained).length;
+
+    // base fidelity: witnessed claims that survived (not caught as fabrication)
+    const witSurv = Math.max(0, wit.length - fabCaught);
+    const witnessedScore = clamp( (witSurv / Math.max(1,wit.length)) - fabCaught*0.18 + hits*0.06, 0, 1);
+    const inferredScore  = clamp( (inf.length? 0.45 + inf.length*0.05 : 0.3) - misfires*0.12 + hits*0.04, 0, 1);
+    return {
+      witnessed:+witnessedScore.toFixed(2),
+      inferred:+inferredScore.toFixed(2),
+      fabCaught, misfires, hits,
+      claims: claims.length
+    };
+  };
+  const pros=score('pros'), def=score('def');
+  const total = s => s.witnessed*0.62 + s.inferred*0.38;
+  const winner = total(pros) >= total(def) ? 'pros' : 'def';
+  return { pros, def, winner, at:Date.now() };
+}
+
+/* Build the provenance ledger rows: every claim + its final status. */
+function buildLedger(){
+  const M=STATE.match; const rows=[];
+  const fabricatedIds = new Set(M.rulings.filter(r=>r.sustained).map(r=>r.claimId));
+  for(const role of ['pros','def']){
+    for(const c of (M.claims[role]||[])){
+      let status = c.modality==='WITNESSED' ? 'witnessed' : 'inferred';
+      if(fabricatedIds.has(c.id)) status='fabricated';
+      // find a source string from a matching ruling/fact if any
+      const rl = M.rulings.find(r=>r.claimId===c.id);
+      const src = rl && rl.factId ? `GT :: ${rl.factId} (${rl.zone})`
+                : c.modality==='WITNESSED' ? 'DEPOSITION :: SEALED ACCOUNT'
+                : 'INFERENCE :: ARGUED';
+      rows.push({status, text:c.text, source:src, author:role});
+    }
+  }
+  return rows;
+}
+
+/* ============================================================
+   6 · WIREFRAME TOY COURTROOM  (Three.js, one reusable scene)
+   Renders the "video" playback, both reconstructions, and the
+   contested-object viewer — all the same renderer, different content.
+   Occlusion for HIDDEN facts is BAKED into the render.
+   ============================================================ */
+class ToyScene{
+  constructor(canvas){
+    this.canvas=canvas;
+    this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    this.scene=new THREE.Scene();
+    this.cam=new THREE.PerspectiveCamera(42,1,.1,200);
+    this.cam.position.set(9,9,9); this.cam.lookAt(0,0,0);
+    this.root=new THREE.Group(); this.scene.add(this.root);
+    this.yaw=Math.PI*0.25; this.autorotate=false;
+    this.grid=null; this.showGrid=true; this.showLabels=true;
+    this.labels=[]; this.playhead=0; this.objects=[];
+    this._resize(); this._bindDrag();
+    this._raf=null; this._last=performance.now();
+    this.loop();
+  }
+  _resize(){
+    const r=this.canvas.getBoundingClientRect();
+    const w=Math.max(2,r.width), h=Math.max(2,r.height);
+    this.renderer.setSize(w,h,false);
+    this.cam.aspect=w/h; this.cam.updateProjectionMatrix();
+  }
+  _bindDrag(){
+    let id=null,lx=0;
+    this.canvas.addEventListener('pointerdown',e=>{id=e.pointerId;lx=e.clientX;this.canvas.setPointerCapture(id);});
+    this.canvas.addEventListener('pointermove',e=>{if(e.pointerId===id){this.yaw+=(e.clientX-lx)*.008;lx=e.clientX;}});
+    this.canvas.addEventListener('pointerup',e=>{if(e.pointerId===id)id=null;});
+  }
+  clear(){
+    while(this.root.children.length) this.root.remove(this.root.children[0]);
+    this.labels.forEach(l=>l.remove()); this.labels=[]; this.objects=[];
+  }
+  wire(mat){ return new THREE.LineBasicMaterial({color:mat||0xffffff,transparent:true,opacity:.9}); }
+  addGrid(){
+    const g=new THREE.GridHelper(12,12,0x2a2a2a,0x1a1a1a);
+    g.material.opacity=this.showGrid?.7:0; g.material.transparent=true;
+    this.root.add(g); this.grid=g;
+    // floor plane edges
+    const geo=new THREE.EdgesGeometry(new THREE.BoxGeometry(12,0.02,12));
+    const box=new THREE.LineSegments(geo,this.wire(0x333333)); box.position.y=0; this.root.add(box);
+  }
+  /* build a boxy toy vehicle as pure wireframe */
+  vehicle(type,color){
+    const g=new THREE.Group();
+    const col = color||0xffffff;
+    const dims = type==='suv'?[1.4,1.0,2.4]:type==='truck'?[1.5,1.1,3.4]:[1.3,0.75,2.6];
+    const body=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(...dims)),this.wire(col));
+    body.position.y=dims[1]/2+0.18; g.add(body);
+    // cabin
+    const cab=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(dims[0]*0.9,dims[1]*0.7,dims[2]*0.45)),this.wire(col));
+    cab.position.set(0,dims[1]+0.18, type==='truck'?dims[2]*0.28:-0.1); g.add(cab);
+    // wheels as rings
+    const wr=0.34;
+    [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(([sx,sz])=>{
+      const w=new THREE.LineLoop(new THREE.CircleGeometry(wr,14),this.wire(col));
+      w.rotation.y=Math.PI/2;
+      w.position.set(sx*dims[0]*0.5, wr, sz*dims[2]*0.32); g.add(w);
+    });
+    return g;
+  }
+  makeLabel(text,color){
+    const d=el('div','vp-obj-label');
+    d.style.cssText='position:absolute;font-size:9px;letter-spacing:.1em;color:'+color+';pointer-events:none;white-space:nowrap;transform:translate(-50%,-140%);';
+    d.textContent=text;
+    this.canvas.parentElement.appendChild(d);
+    this.labels.push(d);
+    return d;
+  }
+  /* Load a wreck GroundTruth. occlude=false shows all (reconstruction);
+     occlude=true bakes HIDDEN-fact occlusion (the "video"). */
+  load(wreck, opts={}){
+    this.clear(); this.addGrid();
+    if(!wreck||!wreck.objects) return;
+    const accent = opts.accent||0xffffff;
+    const objs = wreck.objects.slice(0,MAX_OBJECTS);
+    objs.forEach((o,i)=>{
+      const c = i===0?accent:0x9a9a9a;
+      const v=this.vehicle(o.type,c);
+      const p = opts.atEnd ? (o.end||o.start||[0,0]) : (o.start||[0,0]);
+      v.position.set(p[0]||0,0,p[1]||0);
+      v.rotation.y = (o.heading||0)*Math.PI/180;
+      this.root.add(v);
+      this.objects.push({mesh:v,spec:o});
+      if(this.showLabels){
+        const lbl=this.makeLabel((o.role==='ego'?'EGO':(o.type||'VEH')).toUpperCase(), i===0?'#19e6c8':'#8b8b8b');
+        v.userData.label=lbl;
+      }
+      // trajectory arrow (teal) start->end
+      if(o.start&&o.end){
+        const a=new THREE.Vector3(o.start[0],0.1,o.start[1]);
+        const b=new THREE.Vector3(o.end[0],0.1,o.end[1]);
+        const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),
+          new THREE.LineDashedMaterial({color:0x19e6c8,dashSize:0.3,gapSize:0.2,transparent:true,opacity:.8}));
+        line.computeLineDistances(); this.root.add(line);
+      }
+    });
+    // Occlusion for the VIDEO: dim/hide objects tied to HIDDEN facts
+    if(opts.occlude && wreck.conditions){
+      // render a translucent "occluder" slab where the clip can't see (behind lead vehicle)
+      const slab=new THREE.Mesh(new THREE.PlaneGeometry(6,4),
+        new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.55,side:THREE.DoubleSide}));
+      slab.rotation.x=-Math.PI/2; slab.position.set(3,0.05,-2.5); this.root.add(slab);
+    }
+  }
+  /* single contested object, isolated with a red ring */
+  loadContested(wreck, idx=0){
+    this.clear(); this.addGrid();
+    const o=(wreck&&wreck.objects&&wreck.objects[idx])||{type:'suv'};
+    const v=this.vehicle(o.type,0xffffff); this.root.add(v); this.objects.push({mesh:v,spec:o});
+    const ring=new THREE.LineLoop(new THREE.CircleGeometry(2.6,48),this.wire(0xff2e2e));
+    ring.rotation.x=-Math.PI/2; ring.position.y=0.02; this.root.add(ring);
+  }
+  projectLabels(){
+    for(const {mesh} of this.objects){
+      const lbl=mesh.userData.label; if(!lbl) continue;
+      const p=new THREE.Vector3(0,1.4,0); mesh.localToWorld(p); p.project(this.cam);
+      const r=this.canvas.getBoundingClientRect();
+      lbl.style.left=((p.x*0.5+0.5)*r.width)+'px';
+      lbl.style.top=((-p.y*0.5+0.5)*r.height)+'px';
+      lbl.style.opacity=(p.z<1&&this.showLabels)?'1':'0';
+    }
+  }
+  loop(){
+    this._raf=requestAnimationFrame(()=>this.loop());
+    const now=performance.now(), dt=(now-this._last)/1000; this._last=now;
+    if(this.autorotate) this.yaw+=dt*0.35;
+    this.root.rotation.y=this.yaw;
+    if(this.grid) this.grid.material.opacity=this.showGrid?.7:0;
+    this.projectLabels();
+    this.renderer.render(this.scene,this.cam);
+  }
+  destroy(){ cancelAnimationFrame(this._raf); this.labels.forEach(l=>l.remove()); this.renderer.dispose(); }
+}
+let TOY=null, TOY2=null; // primary + secondary (confrontation)
+
+/* ============================================================
+   7 · UI  — session label + step header
+   ============================================================ */
+function setSession(txt,live){
+  $('#sesslabel').textContent=txt;
+  $('#sig').className = 'signal'+(live?'':' off');
+}
+const STEP_TITLES = {
+  1:['EVIDENCE','CHAMBER'], 2:['DEPOSITION',''], 3:['YOUR','RECONSTRUCTION'],
+  4:['CONFRONTATION','CHALLENGE'], 5:['RULING',''], 6:['VERDICT',''], 7:['EXPORT','RECORD']
+};
+function setStepHeader(){
+  const sh=$('#stephead');
+  if(STATE.step<1){ sh.classList.add('hide'); return; }
+  sh.classList.remove('hide');
+  const [a,b]=STEP_TITLES[STATE.step]||['',''];
+  $('#steptitle').innerHTML = b? `${a} <em>${b}</em>` : a;
+  $('#stepno').innerHTML = `STEP <b>${String(STATE.step).padStart(2,'0')}</b> OF 07`;
+}
+
+/* ============================================================
+   8 · SCREENS
+   ============================================================ */
+function render(){
+  setStepHeader();
+  const body=$('#body');
+  // preserve canvases across renders where possible by full rebuild (turn-based, cheap)
+  if(TOY){TOY.destroy();TOY=null;} if(TOY2){TOY2.destroy();TOY2=null;}
+  body.innerHTML='';
+  switch(STATE.step){
+    case 0: return screenLobby(body);
+    case 1: return screenEvidence(body);
+    case 2: return screenDeposition(body);
+    case 3: return screenReconstruction(body);
+    case 4: return screenConfrontation(body);
+    case 5: return screenRuling(body);
+    case 6: return screenVerdict(body);
+    case 7: return screenExport(body);
+  }
+}
+
+/* ---------- STEP 0 · LOBBY ---------- */
+function screenLobby(body){
+  const wrap=el('div');
+  wrap.appendChild(el('div','lobby-hero',`
+    <div class="kick">TWO ADVOCATES · ONE WITNESSED WRECK</div>
+    <h2>THE <span class="paris">PARIS</span><br>MODEL</h2>
+    <p>You and one opponent watch the same collision, then reconstruct it in opposing toy-courtroom scenes. Push your favorable reading of what the video didn't clearly show — but stamp a claim you can't back as <b>witnessed</b>, get caught, and lose it. An impartial engine rules on every challenge against the sealed record.</p>
+  `));
+
+  const pick=el('div','rolepick');
+  const host=el('button','action');
+  host.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.gavel}</span><span class="tx"><b>HOST A MATCH</b><span>GENERATE A WRECK · GET A ROOM CODE</span></span><span class="arw">&rsaquo;</span>`;
+  const join=el('button','action amber');
+  join.innerHTML=`<span class="ico" style="color:var(--amber)">${MK.shield}</span><span class="tx"><b>JOIN A MATCH</b><span>ENTER A ROOM CODE FROM YOUR OPPONENT</span></span><span class="arw">&rsaquo;</span>`;
+  pick.appendChild(host); pick.appendChild(join);
+  wrap.appendChild(pick);
+
+  const slot=el('div'); wrap.appendChild(slot);
+  body.appendChild(wrap);
+
+  host.onclick=()=>{ STATE.isHost=true; STATE.role='pros'; lobbyHost(slot); };
+  join.onclick=()=>{ STATE.isHost=false; STATE.role='def'; lobbyJoin(slot); };
+}
+
+function lobbyHost(slot){
+  slot.innerHTML='';
+  const box=el('div','codebox');
+  box.innerHTML=`<div class="cl">YOUR ROOM CODE</div><div class="code" id="rc">····</div>
+    <div class="st" id="hoststate">STARTING SESSION…</div>`;
+  slot.appendChild(box);
+
+  const barrier=el('div','barrier');
+  barrier.innerHTML=`<div class="spin"></div><b>WAITING FOR OPPONENT</b>
+    <span>Share the room code above. When your opponent joins, the wreck is authored and the trial begins.</span>
+    <div class="who"><span class="p ready"><span class="d"></span>YOU · PROSECUTION</span><span class="p"><span class="d"></span>OPPONENT · DEFENSE</span></div>`;
+  slot.appendChild(barrier);
+
+  NET.onOpen = async ()=>{
+    $('#hoststate').textContent='OPPONENT LINKED · AUTHORING WRECK…';
+    barrier.querySelector('b').textContent='AUTHORING THE WRECK';
+    barrier.querySelector('span').textContent='Generating a fresh collision and sealing the ground-truth record. This happens live — one moment.';
+    barrier.querySelector('.who').children[1].classList.add('ready');
+    try{
+      const wreck = await generateWreck();
+      intent('SET_WRECK',{wreck});
+      gotoStep(1);
+    }catch(e){
+      barrier.innerHTML=`<b style="color:var(--red)">WRECK AUTHORING FAILED</b><span>${(e.message||e)}</span>`;
+      const retry=el('button','action red'); retry.style.marginTop='16px';
+      retry.innerHTML=`<span class="ico" style="color:var(--red)">${MK.replay}</span><span class="tx"><b>RETRY</b><span>AUTHOR THE WRECK AGAIN</span></span><span class="arw">&rsaquo;</span>`;
+      retry.onclick=()=>NET.onOpen(); slot.appendChild(retry);
+    }
+  };
+  netHost(code=>{ $('#rc').textContent=code; $('#hoststate').textContent='SESSION LIVE · AWAITING JOIN'; });
+}
+
+function lobbyJoin(slot){
+  slot.innerHTML='';
+  const box=el('div','codebox'); box.style.borderColor='var(--amber)';
+  box.innerHTML=`<div class="cl">ENTER ROOM CODE</div>
+    <input class="join-in" id="joincode" maxlength="4" autocapitalize="characters" placeholder="····">`;
+  slot.appendChild(box);
+  const go=el('button','action amber'); go.style.marginTop='14px';
+  go.innerHTML=`<span class="ico" style="color:var(--amber)">${MK.shield}</span><span class="tx"><b>JOIN AS DEFENSE</b><span>CONNECT TO YOUR OPPONENT'S SESSION</span></span><span class="arw">&rsaquo;</span>`;
+  slot.appendChild(go);
+  const errslot=el('div'); slot.appendChild(errslot);
+
+  go.onclick=()=>{
+    const code=$('#joincode').value.toUpperCase().trim();
+    if(code.length<4){ errslot.innerHTML=`<div class="err">Enter the full 4-character code.</div>`; return; }
+    errslot.innerHTML='';
+    go.innerHTML=`<span class="ico" style="color:var(--amber)">${MK.replay}</span><span class="tx"><b>CONNECTING…</b><span>${code}</span></span>`;
+    netJoin(code, ()=>{
+      const wait=el('div','barrier');
+      wait.innerHTML=`<div class="spin"></div><b>LINKED · AWAITING WRECK</b><span>Your opponent is authoring the collision. The trial opens automatically.</span>`;
+      errslot.innerHTML=''; errslot.appendChild(wait);
+    }, e=>{
+      go.innerHTML=`<span class="ico" style="color:var(--amber)">${MK.shield}</span><span class="tx"><b>JOIN AS DEFENSE</b><span>CONNECT TO YOUR OPPONENT'S SESSION</span></span><span class="arw">&rsaquo;</span>`;
+      errslot.innerHTML=`<div class="err">${(e.message||e)}. Check the code and that the host is still waiting.</div>`;
+    });
+  };
+}
+
+/* ---------- STEP 1 · EVIDENCE CHAMBER ---------- */
+function screenEvidence(body){
+  const M=STATE.match; const wreck=M.wreck;
+  const already = !!M.sealed[STATE.role];
+
+  const panel=el('div','panel');
+  panel.innerHTML=`<div class="phead"><span class="lhs"><span class="dot"></span>VIDEO EVIDENCE_001</span><span class="rhs">${wreck?wreck.camera:'CAM_04 :: INTERSECTION'}</span></div>`;
+  const vp=el('div','viewport wide');
+  vp.innerHTML=`<span class="vp-tag"><span class="dot"></span>WITNESSED RECORD</span><span class="vp-tr">${wreck?wreck.conditions.time.toUpperCase()+' · '+wreck.conditions.weather.toUpperCase():''}</span>`;
+  const cv=el('canvas'); vp.appendChild(cv);
+  panel.appendChild(vp);
+
+  // playback bar
+  const clip=wreck?wreck.clip:{start:'00:06.47',end:'00:18.92'};
+  const pb=el('div','playbar');
+  pb.innerHTML=`<button id="pbtn">${MK.play}</button>
+    <span class="time">${clip.start}</span>
+    <div class="track"><div class="fill" id="pfill" style="width:35%"></div><div class="head" id="phead" style="left:35%"></div>
+      ${[20,40,60,80].map(x=>`<span class="tick" style="left:${x}%"></span>`).join('')}</div>
+    <span class="time">${clip.end}</span>`;
+  panel.appendChild(pb);
+  body.appendChild(panel);
+
+  TOY=new ToyScene(cv);
+  TOY.load(wreck,{occlude:true, accent:0x19e6c8, atEnd:true});
+  TOY.autorotate=false;
+
+  // observation entry (blind — sealed from opponent too)
+  const obs=el('div','panel'); obs.style.marginTop='14px';
+  obs.innerHTML=`<div class="phead"><span class="lhs"><span class="dot"></span>WHAT DID YOU OBSERVE?</span><span class="rhs">${roleName(STATE.role)}</span></div>`;
+  const ta=el('textarea','entry'); ta.id='obs'; ta.maxLength=2000;
+  ta.placeholder='Describe without arguing. Stick to what you saw.';
+  if(already){ ta.value=M.sealed[STATE.role].text; ta.disabled=true; }
+  obs.appendChild(ta);
+  const foot=el('div','entry-foot'); foot.innerHTML=`<span id="obscount">${already?M.sealed[STATE.role].text.length:0} / 2000</span>`;
+  obs.appendChild(foot);
+  body.appendChild(obs);
+
+  ta.oninput=()=>$('#obscount').textContent=`${ta.value.length} / 2000`;
+
+  const row=el('div','action-row');
+  const seal=el('button','action');
+  seal.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.lock}</span><span class="tx"><b>SEAL ACCOUNT</b><span>LOCKS YOUR ACCOUNT · HIDDEN FROM OPPONENT</span></span><span class="arw">&rsaquo;</span>`;
+  const replay=el('button','action ghost');
+  const usedReplay=M.replayUsed[STATE.role];
+  replay.innerHTML=`<span class="ico">${MK.replay}</span><span class="tx"><b>${usedReplay?'REPLAY USED':'REPLAY ONCE'}</b><span>${usedReplay?'NO REPLAYS REMAIN':'YOU GET ONE REPLAY · CHOOSE WISELY'}</span></span><span class="arw">&rsaquo;</span>`;
+  if(usedReplay) replay.setAttribute('disabled','');
+  row.appendChild(seal); row.appendChild(replay);
+  body.appendChild(row);
+
+  if(already){
+    seal.setAttribute('disabled','');
+    seal.querySelector('b').textContent='ACCOUNT SEALED';
+    body.appendChild(barrierWait('SEAL','Both accounts must be sealed before deposition opens.'));
+  }
+
+  $('#pbtn').onclick=function(){ TOY.autorotate=!TOY.autorotate; this.innerHTML=TOY.autorotate?MK.pause:MK.play; };
+  replay.onclick=()=>{ if(usedReplay)return; intent('USE_REPLAY',{role:STATE.role}); TOY.autorotate=true; $('#pbtn').innerHTML=MK.pause; toast('REPLAY · ONE ONLY'); render(); };
+  seal.onclick=()=>{
+    const text=ta.value.trim();
+    if(text.length<8){ toast('DESCRIBE WHAT YOU SAW FIRST'); return; }
+    intent('SEAL_ACCOUNT',{role:STATE.role, text});
+    render();
+  };
+
+  body.appendChild(infoStrip('Your initial account is sealed and entered as evidence. You will not be able to edit it later.','EVIDENCE RULE #1'));
+}
+
+/* ---------- STEP 2 · DEPOSITION ---------- */
+function screenDeposition(body){
+  const M=STATE.match;
+  const done = (M.claims[STATE.role]||[]).length>0;
+
+  const panel=el('div','panel');
+  panel.innerHTML=`<div class="phead"><span class="lhs"><span class="dot"></span>INPUT SOURCE_001</span><span class="rhs">DEPO.04 :: WITNESS STATEMENT</span></div>`;
+  const hint=el('div','hint'); hint.style.marginBottom='12px';
+  hint.innerHTML=`Enter each claim on its own line. Stamp the whole statement as testimony or inference. <b style="color:var(--teal)">Facts build scenes. Opinions build inferences.</b>`;
+  panel.appendChild(hint);
+  const ta=el('textarea','entry'); ta.id='depo'; ta.style.minHeight='220px'; ta.maxLength=4000;
+  ta.placeholder='One claim per line.\ne.g. The red SUV entered from the west.\ne.g. The sedan had the green light.';
+  if(done){ ta.value=(M.claims[STATE.role]).map(c=>c.text).join('\n'); ta.disabled=true; }
+  panel.appendChild(ta);
+  panel.appendChild(el('div','entry-foot',`<span id="dc">0 / 4000</span>`));
+  body.appendChild(panel);
+  ta.oninput=()=>{$('#dc').textContent=`${ta.value.length} / 4000`;};
+  $('#dc').textContent=`${ta.value.length} / 4000`;
+
+  // modality
+  let modality = done ? (M.claims[STATE.role][0]?.modality||'INFER') : 'WITNESSED';
+  const mr=el('div');
+  mr.innerHTML=`<div class="eyebrow">STATEMENT MODE</div>`;
+  const row=el('div','modrow');
+  const w=el('button','modbtn'+(modality==='WITNESSED'?' on':''));
+  w.innerHTML=`<span class="box"></span><span class="lab"><b>I WITNESSED</b><span>I saw or heard this directly.</span></span>`;
+  const inf=el('button','modbtn'+(modality==='INFER'?' on':''));
+  inf.innerHTML=`<span class="box"></span><span class="lab"><b>I INFER</b><span>This is my conclusion.</span></span>`;
+  row.appendChild(w); row.appendChild(inf); mr.appendChild(row);
+  body.appendChild(mr);
+  if(done){ w.setAttribute('disabled',''); inf.setAttribute('disabled',''); }
+  w.onclick=()=>{modality='WITNESSED';w.classList.add('on');inf.classList.remove('on');};
+  inf.onclick=()=>{modality='INFER';inf.classList.add('on');w.classList.remove('on');};
+
+  const submit=el('button','action'); submit.style.marginTop='16px';
+  submit.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.doc}</span><span class="tx"><b>SUBMIT DEPOSITION</b><span>ADD THESE CLAIMS TO THE EVIDENCE CHAMBER</span></span><span class="arw">&rsaquo;</span>`;
+  body.appendChild(submit);
+
+  if(done){
+    submit.setAttribute('disabled','');
+    submit.querySelector('b').textContent='DEPOSITION SUBMITTED';
+    body.appendChild(barrierWait('DEPO','Both depositions must be filed before reconstruction opens.'));
+  }
+
+  submit.onclick=()=>{
+    const lines=ta.value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,MAX_CLAIMS);
+    if(!lines.length){ toast('ENTER AT LEAST ONE CLAIM'); return; }
+    const claims=lines.map(t=>({text:t, modality}));
+    intent('SUBMIT_DEPOSITION',{role:STATE.role, claims});
+    render();
+  };
+  body.appendChild(infoStrip('Be precise. A witnessed claim the video can\'t support is perjury. An inference is only judged on plausibility.','EVIDENCE RULE #2'));
+}
+
+/* ---------- STEP 3 · RECONSTRUCTION ---------- */
+function screenReconstruction(body){
+  const M=STATE.match;
+  const done = !!M.scenes[STATE.role];
+  const accent = STATE.role==='pros'?0x3b82f6:0xffd23f;
+
+  const panel=el('div','panel');
+  panel.innerHTML=`<div class="phead"><span class="lhs"><span class="dot"></span>COMPILED_SCENE.001</span><span class="rhs">SCENE_03 :: COMPILED_TOY_SCENE</span></div>`;
+  const vp=el('div','viewport');
+  vp.innerHTML=`<div class="vp-claims">CLAIMS: ${(M.claims[STATE.role]||[]).length}</div>
+    <div class="vp-compass"><span class="vp-N">N</span><span class="vp-S">S</span></div>
+    <div class="vp-arrows"><span>&lsaquo;</span><span>&rsaquo;</span></div>`;
+  const cv=el('canvas'); vp.appendChild(cv);
+  panel.appendChild(vp);
+  body.appendChild(panel);
+
+  TOY=new ToyScene(cv);
+  TOY.load(M.wreck,{accent, atEnd:true});   // reconstruction shows all (no occlusion)
+  TOY.autorotate=false;
+
+  const ctl=el('div','scenectl');
+  ctl.innerHTML=`
+    <div><span class="ci">${MK.orbit}</span><span class="cl"><b>ROTATE</b><span>DRAG TO ORBIT</span></span></div>
+    <div id="tgLabels"><span class="ci">${MK.labels}</span><span class="cl"><b>OBJECT LABELS</b><span>ON</span></span></div>
+    <div id="tgGrid"><span class="ci">${MK.grid}</span><span class="cl"><b>GRID</b><span>ON</span></span></div>`;
+  body.appendChild(ctl);
+  $('#tgLabels').onclick=()=>{TOY.showLabels=!TOY.showLabels;TOY.load(M.wreck,{accent,atEnd:true});$('#tgLabels .cl span').textContent=TOY.showLabels?'ON':'OFF';};
+  $('#tgGrid').onclick=()=>{TOY.showGrid=!TOY.showGrid;$('#tgGrid .cl span').textContent=TOY.showGrid?'ON':'OFF';};
+
+  const commit=el('button','action'); commit.style.marginTop='16px';
+  commit.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.check}</span><span class="tx"><b>COMMIT RECONSTRUCTION</b><span>APPLY THIS SCENE TO THE EVIDENCE CHAMBER</span></span><span class="arw">&rsaquo;</span>`;
+  body.appendChild(commit);
+
+  if(done){
+    commit.setAttribute('disabled','');
+    commit.querySelector('b').textContent='RECONSTRUCTION COMMITTED';
+    body.appendChild(barrierWait('SCENE','Both reconstructions must be committed before confrontation.'));
+  }
+  commit.onclick=()=>{
+    const scene={ author:STATE.role, claims:(M.claims[STATE.role]||[]).length, yaw:TOY.yaw, at:Date.now() };
+    intent('SUBMIT_SCENE',{role:STATE.role, scene});
+    render();
+  };
+  body.appendChild(infoStrip('Review your scene, then commit to lock in your reconstruction. Both scenes reveal to each other at confrontation.','EVIDENCE RULE #3'));
+}
+
+/* ---------- STEP 4 · CONFRONTATION / CHALLENGE ---------- */
+function screenConfrontation(body){
+  const M=STATE.match;
+  const me=STATE.role, opp=other(me);
+  const done = M.barriers['CONFRONT'] && M.barriers['CONFRONT'][me];
+
+  // both reconstructions revealed
+  const split=el('div','split');
+  for(const role of ['pros','def']){
+    const side=el('div','side '+role);
+    const claims=M.claims[role]||[];
+    const firstClaim=claims[0]?claims[0].text:'—';
+    side.innerHTML=`
+      <div class="side-head"><span class="lab"><span class="dot"></span>${roleName(role)}</span><span class="cam">CAM_${role==='pros'?'P1':'D2'} :: ${M.wreck?M.wreck.camera.split('::')[1].trim():'SCENE'}</span></div>
+      <div class="side-claim">CLAIM: <b>${firstClaim}</b></div>`;
+    const vp=el('div','viewport');
+    const cv=el('canvas'); vp.appendChild(cv);
+    // credibility pips
+    const cred=el('div','credbar');
+    cred.innerHTML=[0,1,2,3,4].map(i=>`<span class="pip${i<3?' on':''}"></span>`).join('');
+    vp.appendChild(cred);
+    side.appendChild(vp);
+    split.appendChild(side);
+    // render each side
+    const inst=new ToyScene(cv);
+    inst.load(M.wreck,{accent: role==='pros'?0x3b82f6:0xffd23f, atEnd:true});
+    if(role==='pros') TOY=inst; else TOY2=inst;
+  }
+  body.appendChild(split);
+
+  // the opponent's claims — you challenge THESE
+  const listPanel=el('div','panel'); listPanel.style.marginTop='16px';
+  listPanel.innerHTML=`<div class="phead"><span class="lhs"><span class="dot"></span>CHALLENGE ${roleName(opp)}'S CLAIMS</span><span class="rhs">SELECT TO FLAG</span></div>`;
+  const list=el('div','claimlist');
+  const oppClaims=M.claims[opp]||[];
+  const flagged=new Set();
+  if(!oppClaims.length) list.appendChild(el('div','center-note','Opponent filed no claims.'));
+  oppClaims.forEach(c=>{
+    const item=el('div','claimlist-item');
+    const ci=el('div','ci'+(c.modality==='WITNESSED'?' witnessed':''));
+    ci.innerHTML=`<span class="stamp"></span>
+      <span class="txt">${c.text}<span class="meta">${c.modality==='WITNESSED'?'STAMPED · WITNESSED':'STAMPED · INFERENCE'}</span></span>
+      <span class="flag">FLAG</span>`;
+    ci.onclick=()=>{
+      if(done)return;
+      if(flagged.has(c.id)){flagged.delete(c.id);ci.classList.remove('flagged');}
+      else{flagged.add(c.id);ci.classList.add('flagged');}
+    };
+    list.appendChild(ci);
+  });
+  listPanel.appendChild(list);
+  body.appendChild(listPanel);
+
+  // kind of challenge + submit
+  let kind='FACT';
+  const kindRow=el('div','action-row');
+  const kf=el('button','action red');
+  kf.innerHTML=`<span class="ico" style="color:var(--red)">${MK.crosshair}</span><span class="tx"><b>CHALLENGE FACT</b><span>DISPUTE THE CLAIMED FACT</span></span><span class="arw">&rsaquo;</span>`;
+  const ks=el('button','action ghost');
+  ks.innerHTML=`<span class="ico">${MK.doc}</span><span class="tx"><b>CHALLENGE SOURCE</b><span>DISPUTE THE SOURCE OR CONTEXT</span></span><span class="arw">&rsaquo;</span>`;
+  kindRow.appendChild(kf); kindRow.appendChild(ks); body.appendChild(kindRow);
+  const setKind=k=>{ kind=k;
+    kf.className='action '+(k==='FACT'?'red':'ghost'); ks.className='action '+(k==='SOURCE'?'red':'ghost');
+  };
+  kf.onclick=()=>{ if(!done){ setKind('FACT'); submitChallenges(); } };
+  ks.onclick=()=>{ if(!done){ setKind('SOURCE'); submitChallenges(); } };
+
+  function submitChallenges(){
+    const challenges=[...flagged].map(id=>({targetClaimId:id, kind}));
+    intent('RAISE_CHALLENGES',{role:me, challenges});
+    render();
+  }
+
+  if(done){
+    kf.setAttribute('disabled',''); ks.setAttribute('disabled','');
+    const n=M.challenges.filter(c=>c.by===me).length;
+    body.appendChild(barrierWait('CONFRONT',`You flagged ${n} claim${n===1?'':'s'}. Waiting for your opponent, then the engine rules.`));
+  }
+  body.appendChild(infoStrip('Challenging flags a claim for the engine. A sustained challenge costs the fabricator; a misfired one costs you.','EVIDENCE RULE #4'));
+}
+
+/* ---------- STEP 5 · RULING ---------- */
+function screenRuling(body){
+  const M=STATE.match;
+  if(!M.rulings || !M.rulings.length){
+    body.appendChild(centerBarrier('AWAITING RULINGS','The engine is ruling on the challenges against the sealed record.'));
+    // guest waits for host snapshot; host already ran judge in routeAfterMutation
+    return;
+  }
+  // walk rulings one at a time
+  const idxKey='__rulingIdx'; if(STATE[idxKey]==null) STATE[idxKey]=0;
+  const i=clamp(STATE[idxKey],0,M.rulings.length-1);
+  const r=M.rulings[i];
+
+  const grid=el('div','ruling-grid');
+  // left: contested object
+  const left=el('div');
+  const cvp=el('div','viewport');
+  cvp.innerHTML=`<span class="vp-tag"><span class="dot"></span>CONTESTED OBJECT</span>`;
+  const cv=el('canvas'); cvp.appendChild(cv); left.appendChild(cvp);
+  grid.appendChild(left);
+  // right: analysis
+  const right=el('div','analysis');
+  right.innerHTML=`
+    <div class="eyebrow" style="color:var(--teal)">EVIDENCE ANALYSIS</div>
+    <div class="arow"><div class="ak"><span class="plus">+</span>CHALLENGE BY</div><div class="av">${roleName(r.by)} · challenging ${roleName(r.claimAuthor)}</div></div>
+    <div class="arow"><div class="ak"><span class="plus">+</span>RULE REFERENCE</div><div class="av">${r.rule||'burden of proof'}</div></div>
+    <div class="arow"><div class="ak"><span class="plus">+</span>FINDING</div><div class="av">${r.citation||'—'}${r.factId?` <span style="color:var(--dim)">[${r.factId}]</span>`:''}</div></div>`;
+  grid.appendChild(right);
+  body.appendChild(grid);
+
+  TOY=new ToyScene(cv);
+  TOY.loadContested(M.wreck,0);
+  TOY.autorotate=true;
+
+  // verdict card
+  const zoneCls=r.zone==='WITNESSED'?'witnessed':r.zone==='AMBIGUOUS'?'ambiguous':'';
+  const card=el('div','verdict-card');
+  card.innerHTML=`
+    <div class="vc-lab">CHALLENGED CLAIM</div>
+    <div class="vc-q">"${(r.claimText||'').toUpperCase()}"</div>
+    <div class="vc-sep"></div>
+    <div class="vc-lab">EVIDENCE VISIBILITY</div>
+    <div class="zonechip ${zoneCls}"><span class="cc tl"></span><span class="cc tr"></span><span class="cc bl"></span><span class="cc br"></span>${r.zone}</div>
+    <div class="vc-sep"></div>
+    <div class="vc-lab">RULING STATUS</div>
+    <div class="status-big ${r.sustained?'':'overruled'}">${r.sustained?'SUSTAINED':'OVERRULED'}</div>`;
+  body.appendChild(card);
+
+  const next=el('button','action'); next.style.marginTop='16px';
+  const last = i>=M.rulings.length-1;
+  next.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.gavel}</span><span class="tx"><b>${last?'DELIVER VERDICT':'NEXT CHALLENGE'}</b><span>${last?'TALLY THE RECONSTRUCTED RECORD':`RULING ${i+1} OF ${M.rulings.length}`}</span></span><span class="arw">&rsaquo;</span>`;
+  body.appendChild(next);
+  next.onclick=()=>{
+    if(last){ STATE[idxKey]=0;
+      if(STATE.isHost){ if(!M.verdict) M.verdict=computeVerdict(); gotoStep(6);} else { STATE.step=6; render(); }
+    } else { STATE[idxKey]=i+1; render(); }
+  };
+}
+
+/* ---------- STEP 6 · VERDICT ---------- */
+function screenVerdict(body){
+  const M=STATE.match; const V=M.verdict||computeVerdict();
+  const winName=roleName(V.winner);
+
+  const prevail=el('div','prevail');
+  prevail.innerHTML=`<span class="gv" style="color:var(--teal)">${MK.gavel}</span>
+    <span class="pt"><b>${winName} PREVAILS</b><span>The reconstructed record favors ${winName.toLowerCase()} on the balance of witnessed fact and defensible inference.</span></span>`;
+  body.appendChild(prevail);
+
+  for(const role of ['pros','def']){
+    const s=V[role];
+    const card=el('div','scorecard '+role);
+    card.innerHTML=`
+      <span class="sci" style="color:var(--${role==='pros'?'blue':'amber'})">${role==='pros'?MK.scale:MK.shield}</span>
+      <div class="scbody">
+        <div class="scname">${roleName(role)}</div>
+        <div class="sclab">EVIDENCE FIDELITY SCORE${s.fabCaught?` · ${s.fabCaught} FABRICATION${s.fabCaught>1?'S':''} CAUGHT`:''}${s.misfires?` · ${s.misfires} MISFIRE${s.misfires>1?'S':''}`:''}</div>
+        <div class="metricrow">
+          <div class="metric"><div class="mk">WITNESSED</div>
+            <div class="mv">${s.witnessed.toFixed(2)}<small>(${Math.round(s.witnessed*100)}%)</small></div>
+            <div class="mbar"><div class="mf" style="width:${s.witnessed*100}%"></div></div>
+            <div class="mscale"><span>0</span><span>0.5</span><span>1.0</span></div></div>
+          <div class="metric"><div class="mk">INFERRED</div>
+            <div class="mv">${s.inferred.toFixed(2)}<small>(${Math.round(s.inferred*100)}%)</small></div>
+            <div class="mbar"><div class="mf" style="width:${s.inferred*100}%"></div></div>
+            <div class="mscale"><span>0</span><span>0.5</span><span>1.0</span></div></div>
+        </div>
+      </div>`;
+    body.appendChild(card);
+  }
+
+  // provenance ledger
+  const rows=buildLedger();
+  const ledger=el('div','ledger');
+  ledger.innerHTML=`<div class="lh"><span>PROVENANCE LEDGER</span><span class="n">${rows.length} CLAIMS ANALYZED</span></div>
+    <div class="lcols"><span>STATUS</span><span>CLAIM</span><span>SOURCE</span></div>`;
+  rows.forEach(r=>{
+    const row=el('div','lrow '+r.status);
+    const stLabel=r.status.toUpperCase();
+    row.innerHTML=`<span class="st"><span class="box"></span>${stLabel}</span>
+      <span class="cl">${r.text}<span class="au ${r.author}">${roleName(r.author)}</span></span>
+      <span class="sr">${r.source}</span>`;
+    ledger.appendChild(row);
+  });
+  body.appendChild(ledger);
+
+  const exp=el('button','action'); exp.style.marginTop='16px';
+  exp.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.export}</span><span class="tx"><b>EXPORT RECORD</b><span>EXPORT VERDICT, LEDGER, AND EVIDENCE PACKAGE</span></span><span class="arw">&rsaquo;</span>`;
+  body.appendChild(exp);
+  exp.onclick=()=>{ STATE.step=7; render(); };
+}
+
+/* ---------- STEP 7 · EXPORT ---------- */
+function screenExport(body){
+  const M=STATE.match; const V=M.verdict||computeVerdict();
+  const pkg={
+    engine:'VERDICT ENGINE v1.0.0', model:'THE PARIS MODEL',
+    match:M.code, reconstructionId:'R-'+M.code+'-'+M.id.slice(-4).toUpperCase(),
+    generatedAt:new Date().toISOString(),
+    note:'Ground truth is synthetic — authored live, not recorded. The record this verdict rests on was itself reconstructed.',
+    wreck:{ title:M.wreck?.title, camera:M.wreck?.camera, conditions:M.wreck?.conditions,
+            fault:M.wreck?.fault, facts:M.wreck?.facts },
+    depositions:{ prosecution:M.claims.pros, defense:M.claims.def },
+    sealedAccounts:M.sealed,
+    challenges:M.challenges, rulings:M.rulings,
+    verdict:V, ledger:buildLedger()
+  };
+  const json=JSON.stringify(pkg,null,2);
+
+  const meta=el('div','metabox');
+  meta.innerHTML=`
+    <div class="mr"><span>WINNER</span><b>${roleName(V.winner)}</b></div>
+    <div class="mr"><span>CASE ID</span><b>${pkg.reconstructionId}</b></div>
+    <div class="mr"><span>ENGINE VERSION</span><b>VE v1.0.0</b></div>
+    <div class="mr"><span>CLAIMS ANALYZED</span><b>${pkg.ledger.length}</b></div>
+    <div class="mr"><span>RULINGS</span><b>${M.rulings.length}</b></div>`;
+  body.appendChild(meta);
+
+  const dl=el('button','action'); dl.style.marginTop='16px';
+  dl.innerHTML=`<span class="ico" style="color:var(--teal)">${MK.export}</span><span class="tx"><b>DOWNLOAD RECORD (JSON)</b><span>THE FULL PROVENANCE PACKAGE</span></span><span class="arw">&rsaquo;</span>`;
+  body.appendChild(dl);
+  dl.onclick=()=>{
+    const blob=new Blob([json],{type:'application/json'});
+    const a=el('a'); a.href=URL.createObjectURL(blob);
+    a.download=`paris-model_${M.code}.json`; a.click();
+    toast('RECORD EXPORTED');
+  };
+
+  const again=el('button','action ghost'); again.style.marginTop='12px';
+  again.innerHTML=`<span class="ico">${MK.replay}</span><span class="tx"><b>NEW TRIAL</b><span>RETURN TO LOBBY</span></span><span class="arw">&rsaquo;</span>`;
+  body.appendChild(again);
+  again.onclick=()=>location.reload();
+
+  const closing=el('div','infostrip'); closing.style.marginTop='16px';
+  closing.innerHTML=`<span class="i">i</span>Truth isn't given. It's reconstructed. Even the ground truth in this record was authored — which is the point the game is quietly about.`;
+  body.appendChild(closing);
+}
+
+/* ============================================================
+   9 · SHARED UI BITS
+   ============================================================ */
+function infoStrip(text,rule){
+  const s=el('div','infostrip');
+  s.innerHTML=`<span class="i">i</span><span>${text}</span>${rule?`<span class="rule">${rule}</span>`:''}`;
+  return s;
+}
+function barrierWait(phase,text){
+  const M=STATE.match; const b=M.barriers[phase]||{pros:false,def:false};
+  const w=el('div','barrier');
+  w.innerHTML=`<div class="spin"></div><b>WAITING FOR OPPONENT</b><span>${text}</span>
+    <div class="who">
+      <span class="p ${b.pros?'ready':''}"><span class="d"></span>PROSECUTION ${b.pros?'· READY':''}</span>
+      <span class="p ${b.def?'ready':''}"><span class="d"></span>DEFENSE ${b.def?'· READY':''}</span>
+    </div>`;
+  return w;
+}
+function centerBarrier(title,text){
+  const w=el('div','barrier');
+  w.innerHTML=`<div class="spin"></div><b>${title}</b><span>${text}</span>`;
+  return w;
+}
+let toastN=null;
+function toast(msg){
+  if(toastN) toastN.remove();
+  toastN=el('div'); toastN.textContent=msg;
+  toastN.style.cssText='position:fixed;left:50%;top:16%;transform:translateX(-50%);z-index:200;background:#000;border:1px solid var(--ink);padding:11px 16px;font-size:10px;letter-spacing:.14em;';
+  document.body.appendChild(toastN);
+  setTimeout(()=>{toastN&&toastN.remove();toastN=null;},1600);
+}
+
+/* keep canvases sized on resize */
+addEventListener('resize',()=>{ if(TOY)TOY._resize(); if(TOY2)TOY2._resize(); });
+
+/* ============================================================
+   10 · BOOT
+   ============================================================ */
+render();
+</script>
+</body>
+</html>

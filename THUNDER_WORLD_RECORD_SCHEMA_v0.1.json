@@ -1,0 +1,826 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:thunder-rigs:world-record:0.1",
+  "title": "THUNDER RIGS World Record Protocol v0.1",
+  "description": "Authoritative simulation, embodiment, evidence, branch, and claim interchange contract for THUNDER RIGS and VERDICT ENGINE.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/WorldRecord"
+    },
+    {
+      "$ref": "#/$defs/ControlIntent"
+    },
+    {
+      "$ref": "#/$defs/RigSnapshot"
+    },
+    {
+      "$ref": "#/$defs/SimulationEvent"
+    },
+    {
+      "$ref": "#/$defs/SensorSample"
+    },
+    {
+      "$ref": "#/$defs/Claim"
+    }
+  ],
+  "$defs": {
+    "Vector2": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "Vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "Quaternion": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "ID": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Topology": {
+      "type": "string",
+      "enum": [
+        "RIGID",
+        "ARTICULATED",
+        "SOFT",
+        "HYBRID"
+      ]
+    },
+    "EpistemicClass": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "INFERRED",
+        "HYPOTHETICAL",
+        "FABRICATED"
+      ]
+    },
+    "ControlFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "desired_forward",
+        "desired_up",
+        "desired_center",
+        "target_planar_speed",
+        "target_yaw_rate",
+        "grounded_confidence"
+      ],
+      "properties": {
+        "desired_forward": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "desired_up": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "desired_center": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "target_planar_speed": {
+          "type": "number"
+        },
+        "target_yaw_rate": {
+          "type": "number"
+        },
+        "locomotion_phase": {
+          "type": "string"
+        },
+        "grounded_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "ControlIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "tick",
+        "rig_id",
+        "desired_planar_velocity",
+        "desired_heading",
+        "throttle",
+        "steer",
+        "brake",
+        "jump",
+        "ability",
+        "source",
+        "sequence"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": "0.1"
+        },
+        "tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rig_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "desired_planar_velocity": {
+          "$ref": "#/$defs/Vector2"
+        },
+        "desired_heading": {
+          "type": "number"
+        },
+        "throttle": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "steer": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "brake": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "jump": {
+          "type": "boolean"
+        },
+        "ability": {
+          "type": "boolean"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "HUMAN",
+            "BOT",
+            "REPLAY",
+            "NETWORK"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "MaterialProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "material_id",
+        "density",
+        "friction",
+        "restitution",
+        "compliance",
+        "linear_damping",
+        "angular_damping",
+        "pressure",
+        "sound_profile"
+      ],
+      "properties": {
+        "material_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "density": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "friction": {
+          "type": "number",
+          "minimum": 0
+        },
+        "restitution": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "compliance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "linear_damping": {
+          "type": "number",
+          "minimum": 0
+        },
+        "angular_damping": {
+          "type": "number",
+          "minimum": 0
+        },
+        "pressure": {
+          "type": "number"
+        },
+        "fracture_threshold": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sound_profile": {
+          "$ref": "#/$defs/ID"
+        },
+        "render_profile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ContactSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grounded_confidence",
+        "contact_count",
+        "contact_entity_ids"
+      ],
+      "properties": {
+        "grounded_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "contact_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contact_entity_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ID"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "DeformationSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deformation_ratio",
+        "volume_ratio",
+        "max_vertex_displacement"
+      ],
+      "properties": {
+        "deformation_ratio": {
+          "type": "number",
+          "minimum": 0
+        },
+        "volume_ratio": {
+          "type": "number"
+        },
+        "max_vertex_displacement": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "RigSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "tick",
+        "rig_id",
+        "topology",
+        "material_id",
+        "control_frame",
+        "center_of_mass",
+        "orientation",
+        "linear_momentum",
+        "angular_momentum",
+        "kinetic_energy",
+        "bounds_min",
+        "bounds_max",
+        "contact_summary",
+        "deformation_summary",
+        "damage_state",
+        "actuator_state",
+        "random_seed",
+        "source_event_id"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": "0.1"
+        },
+        "tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rig_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "topology": {
+          "$ref": "#/$defs/Topology"
+        },
+        "material_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "control_frame": {
+          "$ref": "#/$defs/ControlFrame"
+        },
+        "center_of_mass": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "orientation": {
+          "$ref": "#/$defs/Quaternion"
+        },
+        "linear_momentum": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "angular_momentum": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "kinetic_energy": {
+          "type": "number",
+          "minimum": 0
+        },
+        "bounds_min": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "bounds_max": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "contact_summary": {
+          "$ref": "#/$defs/ContactSummary"
+        },
+        "deformation_summary": {
+          "$ref": "#/$defs/DeformationSummary"
+        },
+        "damage_state": {
+          "type": "object"
+        },
+        "actuator_state": {
+          "type": "object"
+        },
+        "random_seed": {
+          "type": "integer"
+        },
+        "source_event_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "state_hash": {
+          "type": "string"
+        }
+      }
+    },
+    "SensorSample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "tick",
+        "sensor_id",
+        "sensor_type",
+        "frame_id",
+        "raw_payload",
+        "units",
+        "calibration_id",
+        "noise_profile_id",
+        "latency_ticks",
+        "visibility_mask",
+        "source_world_hash"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sensor_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "sensor_type": {
+          "type": "string",
+          "enum": [
+            "CAMERA",
+            "LIDAR",
+            "RADAR",
+            "GNSS",
+            "IMU",
+            "WHEEL_ODOMETRY",
+            "CONTROL_BUS",
+            "VEHICLE_DIAGNOSTIC",
+            "ENVIRONMENT"
+          ]
+        },
+        "frame_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "raw_payload": {},
+        "units": {
+          "type": "string"
+        },
+        "calibration_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "noise_profile_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "latency_ticks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "visibility_mask": {},
+        "source_world_hash": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "SimulationEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "event_id",
+        "tick",
+        "substep",
+        "type",
+        "entity_ids",
+        "payload",
+        "world_hash"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": "0.1"
+        },
+        "event_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "substep": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "CONTROL_INTENT",
+            "MORPH_REQUESTED",
+            "MORPH_COMMITTED",
+            "MATERIAL_CHANGED",
+            "CONTACT_BEGIN",
+            "CONTACT_END",
+            "IMPACT",
+            "DEFORMATION",
+            "JOINT_LIMIT",
+            "SENSOR_SAMPLE",
+            "STATE_HASH",
+            "SNAPSHOT_CREATED",
+            "BRANCH_CREATED"
+          ]
+        },
+        "entity_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ID"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "payload": {
+          "type": "object"
+        },
+        "world_hash": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Branch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "branch_id",
+        "parent_record_id",
+        "source_snapshot_id",
+        "created_tick",
+        "declared_changes",
+        "branch_seed"
+      ],
+      "properties": {
+        "branch_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "parent_record_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "source_snapshot_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "created_tick": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "declared_changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "path",
+              "before",
+              "after"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "before": {},
+              "after": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "branch_seed": {
+          "type": "integer"
+        }
+      }
+    },
+    "Claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "party_id",
+        "text",
+        "epistemic_class",
+        "evidence_event_ids",
+        "time_range",
+        "uncertainty",
+        "created_at",
+        "author"
+      ],
+      "properties": {
+        "claim_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "party_id": {
+          "$ref": "#/$defs/ID"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "epistemic_class": {
+          "$ref": "#/$defs/EpistemicClass"
+        },
+        "evidence_event_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ID"
+          },
+          "uniqueItems": true
+        },
+        "time_range": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "branch_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inference_method": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uncertainty": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "epistemic_class": {
+                "const": "OBSERVED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence_event_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "epistemic_class": {
+                "const": "INFERRED"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "inference_method"
+            ],
+            "properties": {
+              "evidence_event_ids": {
+                "minItems": 1
+              },
+              "inference_method": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "epistemic_class": {
+                "const": "HYPOTHETICAL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "branch_id"
+            ],
+            "properties": {
+              "branch_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "WorldRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "header",
+        "entity_manifest",
+        "material_manifest",
+        "sensor_manifest",
+        "initial_snapshot",
+        "control_stream",
+        "event_stream",
+        "periodic_snapshots",
+        "state_hashes",
+        "branch_manifest",
+        "integrity_digest"
+      ],
+      "properties": {
+        "header": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "protocol_version",
+            "record_id",
+            "engine_build",
+            "case_id",
+            "fixed_dt",
+            "seed",
+            "world_hash",
+            "created_at"
+          ],
+          "properties": {
+            "protocol_version": {
+              "const": "0.1"
+            },
+            "record_id": {
+              "$ref": "#/$defs/ID"
+            },
+            "engine_build": {
+              "type": "string"
+            },
+            "case_id": {
+              "$ref": "#/$defs/ID"
+            },
+            "fixed_dt": {
+              "const": 0.016666666666666666
+            },
+            "seed": {
+              "type": "integer"
+            },
+            "world_hash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "entity_manifest": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "material_manifest": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MaterialProfile"
+          }
+        },
+        "sensor_manifest": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "initial_snapshot": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RigSnapshot"
+          }
+        },
+        "control_stream": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ControlIntent"
+          }
+        },
+        "event_stream": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SimulationEvent"
+          }
+        },
+        "periodic_snapshots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RigSnapshot"
+          }
+        },
+        "state_hashes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "tick",
+              "hash"
+            ],
+            "properties": {
+              "tick": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "hash": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "branch_manifest": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Branch"
+          }
+        },
+        "integrity_digest": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

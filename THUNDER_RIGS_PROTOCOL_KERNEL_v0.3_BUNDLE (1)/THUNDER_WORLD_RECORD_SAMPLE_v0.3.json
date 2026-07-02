@@ -1,0 +1,291 @@
+{
+  "header": {
+    "protocol_version": "0.2",
+    "record_id": "TR-PROTOCOL-SAMPLE-v03",
+    "engine_build": "thunder-rigs-protocol-kernel-v0.3",
+    "case_id": "SANDBOX-2026-07-01",
+    "fixed_dt": 0.016666666666666666,
+    "seed": 1511506142,
+    "world_hash": "8cb2de11",
+    "created_at": "2026-07-01T17:20:00Z"
+  },
+  "entity_manifest": [
+    {
+      "entity_id": "rig-player-01",
+      "kind": "RIG",
+      "persistent_identity": true
+    },
+    {
+      "entity_id": "surface-arena",
+      "kind": "STATIC_WORLD"
+    }
+  ],
+  "material_manifest": [
+    {
+      "material_id": "STEEL",
+      "density": 7850,
+      "friction": 0.7,
+      "restitution": 0.035,
+      "compliance": 0,
+      "linear_damping": 0.08,
+      "angular_damping": 0.12,
+      "pressure": 0,
+      "fracture_threshold": null,
+      "sound_profile": "STEEL",
+      "render_profile": "steel"
+    },
+    {
+      "material_id": "RUBBER",
+      "density": 1100,
+      "friction": 1.18,
+      "restitution": 0.76,
+      "compliance": 0.001,
+      "linear_damping": 0.08,
+      "angular_damping": 0.12,
+      "pressure": 0,
+      "fracture_threshold": null,
+      "sound_profile": "RUBBER",
+      "render_profile": "rubber"
+    },
+    {
+      "material_id": "ICE",
+      "density": 917,
+      "friction": 0.025,
+      "restitution": 0.06,
+      "compliance": 0,
+      "linear_damping": 0.08,
+      "angular_damping": 0.12,
+      "pressure": 0,
+      "fracture_threshold": 14,
+      "sound_profile": "ICE",
+      "render_profile": "ice"
+    },
+    {
+      "material_id": "FOAM",
+      "density": 80,
+      "friction": 0.92,
+      "restitution": 0.22,
+      "compliance": 0.004,
+      "linear_damping": 0.42,
+      "angular_damping": 0.12,
+      "pressure": 1.2,
+      "fracture_threshold": null,
+      "sound_profile": "FOAM",
+      "render_profile": "foam"
+    },
+    {
+      "material_id": "GEL",
+      "density": 1050,
+      "friction": 0.54,
+      "restitution": 0.28,
+      "compliance": 0.008,
+      "linear_damping": 0.08,
+      "angular_damping": 0.12,
+      "pressure": 1.75,
+      "fracture_threshold": null,
+      "sound_profile": "GEL",
+      "render_profile": "gel"
+    },
+    {
+      "material_id": "SCRAP",
+      "density": 5200,
+      "friction": 0.76,
+      "restitution": 0.14,
+      "compliance": 0,
+      "linear_damping": 0.08,
+      "angular_damping": 0.28,
+      "pressure": 0,
+      "fracture_threshold": null,
+      "sound_profile": "SCRAP",
+      "render_profile": "scrap"
+    }
+  ],
+  "sensor_manifest": [
+    {
+      "sensor_id": "sim-state-01",
+      "sensor_type": "VEHICLE_DIAGNOSTIC",
+      "frame_id": "world"
+    }
+  ],
+  "initial_snapshot": [
+    {
+      "protocol_version": "0.2",
+      "tick": 0,
+      "rig_id": "rig-player-01",
+      "topology": "HYBRID",
+      "material_id": "RUBBER",
+      "control_frame": {
+        "desired_forward": [
+          0,
+          0,
+          1
+        ],
+        "desired_up": [
+          0,
+          1,
+          0
+        ],
+        "desired_center": [
+          0,
+          2,
+          0
+        ],
+        "target_planar_speed": 0,
+        "target_yaw_rate": 0,
+        "locomotion_phase": "IDLE",
+        "grounded_confidence": 1
+      },
+      "center_of_mass": [
+        0,
+        2,
+        0
+      ],
+      "orientation": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "linear_momentum": [
+        0,
+        0,
+        0
+      ],
+      "angular_momentum": [
+        0,
+        0,
+        0
+      ],
+      "kinetic_energy": 0,
+      "bounds_min": [
+        -1.5,
+        1.2,
+        -2.2
+      ],
+      "bounds_max": [
+        1.5,
+        3.3,
+        2.2
+      ],
+      "contact_summary": {
+        "grounded_confidence": 1,
+        "contact_count": 4,
+        "contact_entity_ids": [
+          "surface-arena"
+        ]
+      },
+      "deformation_summary": {
+        "deformation_ratio": 0,
+        "volume_ratio": 1,
+        "max_vertex_displacement": 0
+      },
+      "damage_state": {
+        "impact_level": 0
+      },
+      "actuator_state": {
+        "adapter": "HYBRID",
+        "substance": "RUBBER",
+        "world_material": "STEEL"
+      },
+      "random_seed": 1511506142,
+      "source_event_id": "BOOT",
+      "state_hash": "65d3ac21"
+    }
+  ],
+  "control_stream": [
+    {
+      "protocol_version": "0.2",
+      "tick": 1,
+      "rig_id": "rig-player-01",
+      "desired_planar_velocity": [
+        0,
+        0
+      ],
+      "desired_heading": 0,
+      "throttle": 0,
+      "steer": 0,
+      "brake": 0,
+      "jump": false,
+      "ability": false,
+      "source": "HUMAN",
+      "sequence": 0
+    }
+  ],
+  "event_stream": [
+    {
+      "protocol_version": "0.2",
+      "event_id": "EV-0000001",
+      "tick": 1,
+      "substep": 0,
+      "type": "CONTROL_INTENT",
+      "entity_ids": [
+        "rig-player-01"
+      ],
+      "payload": {
+        "sequence": 0,
+        "source": "HUMAN"
+      },
+      "world_hash": "8cb2de11"
+    },
+    {
+      "protocol_version": "0.2",
+      "event_id": "EV-0000002",
+      "tick": 180,
+      "substep": 0,
+      "type": "ADAPTER_TEST_RESULT",
+      "entity_ids": [
+        "rig-player-01"
+      ],
+      "payload": {
+        "mode": "ARTICULATED",
+        "distance": 0.74,
+        "threshold": 0.18,
+        "grounded_confidence": 0.75,
+        "pass": true
+      },
+      "world_hash": "1af02c91"
+    },
+    {
+      "protocol_version": "0.2",
+      "event_id": "EV-0000003",
+      "tick": 420,
+      "substep": 0,
+      "type": "ADAPTER_TEST_RESULT",
+      "entity_ids": [
+        "rig-player-01"
+      ],
+      "payload": {
+        "mode": "SOFT",
+        "distance": 0.51,
+        "threshold": 0.12,
+        "grounded_confidence": 0.58,
+        "pass": true
+      },
+      "world_hash": "920cf6a2"
+    },
+    {
+      "protocol_version": "0.2",
+      "event_id": "EV-0000004",
+      "tick": 600,
+      "substep": 0,
+      "type": "ADAPTER_TEST_SUITE",
+      "entity_ids": [
+        "rig-player-01"
+      ],
+      "payload": {
+        "passed": 4,
+        "total": 4
+      },
+      "world_hash": "e83b811a"
+    }
+  ],
+  "periodic_snapshots": [],
+  "state_hashes": [
+    {
+      "tick": 0,
+      "hash": "65d3ac21"
+    }
+  ],
+  "branch_manifest": [],
+  "integrity_digest": "fnv1a-sample-v03"
+}

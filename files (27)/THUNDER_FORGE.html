@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="thunder-ai-url" content="">
+<title>THUNDER FORGE · GAMES FROM LANGUAGE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+:root{
+  --teal:#19e6c8; --amber:#ffd23f; --red:#ff2e2e; --blue:#3b82f6;
+  --fg:#ffffff; --bg:#000000; --dim:#8a929c;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+  font-family:'IBM Plex Mono',ui-monospace,monospace; overflow:hidden;}
+#gl{position:fixed;inset:0;display:block;}
+button,input,select{font:inherit;color:var(--fg);background:var(--bg);
+  border:1px solid var(--fg);padding:0 12px;min-height:44px;text-transform:uppercase;letter-spacing:.06em;}
+button{cursor:pointer;}
+button:active{background:var(--fg);color:var(--bg);}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--teal);outline-offset:1px;}
+input::placeholder{color:var(--dim);text-transform:none;}
+
+/* ── top bar: title + provenance strip (the signature: never silent) ── */
+#bar{position:fixed;top:0;left:0;right:0;display:flex;align-items:stretch;gap:1px;
+  padding:env(safe-area-inset-top) 0 0 0;background:var(--bg);border-bottom:1px solid var(--fg);z-index:5;}
+#bar .t{padding:10px 12px;font-weight:700;letter-spacing:.14em;font-size:12px;border-right:1px solid var(--fg);white-space:nowrap;}
+#provenance{flex:1;display:flex;align-items:center;padding:0 12px;font-size:11px;letter-spacing:.08em;
+  color:var(--dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#provenance.forged{color:var(--teal);} #provenance.library{color:var(--amber);}
+#provenance.error{color:var(--red);}
+#bar .b{border:0;border-left:1px solid var(--fg);min-width:56px;font-size:11px;}
+#bar .b[aria-pressed="true"]{background:var(--fg);color:var(--bg);}
+
+/* ── bottom dock ── */
+#dock{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--bg);
+  border-top:1px solid var(--fg);padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;gap:8px;}
+#row1{display:flex;gap:8px;}
+#prompt{flex:1;min-width:0;background:var(--bg);}
+#go{border-color:var(--teal);color:var(--teal);min-width:120px;font-weight:700;}
+#go:active{background:var(--teal);color:var(--bg);}
+#go[disabled]{border-color:var(--dim);color:var(--dim);}
+#chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+#chips::-webkit-scrollbar{display:none;}
+#chips button{min-height:36px;font-size:10px;padding:0 10px;border-color:var(--dim);color:var(--dim);white-space:nowrap;}
+#chips button:active,#chips button.on{border-color:var(--amber);color:var(--amber);background:var(--bg);}
+#status{font-size:10px;letter-spacing:.06em;color:var(--dim);min-height:14px;white-space:pre-wrap;}
+#status.err{color:var(--red);} #status.ok{color:var(--teal);} #status.warn{color:var(--amber);}
+
+/* ── sheets: AI settings · forensics ── */
+.sheet{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:72vh;overflow:auto;z-index:6;
+  background:var(--bg);border-top:1px solid var(--fg);padding:12px 12px calc(12px + env(safe-area-inset-bottom));
+  display:none;}
+.sheet.open{display:block;}
+.sheet h2{font-size:11px;letter-spacing:.12em;margin:0 0 10px;font-weight:700;}
+.sheet .grid{display:grid;gap:8px;grid-template-columns:1fr;}
+@media(min-width:560px){.sheet .grid{grid-template-columns:1fr 1fr;}}
+.sheet label{font-size:10px;color:var(--dim);display:grid;gap:4px;text-transform:uppercase;letter-spacing:.08em;}
+.sheet .row{display:flex;gap:8px;margin-top:10px;}
+#forensics pre{border:1px solid var(--dim);padding:8px;font-size:10px;line-height:1.5;
+  white-space:pre-wrap;word-break:break-word;max-height:34vh;overflow:auto;margin:8px 0;}
+#diag{color:var(--amber);font-size:10px;white-space:pre-wrap;}
+.k{color:var(--teal);}
+.close-x{position:absolute;top:8px;right:8px;min-width:44px;}
+.sheet{position:fixed;} .sheet>div{position:relative;}
+
+/* ── additions: HUD, banner, joystick, flash, chips rows ── */
+#hud{position:fixed;top:calc(44px + env(safe-area-inset-top));left:0;right:0;text-align:center;z-index:4;pointer-events:none;}
+#hud .h1{font-size:13px;font-weight:700;letter-spacing:.12em;}
+#hud .h2{font-size:10px;color:var(--dim);letter-spacing:.08em;margin-top:2px;}
+#banner{position:fixed;top:34%;left:0;right:0;text-align:center;z-index:7;pointer-events:none;
+  font-size:20px;font-weight:700;letter-spacing:.18em;opacity:0;transition:opacity .18s;}
+#banner.show{opacity:1;}
+#flash{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;}
+#joy{position:fixed;left:14px;bottom:calc(150px + env(safe-area-inset-bottom));width:112px;height:112px;
+  border:1px solid var(--dim);z-index:5;touch-action:none;}
+#joy .knob{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border:1px solid var(--fg);background:var(--bg);}
+#boost{position:fixed;right:14px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:5;min-width:74px;border-color:var(--amber);color:var(--amber);}
+#boost:active{background:var(--amber);color:var(--bg);}
+#row2{display:flex;gap:8px;}
+#go-rig{border-color:var(--amber);color:var(--amber);min-width:110px;}
+#go-rig:active{background:var(--amber);color:var(--bg);}
+.chiprow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.chiprow::-webkit-scrollbar{display:none;}
+.chiprow button{min-height:36px;font-size:10px;padding:0 10px;border-color:var(--dim);color:var(--dim);white-space:nowrap;}
+.chiprow button.on{border-color:var(--teal);color:var(--teal);}
+.chiprow.rigs button.on{border-color:var(--amber);color:var(--amber);}
+@media(max-width:520px){ #joy{width:96px;height:96px;} }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<div id="bar">
+  <div class="t">THUNDER FORGE</div>
+  <div id="provenance">BOOTING…</div>
+  <button class="b" id="btn-ai" aria-pressed="false">AI</button>
+  <button class="b" id="btn-code" aria-pressed="false">CODE</button>
+</div>
+
+<div id="hud"><div class="h1" id="hud1"></div><div class="h2" id="hud2"></div></div>
+<div id="banner"></div>
+<div id="flash"></div>
+<div id="joy"><div class="knob" id="joyk"></div></div>
+<button id="boost">BOOST</button>
+
+<div id="dock">
+  <div id="row1">
+    <input id="prompt" placeholder="describe a GAME · e.g. king-of-the-hill on a shrinking platform vs three hunters" autocomplete="off">
+    <button id="go">FORGE GAME</button>
+  </div>
+  <div id="row2">
+    <button id="go-rig">FORGE RIG</button>
+    <div class="chiprow" id="chips-games" aria-label="golden games"></div>
+  </div>
+  <div class="chiprow rigs" id="chips-rigs" aria-label="golden rigs"></div>
+  <div id="status">READY</div>
+</div>
+
+<div class="sheet" id="ai-sheet"><div>
+  <button class="close-x" data-close="ai-sheet">×</button>
+  <h2>AI CONFIG · <span class="k">trig.ai.config.v2</span> (shared with the game)</h2>
+  <div class="grid">
+    <label>PROVIDER
+      <select id="ai-provider">
+        <option value="thunder">thunder gateway (server key)</option>
+        <option value="anthropic">anthropic (browser key · dev)</option>
+        <option value="openai">openai (browser key · dev)</option>
+        <option value="gemini">gemini (browser key · dev)</option>
+        <option value="custom">custom (openai-shaped · dev)</option>
+      </select></label>
+    <label>MODEL (dev providers)<input id="ai-model" placeholder="claude-sonnet-4-5 · gpt-4o"></label>
+    <label>API KEY (dev providers)<input id="ai-key" type="password" placeholder="browser-key modes only"></label>
+    <label>GATEWAY URL (thunder)<input id="ai-url" placeholder="https://thunderhead-ai.YOU.workers.dev"></label>
+    <label>BASE URL (custom)<input id="ai-base" placeholder="https://…/v1"></label>
+  </div>
+  <div class="row"><button id="ai-save" style="border-color:var(--teal);color:var(--teal)">SAVE</button>
+  <button id="ai-test">TEST CALL</button></div>
+  <p style="font-size:10px;color:var(--dim)">thunder = your Cloudflare gateway; the OpenAI key never enters this page. Dev providers keep the key in localStorage and are for building only.</p>
+</div></div>
+
+<div class="sheet" id="code-sheet"><div>
+  <button class="close-x" data-close="code-sheet">×</button>
+  <h2>FORENSICS · the code that built this</h2>
+  <div id="diag"></div>
+  <pre id="code-view">—</pre>
+  <div class="row">
+    <button id="copy-code" style="border-color:var(--teal);color:var(--teal)">COPY CODE</button>
+    <button id="run-golden">RUN GOLDEN CHECK</button>
+  </div>
+  <p style="font-size:10px;color:var(--dim)">Game code: <span class="k">window.__switchGame(code)</span> · Rig code: <span class="k">window.__setPlayerRig(code)</span></p>
+</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ═══ @module FORGE v2.1 · contract: SPEC §5 · deps: none (THREE, VG injected) ═══
+   THUNDERHEAD Forge — the language→geometry compiler.
+   Treats every model reply (yours or a peer's) as untrusted source for a tiny
+   language whose runtime is VG and whose entry symbol is a parameter: `build` mints rigs, `mode` mints GAMES.
+   Pipeline: SANITIZE → S1 WHOLE → S2 FN-SLICE → S3 ASSIGN → (caller: REPAIR → LIBRARY).
+   Conformance: forge-conformance.test.mjs must run 9/9 before any edit ships.
+   Drop-in (M0): include before the main module; replace extractBuildFn +
+   buildVehicleFromCode call sites with FORGE.compile(reply, {THREE, VG}).      */
+(function (root, factory) {
+  const mod = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = mod;  // Node (conformance)
+  else root.FORGE = mod;                                                       // browser
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ── ceilings (SPEC §3) ─────────────────────────────────────────────────────
+  const MESH_MAX = 220;          // certify budget
+  const CHAIN_MAX = 12;          // POW10: ≤12 chained function decls in S2
+  const HEADTAIL = 80;           // diagnostic excerpt length
+
+  // ── Tier-1 shadow (SPEC §5.7) — raises the bar; NOT a boundary. M4 = Worker.
+  const SHADOWED = ['window','document','localStorage','sessionStorage','fetch',
+    'navigator','XMLHttpRequest','WebSocket','indexedDB','globalThis','self',
+    'top','parent','frames','open','importScripts'];
+
+  // ── Stage 1 · SANITIZE: prefer fenced contents; strip BOM/zero-width ──────
+  function sanitize(reply) {
+    let t = String(reply || '').replace(/\uFEFF|\u200B/g, '');
+    const fences = [...t.matchAll(/```(?:[a-zA-Z]*)\n?([\s\S]*?)```/g)].map(m => m[1]);
+    if (fences.length) t = fences.join('\n');
+    return t.trim();
+  }
+
+  // ── scanner: string / template / ${} / comment-aware structural scan ──────
+  function jsScan(src) {
+    let brace = 0, paren = 0; const events = [];
+    let st = 'code'; const tplExpr = [];
+    for (let i = 0; i < src.length; i++) {
+      const c = src[i], n = src[i + 1];
+      if (st === 'code') {
+        if (c === '/' && n === '/') { st = 'line'; i++; continue; }
+        if (c === '/' && n === '*') { st = 'block'; i++; continue; }
+        if (c === "'") { st = 's1'; continue; }
+        if (c === '"') { st = 's2'; continue; }
+        if (c === '`') { st = 'tpl'; continue; }
+        if (c === '{') { brace++; events.push({ i, c, d: brace }); continue; }
+        if (c === '}') { brace--; events.push({ i, c, d: brace }); continue; }
+        if (c === '(') { paren++; continue; }
+        if (c === ')') { paren--; continue; }
+      } else if (st === 's1') { if (c === '\\') { i++; continue; } if (c === "'") st = 'code'; }
+      else if (st === 's2') { if (c === '\\') { i++; continue; } if (c === '"') st = 'code'; }
+      else if (st === 'tpl') {
+        if (c === '\\') { i++; continue; }
+        if (c === '`') { st = 'code'; continue; }
+        if (c === '$' && n === '{') { tplExpr.push(1); st = 'code'; brace++; events.push({ i: i + 1, c: '{', d: brace }); i++; continue; }
+      }
+      else if (st === 'line') { if (c === '\n') st = 'code'; }
+      else if (st === 'block') { if (c === '*' && n === '/') { st = 'code'; i++; } }
+      if (st === 'code' && tplExpr.length && c === '}') {
+        const last = events[events.length - 1];
+        if (last && last.c === '}') { tplExpr.pop(); st = 'tpl'; }
+      }
+    }
+    return { brace, paren, events };
+  }
+
+  function balancedBlockEnd(src, from) {
+    const scan = jsScan(src);
+    let openDepth = -1;
+    for (const e of scan.events) {
+      if (e.i < from) continue;
+      if (e.c === '{' && openDepth < 0) { openDepth = e.d; continue; }
+      if (e.c === '}' && openDepth >= 0 && e.d === openDepth - 1) return e.i;
+    }
+    return -1;
+  }
+
+  // ── Stage 3 · strategies (SPEC §5.2) ──────────────────────────────────────
+  function stratWhole(t) { return t; }
+  function stratSliceFunctions(t) {
+    const fi = t.search(/\bfunction\s+[A-Za-z_$]/);
+    if (fi < 0) return null;
+    let cursor = fi, end = -1;
+    for (let guard = 0; guard < CHAIN_MAX; guard++) {
+      const e = balancedBlockEnd(t, cursor);
+      if (e < 0) break;
+      end = e;
+      const rest = t.slice(e + 1);
+      const m = rest.match(/^\s*(function\s+[A-Za-z_$])/);
+      if (!m) break;
+      cursor = e + 1 + rest.indexOf(m[1]);
+    }
+    return end > 0 ? t.slice(fi, end + 1) : null;
+  }
+  function stratBuildAssignment(t) {
+    const m = t.match(/\b(?:const|let|var)?\s*build\s*=\s*(?:async\s*)?\(?/);
+    if (!m) return null;
+    const start = m.index;
+    const e = balancedBlockEnd(t, start);
+    if (e < 0) return null;
+    let out = t.slice(start, e + 1);
+    if (!/^(const|let|var)\b/.test(out)) out = 'const ' + out;
+    return out + ';';
+  }
+
+  // ── cert helpers ───────────────────────────────────────────────────────────
+  function fnv1a(str) { // hex8 content hash (also the overlay-validity key, SPEC §4.3)
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+    return ('0000000' + h.toString(16)).slice(-8);
+  }
+  function countMeshes(node) {
+    let n = node && node.isMesh ? 1 : 0;
+    const kids = (node && node.children) || [];
+    for (let i = 0; i < kids.length; i++) n += countMeshes(kids[i]);
+    return n;
+  }
+  function estimateTris(node) {
+    let t = 0;
+    if (node && node.isMesh && node.geometry) {
+      const g = node.geometry;
+      const idx = g.index && g.index.count;
+      const pos = g.attributes && g.attributes.position && g.attributes.position.count;
+      t += Math.floor(((idx != null ? idx : (pos || 0))) / 3);
+    }
+    const kids = (node && node.children) || [];
+    for (let i = 0; i < kids.length; i++) t += estimateTris(kids[i]);
+    return t;
+  }
+
+  // ── Stage 4 · compile + execute + certify (SPEC §5.3) ─────────────────────
+  function execute(code, ctx) {
+    const THREE = ctx.THREE, VG = ctx.VG;
+    const maxMeshes = ctx.maxMeshes || MESH_MAX;
+    const g = new THREE.Group();
+    let fn;
+    try {
+      fn = new Function('g', 'VG', 'THREE', 'Math', ...SHADOWED,
+        '"use strict";\n' + code + '\n;if(typeof build==="function"){build(g,VG,THREE);}');
+    } catch (e) { return { ok: false, stage: 'compile', err: e.message }; }
+    try {
+      const t0 = Date.now();
+      fn(g, VG, THREE, Math, ...SHADOWED.map(() => undefined));
+      const ms = Date.now() - t0;
+      const meshes = countMeshes(g);
+      if (!meshes) return { ok: false, stage: 'execute', err: 'built zero meshes' };
+      if (meshes > maxMeshes) return { ok: false, stage: 'certify', err: 'mesh budget exceeded: ' + meshes + '>' + maxMeshes };
+      return { ok: true, group: g, cert: { meshes, tris: estimateTris(g), ms, hash: fnv1a(code) } };
+    } catch (e) { return { ok: false, stage: 'execute', err: e.message }; }
+  }
+
+  // ── the pipeline (SPEC §5.2) ───────────────────────────────────────────────
+  function compile(reply, ctx) {
+    const t = sanitize(reply);
+    if (!t) return { ok: false, stage: 'sanitize', err: 'empty reply', attempts: [] };
+    const attempts = [];
+    const strategies = [['whole', stratWhole], ['fn-slice', stratSliceFunctions], ['assign', stratBuildAssignment]];
+    for (let s = 0; s < strategies.length; s++) {
+      const name = strategies[s][0], strat = strategies[s][1];
+      const cand = strat(t);
+      if (cand == null) { attempts.push({ strategy: name, err: 'not applicable' }); continue; }
+      const r = execute(cand, ctx);
+      if (r.ok) return { ok: true, group: r.group, cert: r.cert, strategy: name, code: cand };
+      attempts.push({ strategy: name, stage: r.stage, err: r.err });
+    }
+    const bal = jsScan(t);
+    return {
+      ok: false, stage: 'all-strategies', attempts,
+      diagnostic: {
+        braceBalance: bal.brace, parenBalance: bal.paren,
+        truncated: bal.brace > 0 || bal.paren > 0,
+        head: t.slice(0, HEADTAIL), tail: t.slice(-HEADTAIL),
+        chars: t.length
+      }
+    };
+  }
+
+  // ── v2.1 · ENTRY GENERALIZATION (SPEC ADDENDUM §A2) ────────────────────────
+  // The Forge's entry symbol is a parameter, not a constant. `build` makes rigs;
+  // `mode` makes GAMES. Same sandbox, same budget discipline, same diagnostics.
+  function stratEntryAssignment(t, entry) {
+    const re = new RegExp('\\b(?:const|let|var)?\\s*' + entry + '\\s*=\\s*(?:async\\s*)?\\(?');
+    const m = t.match(re);
+    if (!m) return null;
+    const start = m.index;
+    const e = balancedBlockEnd(t, start);
+    if (e < 0) return null;
+    let out = t.slice(start, e + 1);
+    if (!/^(const|let|var)\b/.test(out)) out = 'const ' + out;
+    return out + ';';
+  }
+  function executeEntry(code, opts) {
+    const entry = opts.entry || 'build';
+    const argNames = opts.argNames || [];
+    const args = opts.args || [];
+    const budgetMs = opts.budgetMs || 0;               // measured post-hoc (Tier-1 is not interruptible)
+    let fn;
+    try {
+      fn = new Function('__ret', ...argNames, ...SHADOWED,
+        '"use strict";\n' + code +
+        '\n;if(typeof ' + entry + '==="function"){__ret.v=' + entry + '(' + argNames.join(',') + ');}');
+    } catch (e) { return { ok: false, stage: 'compile', err: e.message }; }
+    const __ret = { v: undefined };
+    try {
+      const t0 = Date.now();
+      fn(__ret, ...args, ...SHADOWED.map(() => undefined));
+      const ms = Date.now() - t0;
+      if (typeof __ret.v === 'undefined')
+        return { ok: false, stage: 'execute', err: 'entry "' + entry + '" was not defined or returned undefined' };
+      if (budgetMs && ms > budgetMs)
+        return { ok: false, stage: 'certify', err: 'time budget exceeded: ' + ms + 'ms>' + budgetMs + 'ms' };
+      return { ok: true, value: __ret.v, cert: { ms, hash: fnv1a(code), chars: code.length } };
+    } catch (e) { return { ok: false, stage: 'execute', err: e.message }; }
+  }
+  function compileEntry(reply, opts) {
+    opts = opts || {};
+    const entry = opts.entry || 'build';
+    const validate = opts.validate || (v => (v && typeof v === 'object') ? { ok: true }
+      : { ok: false, err: 'entry must return an object' });
+    const t = sanitize(reply);
+    if (!t) return { ok: false, stage: 'sanitize', err: 'empty reply', attempts: [] };
+    const attempts = [];
+    const strategies = [
+      ['whole', () => t],
+      ['fn-slice', () => stratSliceFunctions(t)],
+      ['assign', () => stratEntryAssignment(t, entry)],
+    ];
+    for (const [name, strat] of strategies) {
+      const cand = strat();
+      if (cand == null) { attempts.push({ strategy: name, err: 'not applicable' }); continue; }
+      const r = executeEntry(cand, opts);
+      if (!r.ok) { attempts.push({ strategy: name, stage: r.stage, err: r.err }); continue; }
+      const val = validate(r.value);
+      if (!val.ok) { attempts.push({ strategy: name, stage: 'validate', err: val.err }); continue; }
+      return { ok: true, value: r.value, cert: r.cert, strategy: name, code: cand };
+    }
+    const bal = jsScan(t);
+    return { ok: false, stage: 'all-strategies', attempts,
+      diagnostic: { braceBalance: bal.brace, parenBalance: bal.paren,
+        truncated: bal.brace > 0 || bal.paren > 0,
+        head: t.slice(0, HEADTAIL), tail: t.slice(-HEADTAIL), chars: t.length } };
+  }
+
+  // ── structured repair prompt (SPEC §5.2 REPAIR) — feed to the 1 retry ─────
+  function repairPrompt(fail) {
+    const d = (fail && fail.diagnostic) || {};
+    const a = (fail && fail.attempts && fail.attempts[0]) || {};
+    if (d.truncated) {
+      return 'Your previous reply was TRUNCATED (unbalanced: ' +
+        (d.braceBalance > 0 ? '{×' + d.braceBalance + ' ' : '') +
+        (d.parenBalance > 0 ? '(×' + d.parenBalance : '') +
+        ') after ' + (d.chars || '?') + ' chars. Return a COMPLETE function build(g,VG,THREE){...} ' +
+        'with FEWER, LARGER meshes so it fits. Only the function. No prose, no markdown.';
+    }
+    return 'Your previous code failed at stage "' + (a.stage || '?') + '" with: "' +
+      String(a.err || '').slice(0, 160) + '". Return a CORRECTED, COMPLETE ' +
+      'function build(g,VG,THREE){...} — valid strict-mode JavaScript, all braces/parens ' +
+      'balanced, define any helpers INSIDE build. Only the function. No prose, no markdown.';
+  }
+
+  return { compile, execute, compileEntry, sanitize, repairPrompt, jsScan, SHADOWED, MESH_MAX, fnv1a };
+});
+
+
+/* ═══ @module GOLDEN_LIBRARY v1.0 · deps: none · generated verbatim from garage-thunder-rigs__1_.html ═══
+   Nine golden builds in build(g,VG,THREE) form — the deterministic floor, the
+   fallback terminus of the Forge pipeline, and the few-shot corpus. Each entry's
+   inner buildX() is BYTE-IDENTICAL to the garage reference (the quality bar).   */
+(function (root, factory) {
+  const mod = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = mod;
+  else root.GOLDEN = mod;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  const LIBRARY = {};
+  LIBRARY["thor"] = {
+    num: 1, name: "MJ\u00d6LNIR RUNNER", god: "NORSE",
+    keywords: "thor norse hammer mjolnir goat rune viking monster truck lightning",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildThor(){\n  const g=new THREE.Group();\n  const iron=paint(C.iron,{rough:0.5,metal:0.4}),ironD=matte(C.ironDk),dk=matte(C.darker),glass=GLASS_BLUE();\n  // heavy truck body high on suspension\n  const body=box(2.3,0.9,3.6,iron);body.position.set(0,1.85,0);g.add(body);\n  const cabTop=box(1.9,0.7,1.4,iron);cabTop.position.set(0,2.55,0.5);g.add(cabTop);\n  const wind=box(1.7,0.5,0.08,glass);wind.position.set(0,2.6,1.22);wind.rotation.x=-0.15;g.add(wind);\n  const bed=box(2.1,0.5,1.3,ironD);bed.position.set(0,2.25,-1.0);g.add(bed);\n  // Mj\u00f6lnir-shaped grille: hammer head + haft\n  const hammerHead=box(1.3,0.7,0.4,metalMat(0x7a828c,{rough:0.35}));hammerHead.position.set(0,1.9,1.95);g.add(hammerHead);\n  const haft=box(0.24,0.8,0.3,matte(C.woodDk));haft.position.set(0,1.2,1.95);g.add(haft);\n  const knot=torus(0.16,0.05,goldMat());knot.position.set(0,0.85,1.95);g.add(knot);\n  // blue rune glow strips + headlights\n  [-0.7,0.7].forEach(x=>{const h=box(0.34,0.2,0.06,emiss(C.volt,2.6));h.position.set(x,2.05,1.83);g.add(h);\n    const hg=glow(C.volt);hg.scale.set(0.7,0.5,1);hg.position.set(x,2.05,1.95);g.add(hg);});\n  [-1,1].forEach(s=>{const rn=runeDecal(0.6);rn.position.set(s*1.16,1.9,0.4);rn.rotation.y=s*Math.PI/2;g.add(rn);\n    const zz=boltDecal(0.5,'#7fd0ff');zz.position.set(s*1.16,1.95,-0.6);zz.rotation.y=s*Math.PI/2;g.add(zz);});\n  // suspension springs (teal)\n  [[-1.2,1.3],[1.2,1.3],[-1.2,-1.3],[1.2,-1.3]].forEach(p=>{const spr=new THREE.Group();spr.position.set(p[0]*0.85,1.3,p[1]);\n    for(let i=0;i<3;i++){const ring=torus(0.14,0.04,paint(C.teal,{rough:0.4,metal:0.3}));ring.rotation.x=Math.PI/2;ring.position.y=i*0.14-0.14;spr.add(ring);}g.add(spr);});\n  // THOR in the cab: winged helmet + hammer raised\n  const thor=figure(C.skin,paint(0x2a3a5c,{rough:0.6}));thor.position.set(-0.35,2.5,0.4);thor.scale.set(0.9,0.9,0.9);\n  const helm=cyl(0.22,0.24,0.2,metalMat(C.steel),8);helm.position.y=1.16;thor.add(helm);\n  [-1,1].forEach(s=>{const wing=box(0.05,0.26,0.18,paint(C.white));wing.position.set(s*0.26,1.22,0);wing.rotation.z=s*0.4;thor.add(wing);});\n  const beard=box(0.3,0.26,0.1,matte(0xb08a4a));beard.position.y=0.78;beard.position.z=0.14;thor.add(beard);\n  // raised right arm w/ Mj\u00f6lnir\n  thor.userData.armR.rotation.x=-2.2;\n  const mj=new THREE.Group();mj.position.set(0,-0.62,0);\n  const mHead=box(0.4,0.22,0.22,metalMat(0x7a828c));mHead.position.y=-0.1;mj.add(mHead);\n  const mHaft=cyl(0.04,0.04,0.4,matte(C.woodDk),6);mHaft.position.y=0.14;mj.add(mHaft);\n  thor.userData.armR.add(mj);\n  g.add(thor);\n  // TWO GOATS in the bed (Tanngrisnir + Tanngnjostr)\n  const goats=[];\n  [[-0.5,'#e8e2d4'],[0.5,'#b08a5a']].forEach(gd=>{\n    const goat=new THREE.Group();goat.position.set(gd[0],2.6,-1.0);\n    const gm=paint(parseInt(gd[1].replace('#','0x')),{rough:0.75});\n    const gb=box(0.44,0.4,0.7,gm);goat.add(gb);\n    const gh=new THREE.Group();gh.position.set(0,0.35,0.4);\n    const gs=box(0.26,0.26,0.34,gm);gh.add(gs);\n    const gsn=box(0.16,0.14,0.16,matte(0x8a7a5a));gsn.position.set(0,-0.05,0.22);gh.add(gsn);\n    [-1,1].forEach(s=>{const horn=torus(0.12,0.03,matte(0x9a8a6a),Math.PI*1.2);horn.position.set(s*0.14,0.16,-0.05);horn.rotation.y=s*0.6;gh.add(horn);\n      const ge=eye(0.045);ge.position.set(s*0.1,0.05,0.15);gh.add(ge);});\n    goat.add(gh);goat.userData.head=gh;\n    g.add(goat);goats.push(goat);\n  });\n  // lightning strikes off the bed corners\n  const b1=jaggedBolt(1.6,5,0.05,C.volt);b1.position.set(1.3,3.2,-1.6);g.add(b1);\n  const b2=jaggedBolt(1.4,5,0.05,C.volt);b2.position.set(-1.3,3.0,1.4);g.add(b2);\n  const wheels=[[-1.35,0.95,1.3],[1.35,0.95,1.3],[-1.35,0.95,-1.3],[1.35,0.95,-1.3]];\n  wheels.forEach(p=>{const w=knobbyWheel(0.95,0.6,0x2a6ad0);w.position.set(p[0],p[1],p[2]);g.add(w);});\n  g.add(contactShadow(3.6,4.2));\n  g.userData.tick=(t)=>{thor.userData.armR.rotation.x=-2.2+Math.sin(t*1.4)*0.15;\n    goats.forEach((gt,i)=>{gt.userData.head.rotation.y=Math.sin(t*0.8+i*2)*0.25;gt.position.y=2.6+Math.sin(t*1.8+i)*0.02;});\n    g.position.y=Math.sin(t*1.6)*0.012;};\n  return g;\n}\n\n/* ============================================================\n   2 \u00b7 HOVERCRAFT / ZEUS \u2014 eagle prow, gold meander, bolt aloft\n   ============================================================ */\n  const model = buildThor();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["zeus"] = {
+    num: 2, name: "OLYMPUS GT", god: "GREEK",
+    keywords: "zeus greek olympus eagle laurel chariot bolt gold white racer",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildZeus(){\n  const g=new THREE.Group();\n  const white=paint(C.white,{rough:0.4}),cream=paint(C.cream,{rough:0.5}),gold=goldMat(),dk=matte(C.darker);\n  // hovercraft skirt (inflated ring) hovering\n  const hover=new THREE.Group();hover.position.y=0.75;\n  const skirt=torus(1.5,0.5,white);skirt.rotation.x=Math.PI/2;skirt.scale.set(1,1.55,1);hover.add(skirt);\n  const deck=box(2.0,0.3,3.6,cream);deck.position.y=0.3;hover.add(deck);\n  // greek key band around the skirt\n  [-1,1].forEach(s=>{const gk=greekKey(3.2,0.3);gk.position.set(s*1.52,0.05,0);gk.rotation.y=-s*Math.PI/2;hover.add(gk);});\n  // EAGLE PROW at the front\n  const prow=new THREE.Group();prow.position.set(0,0.55,2.15);\n  const eHead=ico(0.55,1,white);eHead.scale.set(0.9,0.9,1.05);prow.add(eHead);\n  const brow=box(0.8,0.16,0.4,gold);brow.position.set(0,0.3,0.2);prow.add(brow);\n  const beak=cone(0.22,0.6,gold,5);beak.rotation.x=Math.PI/2;beak.position.set(0,0.0,0.6);prow.add(beak);\n  const beakHook=cone(0.1,0.24,gold,5);beakHook.rotation.x=Math.PI*0.85;beakHook.position.set(0,-0.14,0.78);prow.add(beakHook);\n  [-1,1].forEach(s=>{const e=eye(0.09);e.position.set(s*0.3,0.14,0.36);prow.add(e);\n    // feather layers along the neck\n    for(let i=0;i<3;i++){const f=box(0.1,0.22,0.3,i%2?cream:white);f.position.set(s*(0.4+i*0.06),-0.15-i*0.1,-0.2-i*0.16);f.rotation.z=s*0.3;prow.add(f);}});\n  hover.add(prow);\n  // rear fan in a ring cage\n  const fanRing=torus(0.75,0.08,gold);fanRing.position.set(0,1.15,-1.7);hover.add(fanRing);\n  const fan=new THREE.Group();fan.position.set(0,1.15,-1.7);\n  for(let i=0;i<4;i++){const bl=box(0.16,0.62,0.05,paint(0xd8d2c4,{rough:0.5}));bl.position.y=0.33;const holder=new THREE.Group();holder.rotation.z=i*Math.PI/2;holder.add(bl);fan.add(holder);}\n  hover.add(fan);\n  // steering console\n  const console_=box(0.5,0.5,0.24,gold);console_.position.set(0,1.05,0.7);console_.rotation.x=-0.4;hover.add(console_);\n  const wheelRim=torus(0.26,0.04,gold);wheelRim.position.set(0,1.3,0.62);wheelRim.rotation.x=-0.4;hover.add(wheelRim);\n  // ZEUS standing amidships: white robe, gold trim, bolt overhead\n  const zeus=figure(C.skin,paint(C.white,{rough:0.55}),{tw:0.7,th:0.9});zeus.position.set(0,1.35,0);zeus.scale.set(1.05,1.05,1.05);\n  const sash=box(0.2,0.9,0.44,gold);sash.position.set(-0.2,0.35,0.0);sash.rotation.z=0.3;zeus.add(sash);\n  const beard=box(0.32,0.4,0.12,matte(C.beardW));beard.position.set(0,0.72,0.15);zeus.add(beard);\n  const hair=box(0.38,0.16,0.34,matte(C.beardW));hair.position.set(0,1.14,0);zeus.add(hair);\n  const crown=torus(0.2,0.03,gold);crown.position.set(0,1.16,0);crown.rotation.x=Math.PI/2;zeus.add(crown);\n  zeus.userData.armR.rotation.x=-2.6;\n  // the master bolt in his raised hand: gold jagged spear\n  const master=new THREE.Group();master.position.set(0,-0.62,0);\n  const mb=emiss(0xf2c61f,2.6);\n  [[0,0,0.32],[0.1,0.28,0.3],[-0.02,0.56,0.3],[0.1,0.84,0.28]].forEach((p,i)=>{const segB=box(0.07,0.34,0.07,mb);segB.position.set(p[0],p[1],0);segB.rotation.z=(i%2?0.35:-0.35);master.add(segB);});\n  const mGlow=glow(0xf2c61f);mGlow.scale.set(1.2,1.2,1);mGlow.position.set(0.05,0.5,0);master.add(mGlow);\n  zeus.userData.armR.add(master);\n  hover.add(zeus);\n  g.add(hover);\n  // LIGHTNING RING crackling around the skirt\n  for(let i=0;i<4;i++){const a=i/4*Math.PI*2+0.4;const bb=jaggedBolt(1.0,4,0.045,C.volt,{period:0.9+i*0.3});\n    bb.position.set(Math.cos(a)*1.9,0.9,Math.sin(a)*2.4);g.add(bb);}\n  const ring=torus(2.1,0.03,emiss(C.volt,2));ring.rotation.x=Math.PI/2;ring.position.y=0.35;ring.scale.set(1,1.35,1);g.add(ring);\n  g.add(contactShadow(4.2,5.2));\n  g.userData.tick=(t)=>{hover.position.y=0.75+Math.sin(t*1.2)*0.07;fan.rotation.z=t*7;\n    zeus.userData.armR.rotation.x=-2.6+Math.sin(t*1.1)*0.1;ring.material.emissiveIntensity=1.6+Math.sin(t*9)*0.5;};\n  return g;\n}\n\n/* ============================================================\n   3 \u00b7 DRIFT TRIKE / RAIJIN \u2014 oni rider, taiko drum halo\n   ============================================================ */\n  const model = buildZeus();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["raijin"] = {
+    num: 3, name: "TAIKO ONI", god: "JAPANESE",
+    keywords: "raijin japan japanese taiko drum oni demon storm red",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildRaijin(){\n  const g=new THREE.Group();\n  const crimson=paint(C.crimson,{rough:0.5}),gold=goldMat(),dk=matte(C.darker),drum=paint(C.drum,{rough:0.6});\n  // trike frame: big front wheel, low seat, two small rears\n  const frame=box(0.24,0.2,2.2,crimson);frame.position.set(0,0.62,0.2);frame.rotation.x=0.12;g.add(frame);\n  const seat=box(0.7,0.16,0.7,matte(0x1a1d24));seat.position.set(0,0.62,-0.7);g.add(seat);\n  const fork=new THREE.Group();fork.position.set(0,0.9,1.2);fork.rotation.x=0.35;\n  [-1,1].forEach(s=>{const tube=cyl(0.05,0.05,0.9,gold,8);tube.position.set(s*0.2,-0.3,0);fork.add(tube);});\n  const bars=box(0.9,0.06,0.06,gold);bars.position.set(0,0.2,0);fork.add(bars);\n  [-1,1].forEach(s=>{const grip=cyl(0.06,0.06,0.2,matte(0x2a2f38),8);grip.rotation.z=Math.PI/2;grip.position.set(s*0.42,0.2,0);fork.add(grip);});\n  g.add(fork);\n  const fw=knobbyWheel(0.65,0.4,C.gold);fw.position.set(0,0.65,1.55);g.add(fw);\n  [[-0.62],[0.62]].forEach(p=>{const rw=slickWheel(0.34,0.3,C.gold);rw.position.set(p[0],0.34,-1.05);g.add(rw);});\n  // RAIJIN: red oni body, white wild hair, fangs\n  const raijin=figure(0xb03a2a,paint(0x8a2a1e,{rough:0.6}),{tw:0.7,th:0.75});raijin.position.set(0,0.95,-0.45);raijin.scale.set(1.0,1.0,1.0);\n  // repaint head red + wild white hair\n  raijin.userData.head.material=paint(0xb03a2a,{rough:0.6});\n  const hair=new THREE.Group();hair.position.set(0,1.2,0);\n  for(let i=0;i<7;i++){const spike=cone(0.07,0.3,matte(0xe8e2d4),5);const a=(i/7-0.5)*Math.PI*1.2;\n    spike.position.set(Math.sin(a)*0.2,0.08,Math.cos(a)*0.1-0.05);spike.rotation.z=-Math.sin(a)*0.8;spike.rotation.x=-0.3;hair.add(spike);}\n  raijin.add(hair);\n  [-1,1].forEach(s=>{const hornB=cone(0.05,0.16,goldMat(),5);hornB.position.set(s*0.14,1.18,0.08);raijin.add(hornB);\n    const re=eye(0.05);re.position.set(s*0.09,0.98,0.17);raijin.add(re);});\n  const fang=box(0.16,0.06,0.04,paint(C.white));fang.position.set(0,0.82,0.17);raijin.add(fang);\n  // arms forward to bars\n  raijin.userData.armL.rotation.x=-1.1;raijin.userData.armR.rotation.x=-1.1;\n  // muscle sash\n  const sash=box(0.76,0.16,0.46,gold);sash.position.set(0,0.4,0);sash.rotation.z=0.3;raijin.add(sash);\n  g.add(raijin);\n  // TAIKO DRUM HALO arcing behind: ring of drums w/ tomoe faces\n  const halo=new THREE.Group();halo.position.set(0,1.7,-0.7);\n  const arcR=1.25;\n  const haloRing=torus(arcR,0.05,gold,Math.PI*1.5);haloRing.rotation.z=Math.PI*0.75;halo.add(haloRing);\n  for(let i=0;i<5;i++){const a=Math.PI*0.15+i/4*Math.PI*0.7+Math.PI*0.25;\n    const d=cyl(0.24,0.24,0.2,drum,10);d.rotation.x=Math.PI/2;\n    d.position.set(Math.cos(a+Math.PI/2)*arcR,Math.sin(a+Math.PI/2)*arcR,0);halo.add(d);\n    const face=tomoeDecal(0.36);face.position.copy(d.position);face.position.z=0.11;halo.add(face);\n    [-1,1].forEach(sd=>{const rim2=torus(0.24,0.025,gold);rim2.position.copy(d.position);rim2.position.z=sd*0.1;halo.add(rim2);});}\n  g.add(halo);\n  // drift sparks + amber bolts off the rear wheels\n  const s1=jaggedBolt(0.9,4,0.04,0xf2c61f,{period:0.8});s1.position.set(0.85,0.5,-1.1);s1.rotation.z=1.2;g.add(s1);\n  const s2=jaggedBolt(0.9,4,0.04,0xf2c61f,{period:1.1});s2.position.set(-0.85,0.5,-1.2);s2.rotation.z=-1.2;g.add(s2);\n  g.add(contactShadow(2.6,3.4));\n  g.userData.tick=(t)=>{halo.rotation.z=Math.sin(t*0.9)*0.1;fork.rotation.y=Math.sin(t*0.7)*0.08;\n    hair.rotation.y=Math.sin(t*2.2)*0.06;g.rotation.z=Math.sin(t*1.3)*0.008;};\n  return g;\n}\n\n/* ============================================================\n   4 \u00b7 SWAMP BUGGY / TLALOC \u2014 jade mask prow, dripping wheels\n   ============================================================ */\n  const model = buildRaijin();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["tlaloc"] = {
+    num: 4, name: "JADE RAIN", god: "AZTEC",
+    keywords: "tlaloc aztec rain jade serpent goggles maya stone",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildTlaloc(){\n  const g=new THREE.Group();\n  const jade=paint(C.jade,{rough:0.45,metal:0.2}),jadeD=paint(C.jadeDk,{rough:0.5}),stone=matte(0x4a4a42,{rough:0.8}),gold=goldMat(),\n        water=paint(0x3aa8c8,{rough:0.2,metal:0.3});\n  // chunky buggy body, mosaic-stepped\n  const body=box(2.2,0.9,3.0,jade);body.position.set(0,1.6,0);g.add(body);\n  const step1=box(1.9,0.4,2.4,jadeD);step1.position.set(0,2.25,-0.1);g.add(step1);\n  // mosaic tiles scattered on flanks\n  for(let i=0;i<14;i++){const tile=box(0.06,0.18,0.18,i%3?jadeD:paint(0x5ab092,{rough:0.4}));\n    tile.position.set((i%2?1.14:-1.14),1.4+Math.random()*0.9,(Math.random()-0.5)*2.6);g.add(tile);}\n  // TLALOC MASK as the front grille: goggle eyes + fanged mouth\n  const maskG=new THREE.Group();maskG.position.set(0,1.7,1.6);\n  const maskBase=box(1.7,1.0,0.4,jadeD);maskG.add(maskBase);\n  [-1,1].forEach(s=>{const gog=torus(0.26,0.09,jade);gog.position.set(s*0.45,0.2,0.22);maskG.add(gog);\n    const pupil=sphere(0.12,matte(0x0a0c10),8,7);pupil.position.set(s*0.45,0.2,0.24);maskG.add(pupil);});\n  const noseBar=box(0.3,0.16,0.2,jade);noseBar.position.set(0,-0.02,0.26);maskG.add(noseBar);\n  // fanged mouth\n  const mouth=box(1.1,0.3,0.16,matte(0x14171d));mouth.position.set(0,-0.32,0.24);maskG.add(mouth);\n  for(let i=-2;i<=2;i++){const fang=cone(0.07,0.22,paint(C.cream),5);fang.rotation.x=Math.PI;fang.position.set(i*0.22,-0.28,0.3);maskG.add(fang);}\n  g.add(maskG);\n  // TLALOC rider: jade lord w/ feathered headdress + rain staff\n  const tl=figure(0x4a8a72,paint(0x2a6a52,{rough:0.5}),{tw:0.7,th:0.8});tl.position.set(0,2.5,-0.5);\n  tl.userData.head.material=paint(0x4a8a72,{rough:0.5});\n  const headd=new THREE.Group();headd.position.set(0,1.22,0);\n  for(let i=0;i<5;i++){const f=box(0.1,0.4,0.05,i%2?gold:jade);const a=(i/5-0.5)*Math.PI*0.8;\n    f.position.set(Math.sin(a)*0.24,0.14,-0.08);f.rotation.z=-Math.sin(a)*0.6;headd.add(f);}\n  tl.add(headd);\n  [-1,1].forEach(s=>{const gog=torus(0.09,0.03,gold);gog.position.set(s*0.09,0.98,0.17);tl.add(gog);});\n  tl.userData.armR.rotation.x=-2.0;\n  const staff=new THREE.Group();staff.position.set(0,-0.62,0);\n  const sShaft=cyl(0.035,0.035,1.1,gold,6);sShaft.position.y=0.3;staff.add(sShaft);\n  const sHead=box(0.2,0.3,0.08,jade);sHead.position.y=0.95;staff.add(sHead);\n  tl.userData.armR.add(staff);\n  g.add(tl);\n  // serpent-coil hubs + water dripping from paddle wheels\n  const wheelPos=[[-1.3,1.05,1.15],[1.3,1.05,1.15],[-1.3,1.05,-1.15],[1.3,1.05,-1.15]];\n  wheelPos.forEach(p=>{const w=knobbyWheel(1.05,0.62,0x25604e);w.position.set(p[0],p[1],p[2]);g.add(w);\n    const coil=torus(0.4,0.07,jade);coil.rotation.y=Math.PI/2;coil.position.set(p[0]+Math.sign(p[0])*0.34,p[1],p[2]);g.add(coil);});\n  // dripping water: small blue drops that fall and loop\n  const drops=[];\n  wheelPos.forEach((p,wi)=>{for(let i=0;i<3;i++){const d=box(0.06,0.14,0.06,water);\n    d.userData={x:p[0]+(Math.random()-0.5)*0.5,z:p[2]+(Math.random()-0.5)*0.5,off:Math.random()*2,top:p[1]-0.3};\n    g.add(d);drops.push(d);}});\n  g.add(contactShadow(3.6,4.0));\n  g.userData.tick=(t)=>{drops.forEach(d=>{const fall=((t*1.4+d.userData.off)%1.0);d.position.set(d.userData.x,d.userData.top-fall*(d.userData.top-0.05),d.userData.z);\n    d.scale.y=1+fall*0.8;});\n    headd.rotation.z=Math.sin(t*1.2)*0.05;tl.userData.armR.rotation.x=-2.0+Math.sin(t*0.9)*0.12;};\n  return g;\n}\n\n/* ============================================================\n   5 \u00b7 BULLDOZER / PERUN \u2014 axe-blade dozer, eagle on the cab\n   ============================================================ */\n  const model = buildTlaloc();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["perun"] = {
+    num: 5, name: "OAK HAMMERFALL", god: "SLAVIC",
+    keywords: "perun slavic oak axe shield eagle wood war wagon",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildPerun(){\n  const g=new THREE.Group();\n  const iron=paint(C.iron,{rough:0.55,metal:0.35}),ironD=matte(C.ironDk),wood=paint(C.wood,{rough:0.7}),\n        blade=metalMat(0x9aa3b0,{rough:0.4}),dk=matte(C.darker);\n  // tracked undercarriage\n  const trackG=[];\n  [-1,1].forEach(s=>{const tr=new THREE.Group();tr.position.set(s*1.05,0.6,0);\n    const belt=box(0.55,0.75,3.0,matte(0x14171d,{rough:0.95}));tr.add(belt);\n    const cleats=[];\n    for(let i=0;i<7;i++){const cl=box(0.6,0.1,0.16,matte(0x2a2f38));cl.position.set(0,-0.42,-1.3+i*0.44);tr.add(cl);cleats.push(cl);}\n    [-1.1,0,1.1].forEach(z=>{const wl=cyl(0.3,0.3,0.5,metalMat(0x4a5058),10);wl.rotation.z=Math.PI/2;wl.position.set(0,-0.15,z);tr.add(wl);});\n    tr.userData.cleats=cleats;g.add(tr);trackG.push(tr);});\n  // hull + wooden cab\n  const hull=box(1.7,0.8,2.6,iron);hull.position.set(0,1.35,0);g.add(hull);\n  const cab=box(1.3,1.1,1.2,wood);cab.position.set(0,2.3,-0.4);g.add(cab);\n  const cabFrame=box(1.36,0.12,1.26,matte(C.woodDk));cabFrame.position.set(0,2.9,-0.4);g.add(cabFrame);\n  const wind=box(1.1,0.7,0.06,GLASS_BLUE());wind.position.set(0,2.35,0.22);g.add(wind);\n  const stack=cyl(0.1,0.12,0.8,metalMat(0x3a4049),8);stack.position.set(0.5,2.4,0.5);g.add(stack);\n  // GIANT AXE-HEAD BLADE: two carved axe halves forming the dozer blade\n  const bladeG=new THREE.Group();bladeG.position.set(0,0.95,1.9);\n  [-1,1].forEach(s=>{const half=new THREE.Group();half.position.set(s*0.62,0,0);\n    const bl=box(1.2,1.3,0.18,blade);bl.rotation.y=s*0.25;half.add(bl);\n    const edge=box(0.14,1.34,0.22,metalMat(C.chrome));edge.position.set(s*0.56,0,0.06);edge.rotation.y=s*0.25;half.add(edge);\n    bladeG.add(half);});\n  const bossRing=torus(0.22,0.05,goldMat());bossRing.position.set(0,0.1,0.14);bladeG.add(bossRing);\n  const zz=boltDecal(0.5,'#f2c61f');zz.position.set(-0.5,0.1,0.16);zz.rotation.y=0.25;bladeG.add(zz);\n  g.add(bladeG);\n  // hydraulic arms\n  [-1,1].forEach(s=>{const arm=box(0.14,0.14,1.3,iron);arm.position.set(s*0.9,1.1,1.2);arm.rotation.x=0.2;g.add(arm);});\n  // PERUN driving: grey beard, iron helm\n  const perun=figure(C.skin,paint(0x4a4a52,{rough:0.6}));perun.position.set(0,2.15,-0.4);perun.scale.set(0.95,0.95,0.95);\n  const beard=box(0.32,0.4,0.1,matte(C.beardW));beard.position.set(0,0.74,0.16);perun.add(beard);\n  const helm=cyl(0.22,0.24,0.16,metalMat(C.steel),8);helm.position.y=1.16;perun.add(helm);\n  perun.userData.armL.rotation.x=-0.9;perun.userData.armR.rotation.x=-0.9;\n  g.add(perun);\n  // EAGLE perched on the cab roof\n  const eagle=new THREE.Group();eagle.position.set(0.45,3.05,-0.7);\n  const eb=ico(0.2,1,matte(0x3a3228,{rough:0.8}));eb.scale.set(0.9,1.1,1.2);eagle.add(eb);\n  const eh=sphere(0.13,paint(C.white,{rough:0.6}),8,7);eh.position.set(0,0.22,0.12);eagle.add(eh);\n  const ebeak=cone(0.05,0.12,goldMat(),5);ebeak.rotation.x=Math.PI/2;ebeak.position.set(0,0.2,0.26);eagle.add(ebeak);\n  [-1,1].forEach(s=>{const ee=eye(0.03);ee.position.set(s*0.07,0.25,0.2);eagle.add(ee);\n    const wing=box(0.05,0.16,0.34,matte(0x3a3228));wing.position.set(s*0.2,0.02,-0.05);wing.rotation.z=s*0.2;eagle.add(wing);});\n  const etail=box(0.14,0.05,0.24,matte(0x2a241c));etail.position.set(0,-0.1,-0.28);eagle.add(etail);\n  g.add(eagle);\n  // bolt cracking off the stack\n  const pb=jaggedBolt(1.2,5,0.045,C.volt,{period:1.6});pb.position.set(0.5,3.3,0.5);g.add(pb);\n  g.add(contactShadow(3.2,4.4));\n  g.userData.tick=(t)=>{trackG.forEach(tr=>{tr.userData.cleats.forEach((cl,i)=>{cl.position.z=-1.3+((i*0.44+t*0.5)%3.08);});});\n    eh.position.x=Math.sin(t*0.6)*0.02;eagle.rotation.y=Math.sin(t*0.5)*0.3;\n    bladeG.position.y=0.95+Math.sin(t*1.1)*0.03;};\n  return g;\n}\n\n/* ============================================================\n   6 \u00b7 BOOM TRUCK / SHANGO \u2014 speaker wall, double axe, crown\n   ============================================================ */\n  const model = buildPerun();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["shango"] = {
+    num: 6, name: "OSHE DRUMLINE", god: "YORUBA",
+    keywords: "shango yoruba oshe axe drum bata red white africa fire",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildShango(){\n  const g=new THREE.Group();\n  const red=paint(C.red,{rough:0.45}),redD=paint(C.redDk),dk=matte(C.darker),gold=goldMat(),glass=GLASS_BLUE(),\n        cab_=paint(C.red,{rough:0.45});\n  // heavy truck: cab + long flatbed\n  const cab=box(1.8,1.3,1.6,red);cab.position.set(0,1.35,2.1);g.add(cab);\n  const wind=box(1.6,0.6,0.08,glass);wind.position.set(0,1.65,2.9);g.add(wind);\n  const hood=box(1.7,0.7,1.0,red);hood.position.set(0,1.0,3.3);g.add(hood);\n  const grille=box(1.4,0.5,0.1,dk);grille.position.set(0,0.95,3.82);g.add(grille);\n  const lightbar=box(1.2,0.14,0.2,dk);lightbar.position.set(0,2.1,2.6);g.add(lightbar);\n  for(let i=-2;i<=2;i++){const pod=cyl(0.06,0.06,0.06,emiss(0xfff0c8,2),8);pod.rotation.x=Math.PI/2;pod.position.set(i*0.25,2.1,2.72);g.add(pod);}\n  [-0.6,0.6].forEach(x=>{const h=box(0.24,0.16,0.06,emiss(0xffd23f,2));h.position.set(x,1.0,3.84);g.add(h);});\n  const chassis=box(1.6,0.4,5.6,dk);chassis.position.set(0,0.6,0);g.add(chassis);\n  // white zigzag livery on the cab flank\n  [-1,1].forEach(s=>{const zz=boltDecal(0.7,'#f4f5f7');zz.position.set(s*0.91,1.3,2.1);zz.rotation.y=s*Math.PI/2;g.add(zz);\n    const crown=decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#e6b52a';\n      ctx.beginPath();ctx.moveTo(w*0.2,h*0.8);ctx.lineTo(w*0.2,h*0.4);ctx.lineTo(w*0.35,h*0.6);ctx.lineTo(w*0.5,h*0.25);\n      ctx.lineTo(w*0.65,h*0.6);ctx.lineTo(w*0.8,h*0.4);ctx.lineTo(w*0.8,h*0.8);ctx.closePath();ctx.fill();},0.5,0.5);\n    crown.position.set(s*0.91,1.05,1.5);crown.rotation.y=s*Math.PI/2;g.add(crown);});\n  // SPEAKER WALL stacked on the flatbed (3 wide x 3 tall + horns)\n  const speakers=[];\n  for(let col=-1;col<=1;col++){for(let row=0;row<3;row++){\n    const spk=new THREE.Group();spk.position.set(col*0.95,1.35+row*0.95,-1.2);\n    const boxS=box(0.9,0.9,0.9,matte(0x1a1d22,{rough:0.8}));spk.add(boxS);\n    const rim2=torus(0.3,0.04,matte(0x2f343c));rim2.position.z=0.46;spk.add(rim2);\n    const conem=cyl(0.28,0.1,0.14,matte(0x0c0e12),12);conem.rotation.x=Math.PI/2;conem.position.z=0.44;spk.add(conem);\n    const dome=sphere(0.08,metalMat(0x6a7280),8,7);dome.position.z=0.5;spk.add(dome);\n    g.add(spk);speakers.push(spk);}}\n  // gold horn tweeters on top\n  [-0.6,0.6].forEach(x=>{const horn=cone(0.3,0.5,gold,8);horn.rotation.x=Math.PI/2;horn.position.set(x,4.15,-1.0);g.add(horn);});\n  // SHANGO standing atop the wall: crown + double-headed axe\n  const sh=figure(0x6a4028,paint(0x8a2a1e,{rough:0.55}),{tw:0.66,th:0.8});sh.position.set(0,4.35,-1.6);\n  sh.userData.head.material=paint(0x6a4028,{rough:0.55});\n  const crown=cyl(0.2,0.24,0.2,gold,6);crown.position.y=1.2;sh.add(crown);\n  for(let i=0;i<5;i++){const pt=cone(0.04,0.12,gold,4);const a=i/5*Math.PI*2;pt.position.set(Math.cos(a)*0.2,1.34,Math.sin(a)*0.2);sh.add(pt);}\n  const sash2=box(0.7,0.16,0.42,paint(C.white));sash2.position.set(0,0.45,0);sash2.rotation.z=-0.4;sh.add(sash2);\n  sh.userData.armR.rotation.x=-2.4;\n  // oshe (double-headed axe)\n  const oshe=new THREE.Group();oshe.position.set(0,-0.62,0);\n  const shaft=cyl(0.035,0.035,0.9,matte(C.woodDk),6);shaft.position.y=0.3;oshe.add(shaft);\n  [-1,1].forEach(s=>{const head=box(0.3,0.24,0.08,metalMat(C.steel));head.position.set(s*0.18,0.72,0);head.rotation.z=s*0.2;oshe.add(head);});\n  sh.userData.armR.add(oshe);\n  g.add(sh);\n  // gold lightning arcing off the stack\n  const b1=jaggedBolt(1.6,5,0.05,0xf2c61f,{period:1.0});b1.position.set(1.6,4.4,-1.2);b1.rotation.z=0.5;g.add(b1);\n  const b2=jaggedBolt(1.4,5,0.05,0xf2c61f,{period:1.5});b2.position.set(-1.6,4.0,-1.4);b2.rotation.z=-0.5;g.add(b2);\n  // wheels (6)\n  [[-0.95,2.9],[0.95,2.9],[-0.95,-0.3],[0.95,-0.3],[-0.95,-1.6],[0.95,-1.6]].forEach(p=>{const w=slickWheel(0.5,0.4,C.gold);w.position.set(p[0],0.5,p[1]);g.add(w);});\n  g.add(contactShadow(3.0,6.4));\n  // the whole wall thumps on the beat\n  g.userData.tick=(t)=>{const beat=Math.pow(Math.max(0,Math.sin(t*5.6)),8);\n    speakers.forEach((s,i)=>{s.scale.setScalar(1+beat*0.05);});\n    sh.userData.armR.rotation.x=-2.4+beat*0.35;sh.position.y=4.35+beat*0.04;};\n  return g;\n}\n\n/* ============================================================\n   7 \u00b7 ELEPHANT CRAWLER / INDRA \u2014 mech Airavata + gold howdah\n   ============================================================ */\n  const model = buildShango();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["indra"] = {
+    num: 7, name: "AIRAVATA HAULER", god: "VEDIC",
+    keywords: "indra vedic elephant airavata vajra india tusk howdah",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildIndra(){\n  const g=new THREE.Group();\n  const ele=paint(C.elephant,{rough:0.55,metal:0.3}),eleD=paint(C.elephantDk,{rough:0.6,metal:0.3}),gold=goldMat(),\n        royal=paint(C.royal,{rough:0.5}),dk=matte(C.darker);\n  // mechanical elephant body\n  const body=box(2.2,1.5,2.8,ele);body.position.set(0,2.1,-0.2);g.add(body);\n  const plate=box(2.26,0.4,2.86,eleD);plate.position.set(0,1.5,-0.2);g.add(plate);\n  // head\n  const headG=new THREE.Group();headG.position.set(0,2.3,1.5);\n  const skull=box(1.3,1.1,0.9,ele);headG.add(skull);\n  const forehead=box(0.9,0.5,0.2,gold);forehead.position.set(0,0.4,0.48);headG.add(forehead);\n  const rune=boltDecal(0.4,'#7fd0ff');rune.position.set(0,0.05,0.47);headG.add(rune);\n  [-1,1].forEach(s=>{const ear=box(0.16,0.9,0.7,eleD);ear.position.set(s*0.78,0.1,-0.15);ear.rotation.y=s*0.35;headG.add(ear);\n    const earTrim=box(0.18,0.94,0.08,gold);earTrim.position.set(s*0.8,0.1,0.22);earTrim.rotation.y=s*0.35;headG.add(earTrim);\n    const e=eye(0.09);e.position.set(s*0.4,0.22,0.44);headG.add(e);\n    // tusks\n    const tusk=curveTusk(gold,s);tusk.position.set(s*0.4,-0.5,0.4);headG.add(tusk);});\n  // segmented trunk\n  const trunk=new THREE.Group();trunk.position.set(0,-0.3,0.5);\n  const trunkSegs=[];let parent=trunk;\n  for(let i=0;i<5;i++){const seg=new THREE.Group();seg.position.y=(i===0?0:-0.32);\n    const sB=box(0.36-i*0.04,0.34,0.36-i*0.04,i%2?ele:eleD);sB.position.y=-0.16;seg.add(sB);\n    parent.add(seg);parent=seg;trunkSegs.push(seg);}\n  headG.add(trunk);\n  g.add(headG);\n  // four pillar legs w/ armored feet\n  const legs=[];\n  [[-0.8,1.0],[0.8,1.0],[-0.8,-1.2],[0.8,-1.2]].forEach((p,i)=>{const L=new THREE.Group();L.position.set(p[0],1.35,p[1]);\n    const up=box(0.5,1.0,0.5,ele);up.position.y=-0.5;L.add(up);\n    const cuff=box(0.56,0.2,0.56,gold);cuff.position.y=-0.9;L.add(cuff);\n    const foot=box(0.6,0.3,0.6,eleD);foot.position.y=-1.15;L.add(foot);\n    for(let tn=0;tn<3;tn++){const nail=box(0.12,0.12,0.08,paint(C.cream));nail.position.set(-0.18+tn*0.18,-1.24,0.3);L.add(nail);}\n    g.add(L);legs.push(L);});\n  // GOLD HOWDAH (palace) on the back\n  const how=new THREE.Group();how.position.set(0,3.1,-0.5);\n  const platf=box(1.7,0.2,1.7,gold);how.add(platf);\n  const pal=box(1.2,0.9,1.2,royal);pal.position.y=0.55;how.add(pal);\n  const roof1=box(1.4,0.16,1.4,gold);roof1.position.y=1.05;how.add(roof1);\n  const roof2=box(0.9,0.16,0.9,gold);roof2.position.y=1.3;how.add(roof2);\n  const spire=cone(0.18,0.4,gold,6);spire.position.y=1.6;how.add(spire);\n  [[-0.6,0.6],[0.6,0.6],[-0.6,-0.6],[0.6,-0.6]].forEach(p=>{const post=cyl(0.05,0.05,0.9,gold,6);post.position.set(p[0],0.55,p[1]);how.add(post);});\n  // banners\n  [-1,1].forEach(s=>{const pole=cyl(0.02,0.02,1.0,gold,5);pole.position.set(s*0.8,1.1,-0.6);how.add(pole);\n    const flag=box(0.34,0.22,0.02,royal);flag.position.set(s*0.8+s*0.18,1.4,-0.6);how.add(flag);});\n  g.add(how);\n  // INDRA seated forward of the howdah, vajra held high\n  const indra=figure(0xc09058,royal,{tw:0.6,th:0.7});indra.position.set(0,3.3,0.7);indra.scale.set(0.9,0.9,0.9);\n  const crown2=cyl(0.18,0.22,0.24,gold,6);crown2.position.y=1.2;indra.add(crown2);\n  const spike=cone(0.06,0.2,gold,5);spike.position.y=1.4;indra.add(spike);\n  indra.userData.armR.rotation.x=-2.5;\n  // vajra: double-ended thunderbolt sceptre\n  const vajra=new THREE.Group();vajra.position.set(0,-0.62,0);\n  const vShaft=cyl(0.04,0.04,0.5,gold,6);vShaft.position.y=0.25;vajra.add(vShaft);\n  [-1,1].forEach(end=>{const hub=sphere(0.08,gold,8,6);hub.position.y=0.25+end*0.3;vajra.add(hub);\n    for(let i=0;i<4;i++){const prong=cone(0.03,0.2,emiss(C.volt,2.2),5);const a=i/4*Math.PI*2;\n      prong.position.set(Math.cos(a)*0.08,0.25+end*0.42,Math.sin(a)*0.08);prong.rotation.x=end>0?0:Math.PI;vajra.add(prong);}});\n  indra.userData.armR.add(vajra);\n  g.add(indra);\n  // blue bolts off the vajra + tusk tips\n  const ib=jaggedBolt(1.3,5,0.05,C.volt,{period:1.1});ib.position.set(0.5,4.6,0.8);g.add(ib);\n  g.add(contactShadow(3.4,4.6));\n  g.userData.tick=(t)=>{trunkSegs.forEach((s,i)=>s.rotation.x=Math.sin(t*1.2+i*0.5)*0.1);\n    legs.forEach((L,i)=>L.position.y=1.35+Math.sin(t*1.4+i*Math.PI/2)*0.02);\n    headG.rotation.y=Math.sin(t*0.5)*0.06;indra.userData.armR.rotation.x=-2.5+Math.sin(t*1.0)*0.12;};\n  return g;\n}\nfunction curveTusk(m,s){const g=new THREE.Group();\n  const t1=cyl(0.07,0.05,0.5,m,6);t1.position.y=-0.2;t1.rotation.x=0.4;g.add(t1);\n  const t2=cyl(0.05,0.03,0.4,m,6);t2.position.set(0,-0.48,0.24);t2.rotation.x=0.9;g.add(t2);\n  return g;}\n\n/* ============================================================\n   8 \u00b7 BIPLANE / LEI GONG \u2014 cloud-borne drummer with wings\n   ============================================================ */\n  const model = buildIndra();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["leigong"] = {
+    num: 8, name: "THUNDER DRUM RIG", god: "CHINESE",
+    keywords: "leigong lei gong chinese drum mallet wing beak blue thunder",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildLeiGong(){\n  const g=new THREE.Group();\n  const dark=paint(0x24282f,{rough:0.5,metal:0.3}),darkD=matte(0x181b20),gold=goldMat(),\n        cloud=matte(0x8a929c,{rough:0.95}),cloudD=matte(0x5a626a,{rough:0.95}),wing=paint(0x6a3a2a,{rough:0.6});\n  // cloud bank the plane rides on\n  const clouds=new THREE.Group();\n  [[-1.4,0.5,0.8,0.9],[0.2,0.35,-0.6,1.2],[1.5,0.45,0.4,0.8],[-0.4,0.3,1.6,0.7],[0.8,0.3,1.8,0.6]].forEach(c=>{\n    const puff=ico(c[3],1,Math.random()>0.5?cloud:cloudD);puff.position.set(c[0],c[1],c[2]);puff.scale.y=0.55;clouds.add(puff);});\n  g.add(clouds);\n  // biplane airborne above the clouds\n  const plane=new THREE.Group();plane.position.set(0,2.3,0);plane.rotation.z=0.06;\n  const fuse=box(0.7,0.7,3.2,dark);plane.add(fuse);\n  const nose=cyl(0.36,0.36,0.4,darkD,10);nose.rotation.x=Math.PI/2;nose.position.z=1.8;plane.add(nose);\n  const tailfin=box(0.08,0.6,0.6,dark);tailfin.position.set(0,0.5,-1.6);plane.add(tailfin);\n  const tailplane=box(1.3,0.08,0.5,dark);tailplane.position.set(0,0.2,-1.6);plane.add(tailplane);\n  // two wings + struts\n  const wTop=box(4.0,0.1,0.9,dark);wTop.position.set(0,0.85,0.5);plane.add(wTop);\n  const wBot=box(3.4,0.1,0.85,dark);wBot.position.set(0,-0.35,0.5);plane.add(wBot);\n  [[-1.4],[1.4],[-0.6],[0.6]].forEach(p=>{const strut=box(0.06,1.1,0.06,darkD);strut.position.set(p[0],0.25,0.5);plane.add(strut);});\n  // gold zigzag on wings + cloud scroll motif on fuselage\n  [-1.2,1.2].forEach(x=>{const zz=boltDecal(0.5,'#e6b52a');zz.rotation.x=-Math.PI/2;zz.position.set(x,0.91,0.5);plane.add(zz);});\n  const scroll=decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.strokeStyle='#8a929c';ctx.lineWidth=w*0.05;\n    ctx.beginPath();ctx.arc(w*0.3,h*0.5,w*0.16,0,Math.PI*1.6);ctx.arc(w*0.62,h*0.5,w*0.12,Math.PI,Math.PI*2.6);ctx.stroke();},0.7,0.35);\n  scroll.position.set(0.36,0.0,-0.6);scroll.rotation.y=Math.PI/2;plane.add(scroll);\n  // spinning gold prop\n  const prop=new THREE.Group();prop.position.set(0,0,2.05);\n  for(let i=0;i<2;i++){const bl=box(0.12,1.4,0.06,gold);const h2=new THREE.Group();h2.rotation.z=i*Math.PI/2;h2.add(bl);prop.add(h2);}\n  const spinner=cone(0.12,0.24,gold,8);spinner.rotation.x=Math.PI/2;spinner.position.z=0.14;prop.add(spinner);\n  plane.add(prop);\n  // landing struts into the cloud\n  [-1,1].forEach(s=>{const leg=box(0.06,0.7,0.06,darkD);leg.position.set(s*0.4,-0.65,0.9);plane.add(leg);\n    const wl=slickWheel(0.2,0.14,C.gold);wl.position.set(s*0.4,-1.0,0.9);plane.add(wl);});\n  // LEI GONG in the cockpit: red-gold armor, bat wings, hammer + chisel\n  const lg=figure(0xb05a3a,paint(0x8a2a1e,{rough:0.55}),{tw:0.6,th:0.66});lg.position.set(0,0.55,-0.3);lg.scale.set(0.85,0.85,0.85);\n  lg.userData.head.material=paint(0xb05a3a,{rough:0.55});\n  // beaked face + crest\n  const beak=cone(0.08,0.22,gold,5);beak.rotation.x=Math.PI/2;beak.position.set(0,0.95,0.22);lg.add(beak);\n  const crest=cone(0.1,0.3,paint(C.red),5);crest.position.set(0,1.28,0);lg.add(crest);\n  // bat wings\n  const wings=[];\n  [-1,1].forEach(s=>{const w=new THREE.Group();w.position.set(s*0.34,0.7,-0.15);\n    const memb=box(0.7,0.5,0.05,wing);memb.position.set(s*0.4,0.1,0);memb.rotation.z=s*0.4;w.add(memb);\n    const finger=box(0.8,0.05,0.06,matte(0x4a2418));finger.position.set(s*0.42,0.32,0);finger.rotation.z=s*0.5;w.add(finger);\n    lg.add(w);wings.push(w);});\n  lg.userData.armR.rotation.x=-2.3;\n  const hammer=new THREE.Group();hammer.position.set(0,-0.62,0);\n  const hh=cyl(0.12,0.12,0.3,matte(C.woodDk),8);hh.rotation.z=Math.PI/2;hh.position.y=0.5;hammer.add(hh);\n  const hs=cyl(0.03,0.03,0.5,matte(C.woodDk),6);hs.position.y=0.25;hammer.add(hs);\n  lg.userData.armR.add(hammer);\n  plane.add(lg);\n  g.add(plane);\n  // lightning between the clouds\n  const cb1=jaggedBolt(1.1,4,0.045,C.volt,{period:1.3});cb1.position.set(-1.4,1.6,0.8);g.add(cb1);\n  const cb2=jaggedBolt(1.3,5,0.045,C.volt,{period:0.9});cb2.position.set(1.5,1.7,0.4);g.add(cb2);\n  g.add(contactShadow(4.0,3.6));\n  g.userData.tick=(t)=>{prop.rotation.z=t*14;plane.position.y=2.3+Math.sin(t*1.1)*0.08;plane.rotation.x=Math.sin(t*0.8)*0.03;\n    wings.forEach((w,i)=>w.rotation.z=Math.sin(t*3+i*Math.PI)*0.2);\n    clouds.children.forEach((c,i)=>c.position.y+=Math.sin(t*0.9+i)*0.0008);};\n  return g;\n}\n\n/* ============================================================\n   9 \u00b7 TROPHY TRUCK / THUNDERBIRD \u2014 feathered livery, wing tail\n   ============================================================ */\n  const model = buildLeiGong();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  LIBRARY["thunderbird"] = {
+    num: 9, name: "SKY PIERCER", god: "PLAINS NATIONS",
+    keywords: "thunderbird bird totem feather wing eagle sky native plains",
+    code: "function build(g, VG, THREE){\n  const {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,eye,glow,jaggedBolt,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,tomoeDecal,greekKey,contactShadow,figure} = VG;\nfunction buildThunderbird(){\n  const g=new THREE.Group();\n  const fr=paint(C.feathersR,{rough:0.45}),fb=paint(C.feathersB,{rough:0.45}),fy=paint(C.feathersY,{rough:0.45}),\n        dk=matte(C.darker),glass=GLASS_BLUE(),white=paint(C.white);\n  // trophy truck body mid-jump: nose up, rear suspension extended\n  const rig=new THREE.Group();rig.rotation.x=-0.16;rig.position.y=0.5;\n  const body=box(2.0,0.8,3.6,fb);body.position.set(0,1.5,0);rig.add(body);\n  const cabin=box(1.6,0.6,1.4,fb);cabin.position.set(0,2.1,-0.2);rig.add(cabin);\n  const wind=box(1.5,0.45,0.08,glass);wind.position.set(0,2.15,0.55);wind.rotation.x=-0.2;rig.add(wind);\n  // BEAK NOSE: yellow hooked prow\n  const beak=cone(0.5,1.0,fy,4);beak.rotation.x=Math.PI/2;beak.rotation.z=Math.PI/4;beak.scale.set(1,0.6,1);beak.position.set(0,1.45,2.2);rig.add(beak);\n  const beakHook=cone(0.2,0.4,fy,4);beakHook.rotation.x=Math.PI*0.8;beakHook.position.set(0,1.2,2.6);rig.add(beakHook);\n  // fierce eyes on the hood\n  [-1,1].forEach(s=>{const eyeP=decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#f4f5f7';\n      ctx.beginPath();ctx.moveTo(0,h*0.8);ctx.lineTo(w*0.9,h*0.1);ctx.lineTo(w,h*0.5);ctx.lineTo(w*0.2,h);ctx.closePath();ctx.fill();\n      ctx.fillStyle='#14171d';ctx.beginPath();ctx.arc(w*0.55,h*0.5,w*0.14,0,6.283);ctx.fill();},0.6,0.4);\n    eyeP.rotation.x=-Math.PI/2;eyeP.rotation.z=s>0?-0.5:0.5+Math.PI;eyeP.position.set(s*0.5,1.92,1.4);rig.add(eyeP);});\n  // feather chevrons layered along the flanks (red/yellow/blue)\n  [-1,1].forEach(s=>{for(let i=0;i<5;i++){const cols=[fr,fy,fb];const f=box(0.06,0.3,0.55,cols[i%3]);\n    f.position.set(s*1.02,1.6+((i%2)*0.2),1.1-i*0.55);f.rotation.x=0.5;rig.add(f);}});\n  // roof light pods\n  const bar=box(1.3,0.14,0.24,dk);bar.position.set(0,2.48,0.3);rig.add(bar);\n  for(let i=-2;i<=2;i++){const pod=cyl(0.08,0.08,0.08,emiss(0x9fd0ff,2.4),8);pod.rotation.x=Math.PI/2;pod.position.set(i*0.26,2.48,0.44);rig.add(pod);\n    const pg=glow(0x9fd0ff);pg.scale.set(0.3,0.3,1);pg.position.set(i*0.26,2.48,0.5);rig.add(pg);}\n  // big number 9 on the door\n  [-1,1].forEach(s=>{const n9=numDecal('9',0.7,null,'#f4f5f7');n9.position.set(s*1.03,1.6,0.15);n9.rotation.y=s*Math.PI/2;rig.add(n9);});\n  // TAIL = spread wing fan (red/yellow/blue feathers)\n  const tail=new THREE.Group();tail.position.set(0,1.9,-1.85);\n  const NT=9;\n  for(let i=0;i<NT;i++){const cols=[fr,fy,fb];const holder=new THREE.Group();\n    const a=(i/(NT-1)-0.5)*Math.PI*0.9;holder.rotation.z=-a;\n    const f=box(0.2,1.1,0.06,cols[i%3]);f.position.y=0.6;holder.add(f);\n    const tip=cone(0.1,0.24,cols[(i+1)%3],4);tip.position.y=1.2;holder.add(tip);\n    tail.add(holder);}\n  tail.rotation.x=-0.5;rig.add(tail);\n  // long-travel suspension arms (rear extended, mid-jump)\n  [-1,1].forEach(s=>{const arm=box(0.1,0.1,1.2,metalMat(0x6a7280));arm.position.set(s*0.7,0.85,-1.2);arm.rotation.x=0.5;rig.add(arm);\n    const shock=cyl(0.06,0.06,0.9,paint(C.feathersY),8);shock.position.set(s*0.85,1.1,-1.2);shock.rotation.x=0.3;rig.add(shock);});\n  g.add(rig);\n  // wheels: fronts tucked (airborne), rears dropped\n  const wf1=knobbyWheel(0.62,0.5,0xe6b52a);wf1.position.set(-1.05,1.35,1.35);g.add(wf1);\n  const wf2=knobbyWheel(0.62,0.5,0xe6b52a);wf2.position.set(1.05,1.35,1.35);g.add(wf2);\n  const wr1=knobbyWheel(0.62,0.5,0xe6b52a);wr1.position.set(-1.05,0.68,-1.5);g.add(wr1);\n  const wr2=knobbyWheel(0.62,0.5,0xe6b52a);wr2.position.set(1.05,0.68,-1.5);g.add(wr2);\n  // lightning under the airborne truck (it jumps ON the storm)\n  const tb1=jaggedBolt(1.2,5,0.05,C.volt,{period:0.8});tb1.position.set(0.7,0.9,0.3);g.add(tb1);\n  const tb2=jaggedBolt(1.0,4,0.05,C.volt,{period:1.2});tb2.position.set(-0.8,0.8,-0.6);g.add(tb2);\n  // dust puffs behind the rear wheels\n  [[-1.1],[1.1]].forEach(p=>{const puff=ico(0.4,1,matte(0x4a4438,{rough:1}));puff.position.set(p[0],0.35,-2.2);puff.scale.y=0.5;g.add(puff);});\n  g.add(contactShadow(3.4,4.6));\n  g.userData.tick=(t)=>{rig.position.y=0.5+Math.sin(t*1.3)*0.06;rig.rotation.x=-0.16+Math.sin(t*1.3)*0.02;\n    tail.children.forEach((h,i)=>h.rotation.x=Math.sin(t*2+i*0.4)*0.04);\n    [wf1,wf2].forEach(w=>w.rotation.x=t*3);[wr1,wr2].forEach(w=>w.rotation.x=t*5);};\n  return g;\n}\n  const model = buildThunderbird();\n  g.add(model);\n  g.userData.tick = model.userData.tick;\n}"
+  };
+  function pick(prompt) {              // nearest golden by keyword overlap; default thor
+    const words = String(prompt||'').toLowerCase().match(/[a-z]+/g) || [];
+    let best = 'thor', bestScore = -1;
+    for (const id in LIBRARY) {
+      const kw = LIBRARY[id].keywords;
+      let s = 0;
+      for (const w of words) if (w.length > 2 && kw.indexOf(w) >= 0) s++;
+      if (s > bestScore) { bestScore = s; best = id; }
+    }
+    return { id: best, score: bestScore, entry: LIBRARY[best] };
+  }
+  return { LIBRARY, pick };
+});
+
+/* ═══ @module GG v1.0 · the GAME toolkit · deps: none (host injected) ═══
+   What VG is to rigs, GG is to games. The Forge's `mode` entry writes against
+   this surface:  function mode(GG, THREE){ return {id,label,enter,tick,exit} }
+   One core, two hosts: the playable artifact injects a real host (bodies,
+   meshes, HUD); the conformance test injects a headless host and proves whole
+   games in Node. Ceilings are named; feedback verbs are first-class; nothing
+   here is a schema — the model designs by WRITING RULES, not filling forms.  */
+(function (root, factory) {
+  const mod = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = mod;
+  else root.GGKIT = mod;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ── ceilings (POW10, enforced at growth sites) ─────────────────────────────
+  const DRONE_MAX = 12, ZONE_MAX = 16, SCHED_MAX = 32, STRUCT_MAX = 48, TAG_MAX = 64;
+
+  /* HOST CONTRACT — everything world-touching goes through it:
+     arena:{HW,HL}
+     addStructure({x,z,w,h,d,y,c})→{id,dims,remove}   (collidable)
+     addRing({x,z,r,c})→{id,remove}                    (visual circle, no collide)
+     addZoneVisual({x,z,r,c})→{id,setActive(b),remove}
+     spawnDroneBody({x,z,hue,rig})→{id,pos:{x,y,z},vel:{x,z},yaw,remove()}
+     ballBody()→{pos,vel,active,reset(x,z)} | null
+     player:{pos,vel,yaw,speed(),boost(s),stun(s)}
+     input()→{x,y,boost,fire,jump}
+     fx:{spark(pos,hex,n),shake(n),flash(hex),banner(txt),hud(a,b),label(droneId,txt)}
+     onWin(txt)  — host ends the mode (exit runs there)
+     rand()      — host-seeded PRNG for determinism per mode instance          */
+  function makeGG(host) {
+    const S = {
+      drones: [], zones: [], sched: [], structs: [],
+      scores: Object.create(null), tags: Object.create(null),
+      t: 0, won: false, timer: null,   // timer: {left, cb}
+    };
+    const dist2 = (a, b) => { const dx = a.x - b.x, dz = (a.z ?? 0) - (b.z ?? 0); return dx * dx + dz * dz; };
+
+    const GG = {
+      // ── world ──
+      arena: { HW: host.arena.HW, HL: host.arena.HL },
+      structure(d) {
+        if (S.structs.length >= STRUCT_MAX) return null;
+        const h = host.addStructure(d); if (h) S.structs.push(h); return h;
+      },
+      ring(x, z, r, c) { const h = host.addRing({ x, z, r, c }); if (h) S.structs.push(h); return h; },
+      clearWorld() { S.structs.forEach(s => s.remove && s.remove()); S.structs.length = 0; },
+
+      // ── entities ──
+      player: host.player,
+      spawnDrone(opts) {
+        if (S.drones.length >= DRONE_MAX) return null;
+        const body = host.spawnDroneBody(opts || {});
+        const d = { id: body.id, pos: body.pos, vel: body.vel,
+          get yaw() { return body.yaw; }, set yaw(v) { body.yaw = v; },
+          hue: (opts && opts.hue) || 0x19e6c8,
+          brain: (opts && opts.brain) || null,
+          drive(dx, dz, thrust) { body.drive(dx, dz, thrust); },
+          label(t) { host.fx.label(body.id, t); },
+          remove() { body.remove(); const i = S.drones.indexOf(d); if (i >= 0) S.drones.splice(i, 1); } };
+        S.drones.push(d); return d;
+      },
+      drones: () => S.drones.slice(),
+      ball() { return host.ballBody(); },
+
+      // ── rules & feedback (the verbs that make it a GAME) ──
+      score(key, delta) { S.scores[key] = (S.scores[key] || 0) + (delta == null ? 1 : delta); return S.scores[key]; },
+      scores: () => Object.assign({}, S.scores),
+      hud(a, b) { host.fx.hud(a, b); },
+      banner(t) { host.fx.banner(t); },
+      win(t) { if (S.won) return; S.won = true; host.onWin(t); },
+      isWon: () => S.won,
+      countdown(sec, onExpire) { S.timer = { left: sec, cb: onExpire || null }; },
+      timeLeft: () => S.timer ? Math.max(0, S.timer.left) : null,
+      after(sec, cb) { if (S.sched.length < SCHED_MAX) S.sched.push({ at: S.t + sec, cb, every: 0 }); },
+      every(sec, cb) { if (S.sched.length < SCHED_MAX) S.sched.push({ at: S.t + sec, cb, every: sec }); },
+      zone(z) { // {x,z,r,c?,onEnter(who),onLeave?(who),once?}
+        if (S.zones.length >= ZONE_MAX) return null;
+        const vis = host.addZoneVisual({ x: z.x, z: z.z, r: z.r, c: z.c || 0x19e6c8 });
+        const rec = { ...z, vis, inside: new Set(), dead: false,
+          remove() { rec.dead = true; vis && vis.remove(); } };
+        S.zones.push(rec); return rec;
+      },
+      tag(k, v) { if (Object.keys(S.tags).length < TAG_MAX || k in S.tags) S.tags[k] = v; return v; },
+      tagged(k) { return S.tags[k]; },
+
+      // ── queries ──
+      dist(a, b) { return Math.sqrt(dist2(a.pos || a, b.pos || b)); },
+      near(pos, r, kind) {
+        const p = pos.pos || pos, r2 = r * r, out = [];
+        if (kind !== 'drones' && dist2(p, host.player.pos) <= r2) out.push(host.player);
+        if (kind !== 'player') for (const d of S.drones) if (dist2(p, d.pos) <= r2) out.push(d);
+        return out;
+      },
+      rand: host.rand, pick(arr) { return arr[(host.rand() * arr.length) | 0]; },
+
+      // ── feel ──
+      spark(pos, hex, n) { host.fx.spark(pos.pos || pos, hex, n || 8); },
+      shake(n) { host.fx.shake(n || 1); },
+      flash(hex) { host.fx.flash(hex); },
+      input: () => host.input(),
+
+      // ── engine step (host calls; not for mode code) ──
+      __update(dt) {
+        S.t += dt;
+        if (S.timer) { S.timer.left -= dt;
+          if (S.timer.left <= 0) { const cb = S.timer.cb; S.timer = null; if (cb) try { cb(); } catch (_) {} } }
+        for (let i = S.sched.length - 1; i >= 0; i--) { const s = S.sched[i];
+          if (S.t >= s.at) { try { s.cb(); } catch (_) {}
+            if (s.every > 0) s.at = S.t + s.every; else S.sched.splice(i, 1); } }
+        for (const d of S.drones) if (d.brain) { try { d.brain(d, GG, dt); } catch (_) {} }
+        const actors = [host.player, ...S.drones];
+        for (const z of S.zones) { if (z.dead) continue;
+          for (const a of actors) { const inside = dist2(a.pos, z) <= z.r * z.r;
+            const was = z.inside.has(a);
+            if (inside && !was) { z.inside.add(a);
+              let accepted = true;
+              if (z.onEnter) try { accepted = z.onEnter(a) !== false; } catch (_) {}
+              if (z.once && accepted) { z.remove(); break; } }
+            else if (!inside && was) { z.inside.delete(a);
+              if (z.onLeave) try { z.onLeave(a); } catch (_) {} } } }
+      },
+      __teardown() { S.drones.slice().forEach(d => d.remove());
+        S.zones.forEach(z => z.remove()); S.zones.length = 0;
+        GG.clearWorld(); S.sched.length = 0; S.timer = null; },
+      __ceilings: { DRONE_MAX, ZONE_MAX, SCHED_MAX, STRUCT_MAX },
+    };
+    return GG;
+  }
+
+  // Mode-object validator — the Forge's `validate` for entry:'mode'
+  function validateMode(v) {
+    if (!v || typeof v !== 'object') return { ok: false, err: 'mode() must return an object' };
+    for (const k of ['enter', 'tick']) if (typeof v[k] !== 'function')
+      return { ok: false, err: 'mode object missing function "' + k + '"' };
+    if (typeof v.id !== 'string' || !v.id) return { ok: false, err: 'mode object needs a string id' };
+    return { ok: true };
+  }
+
+  return { makeGG, validateMode };
+});
+
+
+/* ═══ @module GOLDEN_GAMES v1.0 · deps: none ═══
+   Whole games in the Forge's `mode` entry form. Each is simultaneously:
+   the deterministic fallback, the few-shot example a model studies, and the
+   living proof that GG carries real design — verbs, stakes, resistance —
+   not schema-shaped noun-filling.                                          */
+(function (root, factory) {
+  const mod = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = mod;
+  else root.GOLDEN_GAMES = mod;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  const GAMES = {};
+
+  GAMES['sumo'] = { name: 'THUNDER SUMO', keywords: 'sumo push ring shove out arena wrestle bump knockout ko',
+  code: `function mode(GG, THREE){
+  const R = 14;                       // the ring is the whole law
+  let meKO = 0, themKO = 0, drones = [];
+  function spawnRivals(){
+    drones.forEach(d=>d.remove()); drones = [];
+    for(let i=0;i<3;i++){
+      const a = i/3*Math.PI*2 + 0.5;
+      const d = GG.spawnDrone({ x: Math.cos(a)*R*0.55, z: Math.sin(a)*R*0.55,
+        hue: [0xff2e2e,0xffd23f,0x3b82f6][i], rig: ['raijin','shango','perun'][i],
+        brain(self, GG, dt){
+          // shove the nearest body toward the edge; recover toward centre when outside
+          const out = Math.hypot(self.pos.x, self.pos.z) > R - 1;
+          if(out){ self.drive(-self.pos.x, -self.pos.z, 0.6); return; }
+          const p = GG.player.pos;
+          const rivals = GG.drones().filter(o=>o!==self);
+          let tgt = p, best = GG.dist(self, GG.player);
+          for(const o of rivals){ const dd = GG.dist(self, o); if(dd < best){ best = dd; tgt = o.pos; } }
+          self.drive(tgt.x - self.pos.x, tgt.z - self.pos.z, best < 4 ? 1.0 : 0.75);
+        }});
+      d.label('RIVAL '+(i+1)); drones.push(d);
+    }
+  }
+  return { id:'sumo', label:'THUNDER SUMO',
+    enter(){
+      GG.clearWorld();
+      GG.ring(0, 0, R, 0x19e6c8);
+      GG.structure({ x:0, z:0, w:2.2, h:0.6, d:2.2, c:0x14171d });   // centre altar to bounce fights around
+      GG.hud('THUNDER SUMO', 'push rivals out · fall out and they score');
+      GG.banner('FIRST TO 3 KNOCKOUTS');
+      spawnRivals();
+      GG.every(0.5, ()=>{                                     // the referee is a rule, not a mesh
+        for(const d of GG.drones()){
+          if(Math.hypot(d.pos.x, d.pos.z) > R + 1.2){
+            meKO = GG.score('YOU', 1); GG.spark(d.pos, 0xffd23f, 20); GG.shake(1.4);
+            GG.banner('KNOCKOUT '+meKO+'/3'); d.remove();
+            GG.after(1.2, ()=>{ if(GG.drones().length < 3 && !GG.isWon()) spawnRivals(); });
+          }
+        }
+        const p = GG.player.pos;
+        if(Math.hypot(p.x, p.z) > R + 1.2){
+          themKO = GG.score('RIVALS', 1); GG.flash(0xff2e2e); GG.shake(2);
+          GG.banner('YOU FELL OUT · '+themKO+'/3'); GG.player.stun(0.8);
+          GG.player.pos.x = 0; GG.player.pos.z = 0;
+        }
+        GG.hud('YOU '+meKO+'  ·  RIVALS '+themKO, 'stay inside the teal ring');
+        if(meKO >= 3) GG.win('YOU TAKE THE RING');
+        if(themKO >= 3) GG.win('THE RING TAKES YOU');
+      });
+    },
+    tick(dt, t){},
+    exit(){ drones.forEach(d=>d.remove()); GG.clearWorld(); }
+  };
+}` };
+
+  GAMES['volt'] = { name: 'VOLT HARVEST', keywords: 'volt harvest collect pylon energy timer race gather glow interceptor chase',
+  code: `function mode(GG, THREE){
+  const PYLONS = 7, LIMIT = 60;
+  let got = 0, zones = [];
+  function pylonAt(x, z){
+    const s = GG.structure({ x, z, w:0.8, h:2.6, d:0.8, c:0x7fd0ff });
+    const zn = GG.zone({ x, z, r: 2.2, c: 0x7fd0ff, once: true,
+      onEnter(who){
+        if(who !== GG.player) return false;      // interceptors guard; only YOU harvest — zone survives them
+        got = GG.score('VOLTS', 1);
+        GG.spark({x, z, y:1.5}, 0x7fd0ff, 24); GG.flash(0x19e6c8);
+        s && s.remove && s.remove();
+        GG.hud('VOLTS '+got+'/'+PYLONS, Math.ceil(GG.timeLeft())+'s');
+        if(got >= PYLONS) GG.win('GRID RESTORED · '+Math.ceil(GG.timeLeft())+'s SPARE');
+      }});
+    zones.push(zn);
+  }
+  return { id:'volt', label:'VOLT HARVEST',
+    enter(){
+      GG.clearWorld();
+      // a broken sub-station: cover to weave, pylons to take
+      for(let i=0;i<10;i++){
+        const a = i/10*Math.PI*2, r = 10 + (i%3)*6;
+        GG.structure({ x: Math.cos(a)*r, z: Math.sin(a)*r,
+          w: 2+ (i%2)*2.5, h: 2 + (i%4), d: 2 + ((i+1)%2)*2.5, c: 0x24282f });
+      }
+      for(let i=0;i<PYLONS;i++){
+        const a = i/PYLONS*Math.PI*2 + 0.35, r = 8 + (i%3)*7;
+        pylonAt(Math.cos(a)*r, Math.sin(a)*r);
+      }
+      for(let i=0;i<2;i++){
+        GG.spawnDrone({ x: i? -20:20, z: i? 16:-16, hue: 0xff2e2e, rig: 'leigong',
+          brain(self, GG, dt){
+            const d = GG.dist(self, GG.player);
+            if(d < 14){ self.drive(GG.player.pos.x - self.pos.x, GG.player.pos.z - self.pos.z, 1); // hunt
+              if(d < 2.4){ GG.player.stun(0.7); GG.shake(2); GG.flash(0xff2e2e);
+                if(got > 0){ got = GG.score('VOLTS', -1); GG.banner('VOLT STOLEN'); } } }
+            else self.drive(Math.sin(self.pos.z*0.1), Math.cos(self.pos.x*0.1), 0.5);   // patrol drift
+          }}).label('INTERCEPTOR');
+      }
+      GG.countdown(LIMIT, ()=>{ if(!GG.isWon()) GG.win('BLACKOUT · '+got+'/'+PYLONS+' VOLTS'); });
+      GG.hud('VOLTS 0/'+PYLONS, LIMIT+'s');
+      GG.banner('HARVEST THE VOLT PYLONS');
+      GG.every(1, ()=> GG.hud('VOLTS '+got+'/'+PYLONS, Math.ceil(GG.timeLeft()||0)+'s'));
+    },
+    tick(dt, t){},
+    exit(){ zones.forEach(z=>z && z.remove && z.remove()); GG.clearWorld(); }
+  };
+}` };
+
+  function pick(prompt) {
+    const words = String(prompt || '').toLowerCase().match(/[a-z]+/g) || [];
+    let best = 'sumo', bestScore = -1;
+    for (const id in GAMES) {
+      let s = 0; for (const w of words) if (w.length > 2 && GAMES[id].keywords.indexOf(w) >= 0) s++;
+      if (s > bestScore) { bestScore = s; best = id; }
+    }
+    return { id: best, score: bestScore, entry: GAMES[best] };
+  }
+  return { GAMES, pick };
+});
+
+
+/* ═══ @module VG v1.1 · the full quality toolkit (verbatim garage helpers, parameterized) ═══
+   Superset of the game's VG v1.0. Every helper the nine goldens use.               */
+function makeVG(THREE, envMap){
+  const C={
+    volt:0x7fd0ff, voltDeep:0x2a6ad0, gold:0xd8a83a, goldDk:0xa87a22, white:0xf4f5f7, cream:0xe8dcc0,
+    iron:0x3a4049, ironDk:0x24282f, black:0x14171d, darker:0x0a0c10, steel:0x9aa3b0, chrome:0xd0d6de,
+    red:0xc0392b, redDk:0x7e231c, crimson:0x8a2a3a, oni:0xb03a2a, jade:0x3a8a72, jadeDk:0x25604e,
+    teal:0x19e6c8, blue:0x2a4bd0, royal:0x1e3a8a, skin:0xd8a878, skinDk:0xa87a52, beard:0xc9b89a, beardW:0xe8e2d4,
+    wood:0x6a4a2a, woodDk:0x4a3420, drum:0x8a3a2a, grey:0x8a929c, tan:0xc9a96a, elephant:0x6a7078, elephantDk:0x4a5058,
+    feathersR:0xc0392b, feathersB:0x2a4bd0, feathersY:0xe6b52a
+  };
+  function paint(hex,o){o=o||{};return new THREE.MeshPhysicalMaterial({color:hex,
+    roughness:o.rough!==undefined?o.rough:0.48,metalness:o.metal!==undefined?o.metal:0.15,
+    flatShading:o.flat!==undefined?o.flat:true,envMap:envMap,envMapIntensity:0.8,clearcoat:o.cc!==undefined?o.cc:0.35,clearcoatRoughness:0.4});}
+  function matte(hex,o){o=o||{};return new THREE.MeshStandardMaterial({color:hex,
+    roughness:o.rough!==undefined?o.rough:0.85,metalness:o.metal!==undefined?o.metal:0,flatShading:true,envMap:envMap,envMapIntensity:0.4});}
+  function metalMat(hex,o){o=o||{};return new THREE.MeshStandardMaterial({color:hex,
+    roughness:o.rough!==undefined?o.rough:0.3,metalness:0.92,flatShading:true,envMap:envMap,envMapIntensity:1.15});}
+  function goldMat(){return metalMat(C.gold,{rough:0.32});}
+  function emiss(color,i){return new THREE.MeshStandardMaterial({color:0xffffff,emissive:color,emissiveIntensity:i||2,roughness:0.3});}
+  function makeGlass(tint,op){
+    const m=new THREE.MeshPhysicalMaterial({color:tint,metalness:0,roughness:0.06,transparent:true,opacity:op,
+      envMap:envMap,envMapIntensity:1.35,clearcoat:1,clearcoatRoughness:0.08,reflectivity:0.5,side:THREE.DoubleSide,depthWrite:false});
+    m.onBeforeCompile=(sh)=>{sh.uniforms.uRim={value:new THREE.Color(0xbfd2e8)};
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 uRim;')
+        .replace('#include <opaque_fragment>','float fres=pow(1.0-clamp(dot(normalize(vViewPosition),normal),0.0,1.0),3.0);\noutgoingLight+=uRim*fres*0.9;\ndiffuseColor.a=clamp(diffuseColor.a+fres*0.5,0.0,0.95);\n#include <opaque_fragment>');}
+    return m;}
+  const GLASS_BLUE=()=>makeGlass(0x2a4866,0.44);
+  function box(w,h,d,m){return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);}
+  function cyl(rt,rb,h,m,rad){return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,rad||12),m);}
+  function cone(r,h,m,rad){return new THREE.Mesh(new THREE.ConeGeometry(r,h,rad||8),m);}
+  function sphere(r,m,wf,hf){return new THREE.Mesh(new THREE.SphereGeometry(r,wf||12,hf||9),m);}
+  function ico(r,d,m){return new THREE.Mesh(new THREE.IcosahedronGeometry(r,d||1),m);}
+  function torus(r,t,m,arc){return new THREE.Mesh(new THREE.TorusGeometry(r,t,8,18,arc||Math.PI*2),m);}
+  function eye(r){r=r||0.06;const g=new THREE.Group();
+    const b=sphere(r,new THREE.MeshStandardMaterial({color:0x070a0d,roughness:0.12,metalness:0.2,envMap:envMap,envMapIntensity:1.1}),8,7);g.add(b);
+    const hi=sphere(r*0.32,new THREE.MeshBasicMaterial({color:0xffffff}),5,4);hi.position.set(r*0.34,r*0.34,r*0.55);g.add(hi);return g;}
+  let _gt=null;function glowTex(){if(_gt)return _gt;const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');
+    const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(0.4,'rgba(255,255,255,0.45)');g.addColorStop(1,'rgba(255,255,255,0)');
+    x.fillStyle=g;x.fillRect(0,0,64,64);_gt=new THREE.CanvasTexture(cv);return _gt;}
+  function glow(c){return new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(),color:c,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));}
+  const BOLTS=[];
+  function jaggedBolt(len,segs,thick,color,opts){opts=opts||{};
+    const g=new THREE.Group();
+    const m=emiss(color||C.volt,3.2);
+    const parts=[];
+    for(let i=0;i<segs;i++){const b=box(thick,thick,1,m);g.add(b);parts.push(b);}
+    const cap=glow(color||C.volt);cap.scale.set(thick*10,thick*10,1);g.add(cap);
+    function strike(){
+      let p=new THREE.Vector3(0,0,0);
+      let dir=new THREE.Vector3(0,-1,0);
+      const step=len/segs;
+      for(let i=0;i<segs;i++){
+        const jit=new THREE.Vector3((Math.random()-0.5)*step*1.4,0,(Math.random()-0.5)*step*1.4);
+        const q=p.clone().add(dir.clone().multiplyScalar(step)).add(jit);
+        const mid=p.clone().add(q).multiplyScalar(0.5);
+        const d=q.clone().sub(p);
+        parts[i].position.copy(mid);
+        parts[i].scale.z=d.length();
+        parts[i].quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d.clone().normalize());
+        p=q;
+      }
+      cap.position.copy(p);
+    }
+    strike();
+    g.userData.strike=strike;
+    g.userData.phase=Math.random()*10;
+    g.userData.period=opts.period||(1.2+Math.random()*1.6);
+    g.userData.duty=opts.duty||0.22;
+    BOLTS.push(g);
+    return g;}
+  function tickBolts(t){
+    BOLTS.forEach(b=>{
+      const local=(t+b.userData.phase)%b.userData.period;
+      const on=local<b.userData.period*b.userData.duty;
+      if(on && !b.visible){b.userData.strike();}
+      b.visible=on;
+    });}
+  function knobbyWheel(r,w,hubHex){const g=new THREE.Group();
+    const t=cyl(r,r,w,matte(0x101216,{rough:0.95}),12);t.rotation.z=Math.PI/2;t.castShadow=true;g.add(t);
+    for(let i=0;i<8;i++){const a=i/8*Math.PI*2;const knob=box(w*1.04,r*0.24,r*0.3,matte(0x1a1d22,{rough:0.95}));
+      knob.position.set(0,Math.cos(a)*r*0.95,Math.sin(a)*r*0.95);knob.rotation.x=-a;g.add(knob);}
+    const hub=cyl(r*0.5,r*0.5,w+0.03,metalMat(hubHex||C.steel),8);hub.rotation.z=Math.PI/2;g.add(hub);
+    return g;}
+  function slickWheel(r,w,hubHex){const g=new THREE.Group();
+    const t=cyl(r,r,w,matte(0x0f1115,{rough:0.9}),14);t.rotation.z=Math.PI/2;t.castShadow=true;g.add(t);
+    const hub=cyl(r*0.55,r*0.55,w+0.02,metalMat(hubHex||C.chrome),8);hub.rotation.z=Math.PI/2;g.add(hub);return g;}
+  function decalCanvas(draw,w,h){w=w||128;h=h||128;const cv=document.createElement('canvas');cv.width=w;cv.height=h;draw(cv.getContext('2d'),w,h);
+    const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;return tx;}
+  function decalPlane(drawFn,w,h){const tx=decalCanvas(drawFn,Math.round(w*160),Math.round(h*160));
+    return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tx,roughness:0.5,metalness:0.05,envMap:envMap,envMapIntensity:0.3,transparent:true}));}
+  function boltDecal(size,color){return decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle=color||'#7fd0ff';
+    ctx.beginPath();ctx.moveTo(w*0.58,h*0.05);ctx.lineTo(w*0.30,h*0.55);ctx.lineTo(w*0.48,h*0.55);ctx.lineTo(w*0.40,h*0.95);
+    ctx.lineTo(w*0.72,h*0.42);ctx.lineTo(w*0.54,h*0.42);ctx.closePath();ctx.fill();},size,size);}
+  function numDecal(num,size,bg,fg){return decalPlane((ctx,w,h)=>{if(bg){ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);}else ctx.clearRect(0,0,w,h);
+    ctx.fillStyle=fg||'#f4f5f7';ctx.font='bold '+Math.round(h*0.8)+'px "Arial Narrow",Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(num,w/2,h*0.55);},size,size);}
+  function runeDecal(size){return decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.strokeStyle='#7fd0ff';ctx.lineWidth=w*0.07;ctx.lineCap='square';
+    ctx.beginPath();ctx.moveTo(w*0.62,h*0.1);ctx.lineTo(w*0.38,h*0.42);ctx.lineTo(w*0.62,h*0.58);ctx.lineTo(w*0.38,h*0.9);ctx.stroke();},size,size);}
+  function tomoeDecal(size){return decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#e8dcc0';
+    ctx.beginPath();ctx.arc(w/2,h/2,w*0.44,0,6.283);ctx.fill();ctx.fillStyle='#8a2a1a';
+    for(let i=0;i<3;i++){const a=i*Math.PI*2/3;const cx=w/2+Math.cos(a)*w*0.16,cyy=h/2+Math.sin(a)*w*0.16;
+      ctx.beginPath();ctx.arc(cx,cyy,w*0.13,0,6.283);ctx.fill();
+      ctx.beginPath();ctx.arc(w/2+Math.cos(a+0.7)*w*0.26,h/2+Math.sin(a+0.7)*w*0.26,w*0.07,0,6.283);ctx.fill();}},size,size);}
+  function greekKey(wid,hei){return decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.strokeStyle='#a87a22';ctx.lineWidth=h*0.14;
+    const u=h*0.7;let x=h*0.2;ctx.beginPath();
+    while(x<w-u){ctx.moveTo(x,h*0.8);ctx.lineTo(x,h*0.2);ctx.lineTo(x+u*0.6,h*0.2);ctx.lineTo(x+u*0.6,h*0.55);ctx.lineTo(x+u*0.25,h*0.55);x+=u;}
+    ctx.stroke();},wid,hei);}
+  let _ct=null;function contactTex(){if(_ct)return _ct;const cv=document.createElement('canvas');cv.width=cv.height=128;const x=cv.getContext('2d');
+    const g=x.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(0,0,0,0.55)');g.addColorStop(0.6,'rgba(0,0,0,0.25)');g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g;x.fillRect(0,0,128,128);_ct=new THREE.CanvasTexture(cv);return _ct;}
+  function contactShadow(w,d){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:contactTex(),transparent:true,depthWrite:false}));
+    m.rotation.x=-Math.PI/2;m.position.y=0.02;return m;}
+  function figure(skinHex,torsoM,o){o=o||{};const g=new THREE.Group();
+    const skin=paint(skinHex,{rough:0.65,metal:0.05});
+    const torso=box(o.tw||0.6,o.th||0.7,o.td||0.4,torsoM);torso.position.y=0.35;g.add(torso);
+    const head=box(0.34,0.36,0.32,skin);head.position.y=0.95;g.add(head);
+    g.userData.head=head;
+    const armL=new THREE.Group();armL.position.set(-(o.tw||0.6)/2-0.08,0.6,0);
+    const armR=new THREE.Group();armR.position.set((o.tw||0.6)/2+0.08,0.6,0);
+    [armL,armR].forEach(a=>{const up=box(0.16,0.5,0.16,torsoM);up.position.y=-0.2;a.add(up);
+      const hand=box(0.14,0.14,0.14,skin);hand.position.y=-0.5;a.add(hand);g.add(a);});
+    g.userData.armL=armL;g.userData.armR=armR;
+    return g;}
+  return {C,paint,matte,metalMat,goldMat,emiss,makeGlass,GLASS_BLUE,box,cyl,cone,sphere,ico,torus,
+    eye,glow,jaggedBolt,tickBolts,knobbyWheel,slickWheel,decalPlane,boltDecal,numDecal,runeDecal,
+    tomoeDecal,greekKey,contactShadow,figure};
+}
+
+
+
+/* ═══ SCENE — garage-grade: ACES · shadows · environment · key+rim ═══ */
+const canvas=document.getElementById('gl');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x000000); scene.fog=new THREE.Fog(0x000000,26,64);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,200);
+function buildEnvMap(){
+  const es=new THREE.Scene();
+  es.add(new THREE.Mesh(new THREE.SphereGeometry(50,24,12),new THREE.ShaderMaterial({side:THREE.BackSide,
+    uniforms:{top:{value:new THREE.Color(0x2c3a5c)},bot:{value:new THREE.Color(0x090a0e)}},
+    vertexShader:`varying vec3 vP; void main(){vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec3 vP; uniform vec3 top; uniform vec3 bot; void main(){float h=clamp(normalize(vP).y*0.5+0.5,0.,1.); gl_FragColor=vec4(mix(bot,top,h),1.);}`})));
+  const lm=new THREE.MeshBasicMaterial({color:0xeaf2ff});
+  for(let i=-2;i<=2;i++){const s=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.4,30),lm);s.position.set(i*8,22,0);es.add(s);}
+  const cm=new THREE.MeshBasicMaterial({color:0x7fd0ff});
+  [[-18,8,-10],[18,6,12]].forEach(p=>{const pn=new THREE.Mesh(new THREE.BoxGeometry(14,8,0.5),cm);pn.position.set(p[0],p[1],p[2]);es.add(pn);});
+  const pm=new THREE.PMREMGenerator(renderer); const rt=pm.fromScene(es,0.04); pm.dispose(); return rt.texture;
+}
+const envMap=buildEnvMap(); scene.environment=envMap;
+scene.add(new THREE.HemisphereLight(0x8ea6cc,0x12141c,0.42));
+scene.add(new THREE.AmbientLight(0xffffff,0.22));
+const key=new THREE.DirectionalLight(0xffffff,1.45); key.position.set(9,19,11); key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+{const d=14,c=key.shadow.camera;c.left=-d;c.right=d;c.top=d;c.bottom=-d;c.near=1;c.far=66;key.shadow.bias=-0.0004;key.shadow.normalBias=0.02;}
+scene.add(key);
+const rim=new THREE.DirectionalLight(0x7fd0ff,0.55); rim.position.set(-11,9,-9); scene.add(rim);
+const VG=makeVG(THREE, envMap);
+const floor=new THREE.Mesh(new THREE.BoxGeometry(90,0.1,90),
+  new THREE.MeshStandardMaterial({color:0x0c0f14,roughness:0.6,metalness:0.3,envMap,envMapIntensity:0.55}));
+floor.position.y=-0.06; floor.receiveShadow=true; scene.add(floor);
+
+
+
+/* ═══ CAMERA CONTROLLER (drag orbit · wheel/pinch zoom) ═══ */
+let azim=0.7, polar=1.15, radius=9.5, radiusGoal=9.5;
+const target=new THREE.Vector3(0,1.6,0);
+const minPolar=0.35, maxPolar=1.5, minR=4.5, maxR=22;
+function applyCam(){const sp=Math.sin(polar),cp=Math.cos(polar);
+  camera.position.set(target.x+radius*sp*Math.sin(azim),target.y+radius*cp,target.z+radius*sp*Math.cos(azim));
+  camera.lookAt(target);}
+let dragging=false,px=0,py=0,pinchD=0;
+canvas.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointerup',()=>dragging=false);
+canvas.addEventListener('pointerleave',()=>dragging=false);
+canvas.addEventListener('pointermove',e=>{if(!dragging)return;
+  azim-=(e.clientX-px)*0.005;polar=Math.min(maxPolar,Math.max(minPolar,polar-(e.clientY-py)*0.005));px=e.clientX;py=e.clientY;});
+canvas.addEventListener('wheel',e=>{e.preventDefault();radiusGoal=Math.min(maxR,Math.max(minR,radiusGoal+e.deltaY*0.016));},{passive:false});
+canvas.addEventListener('touchmove',e=>{if(e.touches.length===2){const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,d=Math.hypot(dx,dy);
+  if(pinchD)radiusGoal=Math.min(maxR,Math.max(minR,radiusGoal+(pinchD-d)*0.05));pinchD=d;e.preventDefault();}},{passive:false});
+canvas.addEventListener('touchend',()=>pinchD=0);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+
+
+/* ═══ @module ENGINE-LITE v1.0 · fixed step · bodies · collisions ═══ */
+const ARENA = { HW: 40, HL: 40 };
+const DT_FIXED = 1/60, MAX_SUBSTEPS = 5, PANIC_S = 0.25;
+const walls = new THREE.Mesh(new THREE.BoxGeometry(ARENA.HW*2, 0.02, ARENA.HL*2),
+  new THREE.MeshBasicMaterial({visible:false})); scene.add(walls);
+{ const grid = new THREE.GridHelper(ARENA.HW*2, 20, 0x2a2f36, 0x14171d); grid.position.y = 0.01; scene.add(grid);
+  const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(ARENA.HW*2,0.02,ARENA.HL*2)),
+    new THREE.LineBasicMaterial({color:0x3a4049})); edge.position.y=0.02; scene.add(edge); }
+
+function makeBody(x,z,r){ return { pos:{x,y:0,z}, vel:{x:0,z:0}, yaw:0, r, want:{x:0,z:0,thrust:0}, stunT:0 }; }
+const playerBody = makeBody(0, 6, 1.1);
+playerBody.boostT = 0; playerBody.speed = () => playerBody.boostT>0 ? 14 : 8.5;
+playerBody.boost = (s)=>{ playerBody.boostT = Math.max(playerBody.boostT, s||1.2); };
+playerBody.stun = (s)=>{ playerBody.stunT = Math.max(playerBody.stunT, s||0.6); };
+
+const STRUCTS = [];   // {x,z,w,d,h,y,mesh,remove}
+function collideStructs(b){
+  for(const s of STRUCTS){
+    const hw=s.w/2 + b.r, hd=s.d/2 + b.r;
+    const dx=b.pos.x - s.x, dz=b.pos.z - s.z;
+    if(Math.abs(dx)<hw && Math.abs(dz)<hd && (s.h||1) > 0.4){
+      const px = hw - Math.abs(dx), pz = hd - Math.abs(dz);
+      if(px < pz){ b.pos.x = s.x + Math.sign(dx||1)*hw; b.vel.x *= -0.25; }
+      else       { b.pos.z = s.z + Math.sign(dz||1)*hd; b.vel.z *= -0.25; }
+    }
+  }
+}
+function collideWalls(b){
+  if(b.pos.x >  ARENA.HW-b.r){ b.pos.x =  ARENA.HW-b.r; b.vel.x *= -0.35; }
+  if(b.pos.x < -ARENA.HW+b.r){ b.pos.x = -ARENA.HW+b.r; b.vel.x *= -0.35; }
+  if(b.pos.z >  ARENA.HL-b.r){ b.pos.z =  ARENA.HL-b.r; b.vel.z *= -0.35; }
+  if(b.pos.z < -ARENA.HL+b.r){ b.pos.z = -ARENA.HL+b.r; b.vel.z *= -0.35; }
+}
+function collidePair(a,b){
+  const dx=b.pos.x-a.pos.x, dz=b.pos.z-a.pos.z, d=Math.hypot(dx,dz)||0.001, min=a.r+b.r;
+  if(d>=min) return;
+  const nx=dx/d, nz=dz/d, push=(min-d)/2;
+  a.pos.x-=nx*push; a.pos.z-=nz*push; b.pos.x+=nx*push; b.pos.z+=nz*push;
+  const rvx=b.vel.x-a.vel.x, rvz=b.vel.z-a.vel.z, rel=rvx*nx+rvz*nz;
+  if(rel<0){ const j=-rel*0.9; a.vel.x-=nx*j; a.vel.z-=nz*j; b.vel.x+=nx*j; b.vel.z+=nz*j; }
+}
+function stepBody(b, dt, maxSpeed){
+  if(b.stunT>0){ b.stunT-=dt; b.want.thrust=0; }
+  if(b.boostT!==undefined && b.boostT>0) b.boostT-=dt;
+  const wl=Math.hypot(b.want.x,b.want.z);
+  if(wl>0.01 && b.want.thrust>0){
+    const ax=b.want.x/wl, az=b.want.z/wl, acc=28*b.want.thrust;
+    b.vel.x+=ax*acc*dt; b.vel.z+=az*acc*dt;
+    b.yaw = Math.atan2(b.vel.x, b.vel.z);
+  }
+  const sp=Math.hypot(b.vel.x,b.vel.z), cap=maxSpeed;
+  if(sp>cap){ b.vel.x*=cap/sp; b.vel.z*=cap/sp; }
+  b.vel.x*=Math.pow(0.12,dt); b.vel.z*=Math.pow(0.12,dt);
+  b.pos.x+=b.vel.x*dt; b.pos.z+=b.vel.z*dt;
+  collideStructs(b); collideWalls(b);
+}
+
+/* ═══ INPUT · keys + joystick + boost ═══ */
+const keys={};
+addEventListener('keydown',e=>{keys[e.code]=true; if(e.code==='ShiftLeft'||e.code==='ShiftRight') playerBody.boost(0.4);});
+addEventListener('keyup',e=>{keys[e.code]=false;});
+let joyX=0, joyY=0, joyId=null;
+const joy=document.getElementById('joy'), joyk=document.getElementById('joyk');
+function joySet(e){ const r=joy.getBoundingClientRect();
+  let dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2);
+  const m=r.width/2, d=Math.hypot(dx,dy); if(d>m){dx*=m/d;dy*=m/d;}
+  joyk.style.left=(50+dx/m*38)+'%'; joyk.style.top=(50+dy/m*38)+'%';
+  joyX=dx/m; joyY=-dy/m; }
+joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(joyId);joySet(e);});
+joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId)joySet(e);});
+joy.addEventListener('pointerup',e=>{if(e.pointerId===joyId){joyId=null;joyX=joyY=0;joyk.style.left='50%';joyk.style.top='50%';}});
+document.getElementById('boost').addEventListener('pointerdown',()=>playerBody.boost(1.0));
+function inputSnapshot(){
+  let x=joyX, y=joyY;
+  if(keys.KeyA||keys.ArrowLeft)x-=1; if(keys.KeyD||keys.ArrowRight)x+=1;
+  if(keys.KeyW||keys.ArrowUp)y+=1;  if(keys.KeyS||keys.ArrowDown)y-=1;
+  return {x:Math.max(-1,Math.min(1,x)), y:Math.max(-1,Math.min(1,y)),
+    boost:playerBody.boostT>0, fire:false, jump:false};
+}
+
+/* ═══ VISUALS · rigs follow bodies ═══ */
+const $=id=>document.getElementById(id);
+let playerRigGroup=null, playerRigTick=null;
+function setPlayerRigFromCode(code, provLabel){
+  const r=FORGE.compile(code,{THREE,VG,maxMeshes:220});
+  if(!r.ok) return r;
+  if(playerRigGroup){ scene.remove(playerRigGroup); }
+  r.group.scale.setScalar(0.5); r.group.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+  playerRigGroup=r.group; playerRigTick=r.group.userData.tick||null; scene.add(r.group);
+  if(provLabel) setProvenance(provLabel,'forged');
+  return r;
+}
+function makeLabelSprite(text){
+  const cv=document.createElement('canvas'); cv.width=256; cv.height=64;
+  const x=cv.getContext('2d'); x.fillStyle='#000'; x.fillRect(0,0,256,64);
+  x.strokeStyle='#8a929c'; x.strokeRect(1,1,254,62);
+  x.fillStyle='#fff'; x.font='700 26px "IBM Plex Mono",monospace'; x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(String(text).slice(0,14),128,34);
+  const tx=new THREE.CanvasTexture(cv); tx.colorSpace=THREE.SRGBColorSpace;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,depthWrite:false}));
+  sp.scale.set(2.6,0.65,1); return sp;
+}
+
+/* ═══ FX ═══ */
+const SPARKS=[]; const SPARK_MAX=400;
+const sparkGeo=new THREE.BoxGeometry(0.09,0.09,0.09);
+function fxSpark(pos,hex,n){
+  for(let i=0;i<(n||8)&&SPARKS.length<SPARK_MAX;i++){
+    const m=new THREE.Mesh(sparkGeo,new THREE.MeshBasicMaterial({color:hex||0x19e6c8}));
+    m.position.set(pos.x,(pos.y||0.6),pos.z);
+    m.userData.v={x:(Math.random()-0.5)*7,y:Math.random()*6+2,z:(Math.random()-0.5)*7,life:0.7+Math.random()*0.5};
+    scene.add(m); SPARKS.push(m);
+  }}
+function fxTick(dt){ for(let i=SPARKS.length-1;i>=0;i--){ const s=SPARKS[i],v=s.userData.v;
+  v.y-=16*dt; s.position.x+=v.x*dt; s.position.y+=v.y*dt; s.position.z+=v.z*dt;
+  v.life-=dt; if(v.life<=0||s.position.y<0){ scene.remove(s); s.material.dispose(); SPARKS.splice(i,1);} } }
+let shakeAmt=0; function fxShake(n){ shakeAmt=Math.min(3,shakeAmt+(n||1)); }
+const flashEl=$('flash');
+function fxFlash(hex){ flashEl.style.background='#'+((hex??0x19e6c8)>>>0).toString(16).padStart(6,'0');
+  flashEl.style.opacity=0.35; setTimeout(()=>flashEl.style.opacity=0,110); }
+let bannerT=null; function fxBanner(t){ const b=$('banner'); b.textContent=t; b.classList.add('show');
+  clearTimeout(bannerT); bannerT=setTimeout(()=>b.classList.remove('show'),2200); }
+function fxHud(a,b){ $('hud1').textContent=a||''; $('hud2').textContent=b||''; }
+
+/* ═══ GG HOST ADAPTER — the real world behind the toolkit ═══ */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+const DRONES=new Map(); let droneSeq=0;
+function makeHost(seedHex){
+  return {
+    arena: ARENA,
+    addStructure(d){
+      const w=d.w||2,h=d.h||2,dd=d.d||2,y=d.y??h/2;
+      const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,dd),
+        new THREE.MeshStandardMaterial({color:d.c??0x24282f,roughness:0.7,metalness:0.15,envMap,envMapIntensity:0.5,flatShading:true}));
+      mesh.position.set(d.x||0,y,d.z||0); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
+      const rec={x:d.x||0,z:d.z||0,w,d:dd,h,y,mesh,
+        remove(){ const i=STRUCTS.indexOf(rec); if(i>=0)STRUCTS.splice(i,1); scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }};
+      STRUCTS.push(rec); return rec;
+    },
+    addRing({x,z,r,c}){
+      const mesh=new THREE.Mesh(new THREE.TorusGeometry(r,0.09,8,64),
+        new THREE.MeshBasicMaterial({color:c??0x19e6c8}));
+      mesh.rotation.x=-Math.PI/2; mesh.position.set(x,0.05,z); scene.add(mesh);
+      return { remove(){ scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); } };
+    },
+    addZoneVisual({x,z,r,c}){
+      const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r,r,0.35,32,1,true),
+        new THREE.MeshBasicMaterial({color:c??0x19e6c8,transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false}));
+      mesh.position.set(x,0.2,z); scene.add(mesh);
+      return { setActive(b){mesh.visible=!!b;}, remove(){ scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); } };
+    },
+    spawnDroneBody(o){
+      const id='d'+(++droneSeq);
+      const body=makeBody(o.x||0,o.z||0,1.0);
+      const rigId=(o.rig&&GOLDEN.LIBRARY[o.rig])?o.rig:['zeus','tlaloc','perun','raijin'][droneSeq%4];
+      const rr=FORGE.compile(GOLDEN.LIBRARY[rigId].code,{THREE,VG,maxMeshes:220});
+      const vis=rr.ok?rr.group:new THREE.Mesh(new THREE.BoxGeometry(1.4,1,2),new THREE.MeshStandardMaterial({color:o.hue||0x19e6c8}));
+      vis.scale.setScalar(0.4); vis.traverse&&vis.traverse(m=>{if(m.isMesh)m.castShadow=true;}); scene.add(vis);
+      const label=makeLabelSprite(''); label.visible=false; scene.add(label);
+      const rec={ id, body, vis, tick:rr.ok?rr.group.userData.tick:null, label,
+        get pos(){return body.pos;}, get vel(){return body.vel;},
+        get yaw(){return body.yaw;}, set yaw(v){body.yaw=v;},
+        drive(dx,dz,thrust){ body.want.x=dx; body.want.z=dz; body.want.thrust=Math.max(0,Math.min(1,thrust??1)); },
+        remove(){ DRONES.delete(id); scene.remove(vis); scene.remove(label); } };
+      DRONES.set(id,rec); return rec;
+    },
+    ballBody(){ return null; },
+    player: playerBody,
+    input: inputSnapshot,
+    fx: { spark:fxSpark, shake:fxShake, flash:fxFlash, banner:fxBanner, hud:fxHud,
+      label(id,t){ const d=DRONES.get(id); if(!d)return; d.label.visible=!!t;
+        if(t){ const s=makeLabelSprite(t); s.position.copy(d.label.position); scene.remove(d.label); d.label=s; scene.add(s);} } },
+    onWin(t){ onModeWin(t); },
+    rand: mulberry32(parseInt(seedHex||'a11ce',16)||0xA11CE),
+  };
+}
+
+/* ═══ MODES RUNTIME — the engine slot forged games occupy ═══ */
+const prov=$('provenance'), status=$('status'), codeView=$('code-view'), diagView=$('diag');
+function setStatus(m,c){status.textContent=m;status.className=c||'';}
+function setProvenance(l,c){prov.textContent=l;prov.className=c||'';}
+let MODE=null;   // {obj, GG, code, label, strikes}
+function instantiateMode(code, seedHex){
+  const GG=GGKIT.makeGG(makeHost(seedHex));
+  const r=FORGE.compileEntry(code,{entry:'mode',argNames:['GG','THREE'],args:[GG,THREE],
+    validate:GGKIT.validateMode,budgetMs:400});
+  return r.ok?{ok:true,GG,obj:r.value,cert:r.cert,code:r.code}:r;
+}
+function leaveMode(){
+  if(!MODE) return;
+  try{ MODE.obj.exit&&MODE.obj.exit(); }catch(_){}
+  try{ MODE.GG.__teardown(); }catch(_){}
+  DRONES.forEach(d=>d.remove());
+  MODE=null; fxHud('','');
+}
+function enterModeFromCode(code, provLabel, provClass){
+  const inst=instantiateMode(code, FORGE.fnv1a(code));
+  if(!inst.ok){ return inst; }
+  leaveMode();
+  MODE={obj:inst.obj, GG:inst.GG, code, strikes:0, label:inst.obj.label||inst.obj.id};
+  try{ MODE.obj.enter(); }
+  catch(e){ setProvenance('MODE ENTER FAILED — '+e.message,'error'); leaveMode(); enterLobby(); return {ok:false,stage:'enter',err:e.message}; }
+  setProvenance(provLabel+' · '+MODE.label.toUpperCase(),provClass);
+  codeView.textContent=code; diagView.textContent='';
+  return {ok:true};
+}
+let winLock=false;
+function onModeWin(t){
+  if(winLock) return; winLock=true;
+  fxBanner(t); fxFlash(0x19e6c8); fxShake(2);
+  setTimeout(()=>{ winLock=false; enterLobby(); fxBanner('LOBBY'); },2600);
+}
+const LOBBY_CODE=`function mode(GG,THREE){ return { id:'lobby', label:'LOBBY',
+  enter(){ GG.hud('THUNDER FORGE','describe a game below · or tap a golden'); },
+  tick(){}, exit(){ GG.clearWorld(); } }; }`;
+function enterLobby(){ enterModeFromCode(LOBBY_CODE,'LOBBY','library'); setProvenance('LOBBY — FORGE A GAME','library'); }
+
+/* ═══ AI CONFIG (same localStorage contract as the game) ═══ */
+const AI_KEY='trig.ai.config.v2';
+function getAIConfig(){ try{ return JSON.parse(localStorage.getItem(AI_KEY)||'{}')||{}; }catch(_){ return {}; } }
+function saveAIConfig(c){ localStorage.setItem(AI_KEY, JSON.stringify(c)); }
+function loadAIForm(){ const c=getAIConfig();
+  $('ai-provider').value=c.provider||'anthropic'; $('ai-model').value=c.model||'';
+  $('ai-key').value=c.apiKey||''; $('ai-base').value=c.baseUrl||''; }
+$('ai-save').addEventListener('click',()=>{ saveAIConfig({provider:$('ai-provider').value,model:$('ai-model').value.trim(),
+  apiKey:$('ai-key').value.trim(),baseUrl:$('ai-base').value.trim()}); setStatus('AI CONFIG SAVED','ok'); refreshStatusLine(); });
+function refreshStatusLine(){ const c=getAIConfig();
+  if(!c.apiKey) setStatus('NO API KEY — library mode. Open [AI] to connect a model.','warn');
+  else setStatus('MODEL: '+(c.provider||'?')+' · '+(c.model||'(unset)'),'');
+}
+
+/* ═══ LLM CLIENT — provider errors are first-class UI, never console-only ═══ */
+async function callLLM(userText, sysText, cfg, maxTokens){
+  const to=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout '+ms+'ms')),ms))]);
+  async function jfetch(url,opts){ const res=await to(fetch(url,opts),90000); const body=await res.text();
+    if(!res.ok) throw new Error(res.status+' '+body.slice(0,220)); try{return JSON.parse(body);}catch(_){throw new Error('non-JSON reply: '+body.slice(0,120));} }
+  const p=cfg.provider||'anthropic';
+  if(p==='anthropic'){
+    const j=await jfetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'content-type':'application/json','x-api-key':cfg.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:cfg.model,max_tokens:maxTokens,system:sysText,messages:[{role:'user',content:userText}]})});
+    return (j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  }
+  if(p==='openai'||p==='custom'){
+    const base=(p==='custom'&&cfg.baseUrl)?cfg.baseUrl.replace(/\/+$/,''):'https://api.openai.com/v1';
+    const mk=(tokKey)=>({method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+cfg.apiKey},
+      body:JSON.stringify({model:cfg.model,[tokKey]:maxTokens,messages:[{role:'system',content:sysText},{role:'user',content:userText}]})});
+    let j; try{ j=await jfetch(base+'/chat/completions',mk('max_tokens')); }
+    catch(e){ if(String(e.message).includes('max_tokens')) j=await jfetch(base+'/chat/completions',mk('max_completion_tokens')); else throw e; }
+    return j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||'';
+  }
+  if(p==='gemini'){
+    const j=await jfetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(cfg.model)+':generateContent?key='+encodeURIComponent(cfg.apiKey),
+      {method:'POST',headers:{'content-type':'application/json'},
+       body:JSON.stringify({systemInstruction:{parts:[{text:sysText}]},contents:[{role:'user',parts:[{text:userText}]}],generationConfig:{maxOutputTokens:maxTokens}})});
+    const c=j.candidates&&j.candidates[0]; return c&&c.content&&c.content.parts?c.content.parts.map(x=>x.text||'').join('\n'):'';
+  }
+  throw new Error('unknown provider: '+p);
+}
+
+
+
+/* thunder gateway provider — server holds the key */
+async function callThunder(task, userText, sysText, maxTokens){
+  const cfg=getAIConfig();
+  const url=(cfg.aiUrl||document.querySelector('meta[name="thunder-ai-url"]')?.content||'').replace(/\/+$/,'');
+  if(!url) throw new Error('gateway url not set — open [AI] and fill GATEWAY URL');
+  const res=await fetch(url+'/ai/respond',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({task,prompt:userText,system:sysText,maxOutputTokens:maxTokens})});
+  const body=await res.text();
+  if(!res.ok) throw new Error('gateway '+res.status+': '+body.slice(0,200));
+  const j=JSON.parse(body); if(!j.ok) throw new Error('gateway: '+(j.error||'unknown'));
+  return j.text||'';
+}
+async function requestText(task, userText, sysText, maxTokens){
+  const cfg=getAIConfig();
+  if((cfg.provider||'thunder')==='thunder') return callThunder(task,userText,sysText,maxTokens);
+  return callLLM(userText,sysText,cfg,maxTokens);
+}
+
+/* ═══ SYSTEM PROMPTS · GG cheat-sheet + golden few-shot ═══ */
+function buildGameSys(prompt){
+  const golden=GOLDEN_GAMES.pick(prompt);
+  return `You are a game designer-programmer for the THUNDER FORGE engine.
+OUTPUT CONTRACT — reply with ONLY one JavaScript function, no markdown fences, no prose:
+function mode(GG, THREE){ return { id, label, enter(), tick(dt,t), exit() }; }
+The factory must be PURE (no side effects); all world-building goes in enter(); all rules in enter()'s schedules/zones or tick().
+
+GG TOOLKIT (the whole engine surface — design by WRITING RULES with it):
+- world: GG.structure({x,z,w,h,d,y?,c?}) solid cover (collides) · GG.ring(x,z,r,c) painted circle · GG.clearWorld() · GG.arena {HW:${ARENA.HW},HL:${ARENA.HL}} half-extents
+- actors: GG.player {pos,vel,yaw,speed(),boost(s),stun(s)} · GG.spawnDrone({x,z,hue,rig:'thor'|'zeus'|'raijin'|'tlaloc'|'perun'|'shango'|'indra'|'leigong'|'thunderbird', brain(self,GG,dt){...}}) → handle {pos,vel,drive(dx,dz,thrust),label(txt),remove()} · GG.drones()
+- rules: GG.zone({x,z,r,c,once?,onEnter(who),onLeave?}) — onEnter may return false to NOT consume a once-zone · GG.score(key,±n) · GG.scores() · GG.countdown(sec,onExpire) · GG.timeLeft() · GG.after(sec,cb) · GG.every(sec,cb) · GG.win(text) ends the game
+- senses: GG.dist(a,b) · GG.near(pos,r,'drones'|'player'|'all') · GG.rand() seeded · GG.pick(arr) · GG.input() {x,y,boost}
+- feel: GG.spark(pos,hex,n) · GG.shake(n) · GG.flash(hex) · GG.banner(txt) · GG.hud(line1,line2)
+CEILINGS: drones ≤12 · zones ≤16 · schedules ≤32 · structures ≤48. Brains and callbacks are quarantined — a throw disables only that callback.
+
+DESIGN RULES:
+- Give the player a JOB, a PRESSURE, and a readable WIN/LOSS. Verbs over decoration.
+- Announce state with hud/banner; reward with spark/flash/shake; always end via GG.win.
+- Drones are OPPOSITION with brains, not props. Use rig names that fit the fiction.
+- No import/window/document/fetch/localStorage/timers — only GG, THREE, Math.
+
+EXAMPLE — a complete game in EXACTLY the required shape:
+${golden.entry.code}
+
+Now output ONLY the function for this game: "${String(prompt).slice(0,220)}"`;
+}
+function buildRigSys(prompt){
+  const golden=GOLDEN.pick(prompt);
+  return `You are a master low-poly 3D vehicle artist for THUNDER RIGS.
+OUTPUT CONTRACT — ONLY: function build(g, VG, THREE){ ... } — no markdown, no prose.
+TOOLKIT: paint/matte/metalMat/goldMat/emiss/makeGlass/GLASS_BLUE · box/cyl/cone/sphere/ico/torus · figure/eye · knobbyWheel/slickWheel · glow/jaggedBolt/contactShadow · boltDecal/numDecal/runeDecal/tomoeDecal/greekKey/decalPlane · palette C (volt gold iron oni jade teal blue royal skin wood drum elephant feathers…).
+RULES: 40–130 meshes · ground at y=0 · example's scale · life via userData.tick like the example · helpers INSIDE build · only VG, THREE.Group, THREE.Vector3, Math.
+EXAMPLE:
+${golden.entry.code}
+Now output ONLY the function for: "${String(prompt).slice(0,220)}"`;
+}
+
+/* ═══ FORGE FLOWS — never silent ═══ */
+let forging=false;
+async function forgeGame(prompt){
+  if(forging)return; forging=true; $('go').disabled=true;
+  try{
+    setProvenance('FORGING GAME · CALLING MODEL','');
+    setStatus('calling model…');
+    const sys=buildGameSys(prompt);
+    let reply;
+    try{ reply=await requestText('mode',prompt,sys,9000); }
+    catch(e){ setProvenance('PROVIDER ERROR','error'); setStatus('PROVIDER ERROR: '+e.message+'\nServing nearest golden game.','err');
+      const g=GOLDEN_GAMES.pick(prompt); enterModeFromCode(g.entry.code,'LIBRARY GAME','library'); return; }
+    let r=instantiateMode(reply, 'fresh');
+    if(r.ok){ enterModeFromCode(r.code,'FORGED GAME · S1','forged'); setStatus('forged first pass.','ok'); return; }
+    setProvenance('REPAIRING GAME · '+(r.diagnostic&&r.diagnostic.truncated?'TRUNCATED':'STAGE '+(r.attempts&&r.attempts[0]&&r.attempts[0].stage)),'');
+    setStatus('first pass failed — repairing…','warn');
+    const fix=FORGE.repairPrompt(r).replace(/function build\(g,VG,THREE\)/g,'function mode(GG,THREE)');
+    let reply2;
+    try{ reply2=await requestText('mode',prompt+'\n\n'+fix,sys,9000); }
+    catch(e){ setStatus('PROVIDER ERROR ON REPAIR: '+e.message,'err');
+      const g=GOLDEN_GAMES.pick(prompt); enterModeFromCode(g.entry.code,'LIBRARY GAME','library');
+      codeView.textContent=FORGE.sanitize(reply); diagView.textContent=JSON.stringify(r.attempts||r.diagnostic,null,1); return; }
+    const r2=instantiateMode(reply2,'fresh');
+    if(r2.ok){ enterModeFromCode(r2.code,'REPAIRED GAME','forged'); setStatus('repair pass succeeded.','ok'); return; }
+    const g=GOLDEN_GAMES.pick(prompt); enterModeFromCode(g.entry.code,'FALLBACK · LIBRARY GAME','library');
+    setStatus('Game code failed twice — nearest golden served. See [CODE].','warn');
+    codeView.textContent='/* ATTEMPT 1 */\n'+FORGE.sanitize(reply)+'\n\n/* ATTEMPT 2 */\n'+FORGE.sanitize(reply2);
+    diagView.textContent=JSON.stringify({first:r.attempts||r.diagnostic,second:r2.attempts||r2.diagnostic},null,1);
+  } finally { forging=false; $('go').disabled=false; }
+}
+async function forgeRig(prompt){
+  if(forging)return; forging=true; $('go-rig').disabled=true;
+  try{
+    setProvenance('FORGING RIG · CALLING MODEL','');
+    const sys=buildRigSys(prompt);
+    let reply;
+    try{ reply=await requestText('forge',prompt,sys,12000); }
+    catch(e){ setStatus('PROVIDER ERROR: '+e.message,'err'); setProvenance('PROVIDER ERROR','error'); return; }
+    let r=FORGE.compile(reply,{THREE,VG,maxMeshes:220});
+    if(!r.ok){
+      const fix=FORGE.repairPrompt(r);
+      try{ const reply2=await requestText('forge_repair',prompt+'\n\n'+fix,sys,10000);
+        r=FORGE.compile(reply2,{THREE,VG,maxMeshes:220});
+      }catch(e){ /* fall through */ }
+    }
+    if(r.ok){ if(playerRigGroup)scene.remove(playerRigGroup);
+      r.group.scale.setScalar(0.5); r.group.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+      playerRigGroup=r.group; playerRigTick=r.group.userData.tick||null; scene.add(r.group);
+      setProvenance('FORGED RIG · '+r.strategy.toUpperCase()+' · '+r.cert.meshes+' MESHES','forged');
+      codeView.textContent=r.code; setStatus('rig forged — drive it.','ok'); return; }
+    const g=GOLDEN.pick(prompt); setPlayerRigFromCode(g.entry.code,'FALLBACK · LIBRARY RIG · '+g.entry.name);
+    setStatus('Rig code failed — nearest golden served. See [CODE].','warn');
+    diagView.textContent=JSON.stringify(r.attempts||r.diagnostic,null,1);
+  } finally { forging=false; $('go-rig').disabled=false; }
+}
+
+/* ═══ UI WIRING ═══ */
+const gchips=$('chips-games');
+[['sumo','SUMO'],['volt','VOLT'],['lobby','LOBBY']].forEach(([id,lab])=>{
+  const b=document.createElement('button'); b.textContent=lab;
+  b.addEventListener('click',()=>{ [...gchips.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+    if(id==='lobby'){enterLobby();return;}
+    enterModeFromCode(GOLDEN_GAMES.GAMES[id].code,'LIBRARY GAME','library');
+    setStatus('golden game — deterministic, no model call.',''); });
+  gchips.appendChild(b); });
+const rchips=$('chips-rigs');
+['thor','raijin','shango','indra','leigong','thunderbird'].forEach(id=>{
+  const e=GOLDEN.LIBRARY[id]; const b=document.createElement('button'); b.textContent=e.num+'·'+e.name;
+  b.addEventListener('click',()=>{ [...rchips.children].forEach(c=>c.classList.remove('on')); b.classList.add('on');
+    setPlayerRigFromCode(e.code,'LIBRARY RIG · '+e.name); codeView.textContent=e.code; });
+  rchips.appendChild(b); });
+$('go').addEventListener('click',()=>{ const p=$('prompt').value.trim();
+  if(!p){setStatus('describe a game first.','warn');return;} forgeGame(p); });
+$('go-rig').addEventListener('click',()=>{ const p=$('prompt').value.trim();
+  if(!p){setStatus('describe a rig first.','warn');return;} forgeRig(p); });
+$('prompt').addEventListener('keydown',e=>{ if(e.key==='Enter')$('go').click(); });
+function toggleSheet(id,btn){ const s=$(id); const open=!s.classList.contains('open');
+  document.querySelectorAll('.sheet').forEach(x=>x.classList.remove('open'));
+  document.querySelectorAll('#bar .b').forEach(x=>x.setAttribute('aria-pressed','false'));
+  if(open){s.classList.add('open');btn.setAttribute('aria-pressed','true');} }
+$('btn-ai').addEventListener('click',e=>{loadAIForm();$('ai-url').value=getAIConfig().aiUrl||'';toggleSheet('ai-sheet',e.currentTarget);});
+$('btn-code').addEventListener('click',e=>toggleSheet('code-sheet',e.currentTarget));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{$(b.dataset.close).classList.remove('open');
+  document.querySelectorAll('#bar .b').forEach(x=>x.setAttribute('aria-pressed','false'));}));
+$('ai-save').addEventListener('click',()=>{ saveAIConfig({provider:$('ai-provider').value,model:$('ai-model').value.trim(),
+  apiKey:$('ai-key').value.trim(),baseUrl:$('ai-base').value.trim(),aiUrl:$('ai-url').value.trim()});
+  setStatus('AI CONFIG SAVED','ok'); });
+$('ai-test').addEventListener('click',async()=>{
+  const c={provider:$('ai-provider').value,model:$('ai-model').value.trim(),apiKey:$('ai-key').value.trim(),
+    baseUrl:$('ai-base').value.trim(),aiUrl:$('ai-url').value.trim()};
+  setStatus('testing '+c.provider+' …','');
+  try{ let t;
+    if(c.provider==='thunder'){ const url=(c.aiUrl||'').replace(/\/+$/,''); if(!url)throw new Error('gateway url empty');
+      const res=await fetch(url+'/ai/health'); const j=await res.json();
+      t='health ok:'+j.ok+' key:'+j.keyConfigured; }
+    else t=await callLLM('Reply with the single word: THUNDER','You are a connection test.',c,20);
+    setStatus('TEST OK · '+String(t).trim().slice(0,60),'ok');
+  }catch(e){ setStatus('TEST FAILED · '+e.message,'err'); } });
+$('copy-code').addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(codeView.textContent||'');
+  setStatus('code copied.','ok'); }catch(e){ setStatus('copy failed: '+e.message,'err'); } });
+$('run-golden').addEventListener('click',()=>{ const rows=window.__goldenGameCheck();
+  diagView.textContent='GOLDEN GAMES · '+rows.map(r=>r.join(' · ')).join('\n'); });
+
+/* ═══ HOOKS ═══ */
+window.__forge=FORGE; window.__gg=()=>MODE&&MODE.GG; window.__games=GOLDEN_GAMES; window.__golden=GOLDEN;
+window.__switchGame=(code)=>enterModeFromCode(code,'PASTED GAME','forged');
+window.__setPlayerRig=(code)=>setPlayerRigFromCode(code,'PASTED RIG');
+window.__goldenGameCheck=()=>{ const rows=[];
+  for(const id in GOLDEN_GAMES.GAMES){ const r=instantiateMode(GOLDEN_GAMES.GAMES[id].code,'aa');
+    if(r.ok){ try{r.GG.__teardown();}catch(_){}} rows.push([id,r.ok?('OK '+r.cert.hash):('FAIL '+(r.attempts&&r.attempts[0]&&r.attempts[0].err))]); }
+  console.table(rows.map(([a,b])=>({id:a,result:b}))); return rows; };
+
+/* ═══ MAIN LOOP · fixed step + quarantine ═══ */
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let acc=0, prevNow=performance.now(); const t0=prevNow;
+function frame(now){
+  requestAnimationFrame(frame);
+  let dt=(now-prevNow)/1000; prevNow=now;
+  if(dt>PANIC_S){ acc=0; dt=DT_FIXED; }           // hidden-tab return: discard, resume clean
+  acc+=dt; let steps=0;
+  while(acc>=DT_FIXED && steps<MAX_SUBSTEPS){
+    acc-=DT_FIXED; steps++;
+    const inp=inputSnapshot();
+    playerBody.want.x=inp.x; playerBody.want.z=inp.y; playerBody.want.thrust=Math.hypot(inp.x,inp.y)>0.05?1:0;
+    stepBody(playerBody,DT_FIXED,playerBody.speed());
+    DRONES.forEach(d=>stepBody(d.body,DT_FIXED,9));
+    const bodies=[playerBody,...[...DRONES.values()].map(d=>d.body)];
+    for(let i=0;i<bodies.length;i++)for(let j=i+1;j<bodies.length;j++)collidePair(bodies[i],bodies[j]);
+    if(MODE){ try{ MODE.GG.__update(DT_FIXED); MODE.obj.tick(DT_FIXED,(now-t0)/1000); MODE.strikes=0; }
+      catch(e){ if(++MODE.strikes>=3){ setProvenance('MODE QUARANTINED — '+e.message,'error'); fxBanner('SYS·MODE DOWN'); leaveMode(); enterLobby(); } } }
+  }
+  const t=(now-t0)/1000;
+  if(playerRigGroup){ playerRigGroup.position.set(playerBody.pos.x,0,playerBody.pos.z);
+    playerRigGroup.rotation.y=playerBody.yaw; if(playerRigTick){try{playerRigTick(t);}catch(_){}} }
+  DRONES.forEach(d=>{ d.vis.position.set(d.body.pos.x,0,d.body.pos.z); d.vis.rotation.y=d.body.yaw;
+    if(d.tick){try{d.tick(t);}catch(_){}} d.label.position.set(d.body.pos.x,2.6,d.body.pos.z); });
+  VG.tickBolts(t); fxTick(Math.min(dt,0.05));
+  target.x+= (playerBody.pos.x-target.x)*0.08; target.z+=(playerBody.pos.z-target.z)*0.08; target.y=1.6;
+  if(shakeAmt>0){ shakeAmt*=Math.pow(0.02,dt); camera.position.x+=(Math.random()-0.5)*shakeAmt*0.25;
+    camera.position.y+=(Math.random()-0.5)*shakeAmt*0.18; }
+  radius+=(radiusGoal-radius)*0.08; applyCam();
+  renderer.render(scene,camera);
+}
+
+/* ═══ BOOT — pipeline proven in-page before any model ═══ */
+setPlayerRigFromCode(GOLDEN.LIBRARY.thor.code, null);
+enterLobby();
+setProvenance('LOBBY — FORGE A GAME','library');
+(function(){ const c=getAIConfig();
+  if((c.provider||'thunder')==='thunder' && !(c.aiUrl||document.querySelector('meta[name="thunder-ai-url"]')?.content))
+    setStatus('THUNDER GATEWAY URL NOT SET — open [AI]. Golden games/rigs work without it.','warn');
+  else setStatus('READY · WASD/joystick to drive · SHIFT/BOOST to burst',''); })();
+radiusGoal=15; applyCam(); requestAnimationFrame(frame);
+</script>
+</body>
+</html>

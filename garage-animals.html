@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONSEQUENCE GARAGE · Beast Roster</title>
+<style>
+  :root{ --ink:#0c0e12; --line:#2a2f38; --chalk:#f3f4f6; --dim:#8b93a1; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--ink);overflow:hidden;
+    font-family:"DIN Alternate","Bahnschrift","Arial Narrow",system-ui,sans-serif;
+    color:var(--chalk);-webkit-font-smoothing:antialiased}
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+  .hud{position:fixed;left:0;right:0;top:0;padding:18px 22px;display:flex;align-items:baseline;gap:14px;
+    pointer-events:none;background:linear-gradient(180deg,rgba(10,11,15,.82),rgba(10,11,15,0));z-index:5}
+  .hud h1{font-size:clamp(15px,2vw,22px);letter-spacing:.42em;font-weight:700;text-transform:uppercase}
+  .hud .sub{font-size:11px;letter-spacing:.34em;color:var(--dim);text-transform:uppercase}
+  .legend{position:fixed;right:18px;bottom:18px;z-index:5;border:1px solid var(--line);
+    background:rgba(16,18,24,.82);backdrop-filter:blur(4px);padding:12px 14px;max-width:250px}
+  .legend .lab{font-size:10px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+  .legend ol{list-style:none;font-size:11.5px;line-height:1.9;letter-spacing:.04em;columns:2;column-gap:16px}
+  .legend ol li{white-space:nowrap;cursor:pointer;transition:color .15s}
+  .legend ol li:hover{color:#fff}
+  .legend ol li b{display:inline-block;width:14px;color:var(--dim)}
+  .hint{position:fixed;left:18px;bottom:18px;z-index:5;font-size:10px;letter-spacing:.26em;
+    color:var(--dim);text-transform:uppercase;line-height:1.8}
+  .hint kbd{border:1px solid var(--line);padding:1px 5px;border-radius:2px;color:#cfd5df;font-family:inherit}
+  .tag{position:fixed;z-index:4;pointer-events:none;transform:translate(-50%,-100%);
+    font-size:10px;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap;
+    padding:3px 7px;border:1px solid var(--line);background:rgba(12,14,18,.92);opacity:0;transition:opacity .15s}
+  .tag .n{color:var(--dim);margin-right:6px}
+  .tag .f{color:var(--dim);margin-left:6px;letter-spacing:.12em}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="hud">
+  <h1>Consequence Garage</h1>
+  <span class="sub">Beast Roster · 09 Fauna</span>
+</div>
+<div class="legend">
+  <div class="lab">Starting Grid · click to focus</div>
+  <ol id="grid">
+    <li data-i="0"><b>1</b>Cheetah</li>
+    <li data-i="1"><b>2</b>Scarab</li>
+    <li data-i="2"><b>3</b>Moose</li>
+    <li data-i="3"><b>4</b>Giraffe</li>
+    <li data-i="4"><b>5</b>Beaver</li>
+    <li data-i="5"><b>6</b>Turkey</li>
+    <li data-i="6"><b>7</b>Grasshopper</li>
+    <li data-i="7"><b>8</b>Ibex</li>
+    <li data-i="8"><b>9</b>Tortoise</li>
+  </ol>
+</div>
+<div class="hint"><kbd>drag</kbd> orbit · <kbd>scroll</kbd> zoom · <kbd>hover</kbd> name · <kbd>click</kbd> focus</div>
+<div class="tag" id="tag"><span class="n"></span><span class="t"></span><span class="f"></span></div>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js" }}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ============================================================
+   RENDERER / SCENE / CAMERA
+   ============================================================ */
+const app=document.getElementById('app');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+app.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x0c0e12);
+scene.fog=new THREE.Fog(0x0c0e12,26,66);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,200);
+
+/* ============================================================
+   PROCEDURAL ENV MAP — reflections for glass + fur sheen
+   ============================================================ */
+function buildEnvMap(){
+  const es=new THREE.Scene();
+  const sky=new THREE.Mesh(new THREE.SphereGeometry(50,24,12), new THREE.ShaderMaterial({
+    side:THREE.BackSide,
+    uniforms:{top:{value:new THREE.Color(0x3a4660)},bot:{value:new THREE.Color(0x0a0c10)}},
+    vertexShader:`varying vec3 vP; void main(){vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec3 vP; uniform vec3 top; uniform vec3 bot; void main(){float h=clamp(normalize(vP).y*0.5+0.5,0.,1.); gl_FragColor=vec4(mix(bot,top,h),1.);}`
+  })); es.add(sky);
+  const lm=new THREE.MeshBasicMaterial({color:0xfff4e0});
+  for(let i=-2;i<=2;i++){ const s=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.4,30),lm); s.position.set(i*8,22,0); es.add(s); }
+  const cm=new THREE.MeshBasicMaterial({color:0x6f8bd0});
+  [[-18,8,-10],[18,6,12]].forEach(p=>{const pn=new THREE.Mesh(new THREE.BoxGeometry(14,8,0.5),cm); pn.position.set(p[0],p[1],p[2]); es.add(pn);});
+  const pm=new THREE.PMREMGenerator(renderer); const rt=pm.fromScene(es,0.04); pm.dispose(); return rt.texture;
+}
+const envMap=buildEnvMap(); scene.environment=envMap;
+
+/* ============================================================
+   LIGHTING
+   ============================================================ */
+scene.add(new THREE.HemisphereLight(0x9fb0c8,0x14181f,0.44));
+scene.add(new THREE.AmbientLight(0xffffff,0.24));
+const key=new THREE.DirectionalLight(0xffffff,1.5); key.position.set(9,19,11); key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);
+{const d=20,c=key.shadow.camera; c.left=-d;c.right=d;c.top=d;c.bottom=-d;c.near=1;c.far=64; key.shadow.bias=-0.0004; key.shadow.normalBias=0.02;}
+scene.add(key);
+const rim=new THREE.DirectionalLight(0x6f8bd0,0.5); rim.position.set(-11,9,-9); scene.add(rim);
+
+/* ============================================================
+   GLASS (fresnel) — used for animal-shell windows (tortoise etc.)
+   ============================================================ */
+function makeGlass(tint,op){
+  const m=new THREE.MeshPhysicalMaterial({color:tint,metalness:0,roughness:0.06,transparent:true,opacity:op,
+    envMap:envMap,envMapIntensity:1.35,clearcoat:1,clearcoatRoughness:0.08,reflectivity:0.5,side:THREE.DoubleSide,depthWrite:false});
+  m.onBeforeCompile=(sh)=>{ sh.uniforms.uRim={value:new THREE.Color(0xbfd2e8)};
+    sh.fragmentShader=sh.fragmentShader
+      .replace('#include <common>','#include <common>\nuniform vec3 uRim;')
+      .replace('#include <opaque_fragment>',`
+        float fres=pow(1.0-clamp(dot(normalize(vViewPosition),normal),0.0,1.0),3.0);
+        outgoingLight+=uRim*fres*0.9; diffuseColor.a=clamp(diffuseColor.a+fres*0.5,0.0,0.95);
+        #include <opaque_fragment>`);
+  }; return m;
+}
+const GLASS_BLUE=()=>makeGlass(0x2a4866,0.44);
+
+/* ============================================================
+   PALETTE + MATERIAL / GEOMETRY HELPERS
+   ============================================================ */
+const C={
+  blue:0x2a4bd0, blueLt:0x4f7be8, sky:0x6cb6e6, white:0xf4f5f7,
+  red:0xc6362b, redDk:0x7e231c, orange:0xe6852a, orangeDk:0xc06d1e,
+  green:0x3f8f3a, greenLt:0x6bbf4a, greenDk:0x2b6323, yellow:0xf2c61f, yellowDk:0xcaa314,
+  black:0x14171d, steel:0x9aa3b0, chrome:0xc4ccd6, dark:0x1a1d24,
+  tan:0xc9a96a, hornGrey:0xb3a892, amberFur:0xd7a353, amberDk:0xb07c31,
+  brown:0x6e4c2e, brownDk:0x4e3420, teeth:0xf0e9d2, beak:0xe6a52a, wattle:0xd23636,
+  hoof:0x111316, scale:0x35423a, scaleDk:0x232c26, mud:0x2a3a2a, cream:0xe8dcc0
+};
+function paint(hex,o){o=o||{};return new THREE.MeshPhysicalMaterial({color:hex,
+  roughness:o.rough!==undefined?o.rough:0.5,metalness:o.metal!==undefined?o.metal:0.12,
+  flatShading:o.flat!==undefined?o.flat:true,envMap:envMap,envMapIntensity:0.7,clearcoat:o.cc!==undefined?o.cc:0.25,clearcoatRoughness:0.5});}
+function matte(hex,o){o=o||{};return new THREE.MeshStandardMaterial({color:hex,
+  roughness:o.rough!==undefined?o.rough:0.85,metalness:o.metal!==undefined?o.metal:0,flatShading:true,envMap:envMap,envMapIntensity:0.4});}
+function metalMat(hex,o){o=o||{};return new THREE.MeshStandardMaterial({color:hex,
+  roughness:o.rough!==undefined?o.rough:0.35,metalness:0.85,flatShading:true,envMap:envMap,envMapIntensity:1.0});}
+function box(w,h,d,m){return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);}
+function cyl(rt,rb,h,m,rad){return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,rad||10),m);}
+function cone(r,h,m,rad){return new THREE.Mesh(new THREE.ConeGeometry(r,h,rad||8),m);}
+function sphere(r,m,wf,hf){return new THREE.Mesh(new THREE.SphereGeometry(r,wf||12,hf||9),m);}
+
+/* eye: dark glossy sphere + white highlight; flagged for blink */
+function eye(r){ r=r||0.09; const g=new THREE.Group();
+  const b=sphere(r,new THREE.MeshStandardMaterial({color:0x070a0d,roughness:0.12,metalness:0.2,envMap:envMap,envMapIntensity:1.1}),10,8); g.add(b);
+  const hi=sphere(r*0.32,new THREE.MeshBasicMaterial({color:0xffffff}),6,5); hi.position.set(r*0.34,r*0.34,r*0.55); g.add(hi);
+  g.userData.eye=true; return g; }
+
+/* straight leg pivoting at hip (y=0 top), hoof at bottom */
+function standLeg(len,thick,upperM,footM,footH,footD){ footH=footH||0.16; footD=footD||thick*1.4;
+  const g=new THREE.Group();
+  const upper=box(thick,len,thick,upperM); upper.position.y=-len/2; g.add(upper);
+  const foot=box(thick*1.15,footH,footD,footM); foot.position.set(0,-len+footH/2,footD*0.12); g.add(foot);
+  return g; }
+
+/* nested-segment curved horn (ibex): each segment bends back from the last */
+function curvedHorn(segs,baseR,tipR,segLen,bend,m){
+  const root=new THREE.Group(); let parent=root;
+  for(let i=0;i<segs;i++){
+    const grp=new THREE.Group(); grp.position.y=(i===0?0:segLen); grp.rotation.x=bend; parent.add(grp);
+    const r0=THREE.MathUtils.lerp(baseR,tipR,i/segs), r1=THREE.MathUtils.lerp(baseR,tipR,(i+1)/segs);
+    const seg=cyl(r1,r0,segLen,m,8); seg.position.y=segLen/2; grp.add(seg);
+    const ridge=new THREE.Mesh(new THREE.TorusGeometry(r0*1.05,r0*0.22,6,10),m); ridge.position.y=0.02; ridge.rotation.x=Math.PI/2; grp.add(ridge);
+    parent=grp;
+  }
+  return root;
+}
+
+/* decals */
+function decalCanvas(draw,w,h){w=w||128;h=h||128;const cv=document.createElement('canvas');cv.width=w;cv.height=h;draw(cv.getContext('2d'),w,h);
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;return tx;}
+function numberPlane(num,size,bg,fg){size=size||0.9;bg=bg||'#f4f5f7';fg=fg||'#14171d';
+  const tx=decalCanvas((ctx,w,h)=>{ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.fillStyle=fg;
+    ctx.font='bold 84px "Arial Narrow",Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(num,w/2,h/2+4);});
+  return new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshStandardMaterial({map:tx,roughness:0.5,metalness:0.05,envMap:envMap,envMapIntensity:0.3}));}
+function decalPlane(drawFn,w,h){const tx=decalCanvas(drawFn,Math.round(w*150),Math.round(h*150));
+  return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tx,roughness:0.55,metalness:0.05,envMap:envMap,envMapIntensity:0.3,transparent:true}));}
+function mapleLeaf(size){return decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#c6362b';ctx.beginPath();
+  const cx=w/2,cy=h*0.56,s=w*0.34;
+  ctx.moveTo(cx,cy-s);ctx.lineTo(cx+s*0.28,cy-s*0.32);ctx.lineTo(cx+s*0.62,cy-s*0.42);ctx.lineTo(cx+s*0.42,cy-s*0.05);
+  ctx.lineTo(cx+s*0.8,cy+s*0.1);ctx.lineTo(cx+s*0.34,cy+s*0.22);ctx.lineTo(cx+s*0.12,cy+s*0.7);
+  ctx.lineTo(cx,cy+s*0.5);ctx.lineTo(cx-s*0.12,cy+s*0.7);ctx.lineTo(cx-s*0.34,cy+s*0.22);
+  ctx.lineTo(cx-s*0.8,cy+s*0.1);ctx.lineTo(cx-s*0.42,cy-s*0.05);ctx.lineTo(cx-s*0.62,cy-s*0.42);
+  ctx.lineTo(cx-s*0.28,cy-s*0.32);ctx.closePath();ctx.fill();},size,size);}
+function swissCross(size){return decalPlane((ctx,w,h)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle='#f4f5f7';
+  const t=w*0.22,L=w*0.62,o=(w-L)/2;ctx.fillRect(w/2-t/2,o,t,L);ctx.fillRect(o,h/2-t/2,L,t);},size,size);}
+function nzFlag(w,h){return decalPlane((ctx,cw,ch)=>{ctx.fillStyle='#1b3a8a';ctx.fillRect(0,0,cw,ch);
+  ctx.fillStyle='#f4f5f7';ctx.fillRect(0,0,cw*0.42,ch*0.5);ctx.fillStyle='#1b3a8a';ctx.fillRect(2,2,cw*0.42-4,ch*0.5-4);
+  ctx.strokeStyle='#f4f5f7';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(cw*0.42,ch*0.5);ctx.moveTo(cw*0.42,0);ctx.lineTo(0,ch*0.5);ctx.stroke();
+  ctx.strokeStyle='#c6362b';ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle='#c6362b';[[0.7,0.32],[0.82,0.6],[0.6,0.72],[0.82,0.28]].forEach(p=>{ctx.beginPath();ctx.arc(cw*p[0],ch*p[1],3.2,0,Math.PI*2);ctx.fill();});},w,h);}
+
+/* contact shadow */
+let _ct=null; function contactTex(){if(_ct)return _ct;const cv=document.createElement('canvas');cv.width=cv.height=128;const ctx=cv.getContext('2d');
+  const g=ctx.createRadialGradient(64,64,4,64,64,62);g.addColorStop(0,'rgba(0,0,0,0.55)');g.addColorStop(0.6,'rgba(0,0,0,0.25)');g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=g;ctx.fillRect(0,0,128,128);_ct=new THREE.CanvasTexture(cv);return _ct;}
+function contactShadow(w,d){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:contactTex(),transparent:true,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.y=0.02;return m;}
+
+/* blink factor: eyes close briefly on a cycle */
+function blink(t,period,offset){period=period||3.4;offset=offset||0;const p=(t+offset)%period;
+  if(p<0.14){const x=p/0.14;return 0.14+0.86*Math.abs(Math.cos(x*Math.PI));}return 1;}
+function applyBlink(eyes,f){eyes.forEach(e=>e.scale.y=f);}
+
+/* small muzzle/nose */
+function nose(w,m){const g=new THREE.Group();const b=box(w,w*0.7,w*0.6,m);g.add(b);return g;}
+
+/* ============================================================
+   1 · CHEETAH  (Standard)  — low pounce, wing tail, #26
+   ============================================================ */
+function buildCheetah(){
+  const g=new THREE.Group();
+  const blue=paint(C.blue), white=paint(C.white), red=paint(C.red), fur=paint(C.amberFur,{rough:0.7}), furD=paint(C.amberDk,{rough:0.7}), dk=matte(0x0a0c10);
+  const eyes=[];
+  // torso (chest higher, hips raised for pounce)
+  const chest=box(0.72,0.6,1.0, blue); chest.position.set(0,0.82,0.35); g.add(chest);
+  const mid=box(0.66,0.56,0.9, blue); mid.position.set(0,0.86,-0.45); g.add(mid);
+  const belly=box(0.6,0.22,1.9, white); belly.position.set(0,0.56,-0.1); g.add(belly);
+  // red haunch panels
+  [-1,1].forEach(s=>{const hp=box(0.08,0.4,0.6,red); hp.position.set(s*0.35,0.88,-0.6); g.add(hp);});
+  // #26 racing patch on the back
+  const patch=box(0.5,0.02,0.6, white); patch.position.set(0,1.13,-0.1); g.add(patch);
+  const num=numberPlane('26',0.42); num.rotation.x=-Math.PI/2; num.position.set(0,1.145,-0.1); g.add(num);
+  // neck down-forward to head
+  const neck=box(0.4,0.42,0.55, fur); neck.position.set(0,0.72,0.9); neck.rotation.x=0.45; g.add(neck);
+  // head
+  const head=new THREE.Group(); head.position.set(0,0.5,1.32);
+  const skull=box(0.38,0.36,0.42, fur); head.add(skull);
+  const muzzle=box(0.26,0.24,0.32, fur); muzzle.position.set(0,-0.04,0.32); head.add(muzzle);
+  const nz=box(0.14,0.1,0.1, dk); nz.position.set(0,0.0,0.5); head.add(nz);
+  [-1,1].forEach(s=>{ const e=eye(0.06); e.position.set(s*0.14,0.08,0.24); head.add(e); eyes.push(e);
+    // tear stripe
+    const tr=box(0.03,0.18,0.03, furD); tr.position.set(s*0.13,-0.05,0.34); tr.rotation.x=0.3; head.add(tr);
+    // ear
+    const ear=cone(0.09,0.14,furD,6); ear.position.set(s*0.16,0.24,-0.02); head.add(ear);
+    const earIn=cone(0.05,0.09,dk,6); earIn.position.set(s*0.16,0.24,0.0); head.add(earIn); });
+  g.add(head);
+  // FRONT legs — stretched forward (pounce)
+  [-1,1].forEach(s=>{
+    const lg=new THREE.Group(); lg.position.set(s*0.28,0.72,0.7);
+    const up=box(0.15,0.2,0.6, blue); up.position.set(0,-0.02,0.28); up.rotation.x=1.15; lg.add(up);
+    const lo=box(0.12,0.62,0.12, white); lo.position.set(0,-0.32,0.62); lo.rotation.x=0.05; lg.add(lo);
+    const paw=box(0.15,0.1,0.24, white); paw.position.set(0,-0.6,0.7); lg.add(paw);
+    [-1,1].forEach(t=>{const toe=box(0.04,0.06,0.06, red); toe.position.set(t*0.04,-0.63,0.8); lg.add(toe);});
+    g.add(lg);
+  });
+  // REAR legs — folded, haunches high
+  [-1,1].forEach(s=>{
+    const lg=new THREE.Group(); lg.position.set(s*0.32,0.86,-0.7);
+    const thigh=box(0.22,0.42,0.3, red); thigh.position.set(0,-0.12,0.05); lg.add(thigh);
+    const shank=box(0.12,0.42,0.12, blue); shank.position.set(0,-0.42,-0.1); shank.rotation.x=-0.3; lg.add(shank);
+    const paw=box(0.15,0.1,0.24, white); paw.position.set(0,-0.6,-0.02); lg.add(paw);
+    [-1,1].forEach(t=>{const toe=box(0.04,0.06,0.06, red); toe.position.set(t*0.04,-0.63,0.08); lg.add(toe);});
+    g.add(lg);
+  });
+  // TAIL rising up-back -> rear WING (F1 callback)
+  const tail=new THREE.Group(); tail.position.set(0,0.95,-0.95);
+  const t1=box(0.14,0.14,0.5, blue); t1.position.set(0,0.12,-0.22); t1.rotation.x=-0.7; tail.add(t1);
+  const t2=box(0.12,0.12,0.45, white); t2.position.set(0,0.42,-0.5); t2.rotation.x=-1.1; tail.add(t2);
+  const post=box(0.08,0.3,0.08, matte(C.dark)); post.position.set(0,0.62,-0.72); tail.add(post);
+  const wing=box(0.95,0.08,0.34, white); wing.position.set(0,0.78,-0.78); wing.rotation.x=-0.14; tail.add(wing);
+  const wing2=box(0.95,0.06,0.24, red); wing2.position.set(0,0.66,-0.82); tail.add(wing2);
+  [-1,1].forEach(s=>{const ep=box(0.05,0.3,0.4, white); ep.position.set(s*0.46,0.72,-0.78); tail.add(ep);});
+  g.add(tail);
+  g.add(contactShadow(2.4,3.6));
+  g.userData.tick=(t)=>{ head.rotation.y=Math.sin(t*0.5)*0.12; tail.rotation.z=Math.sin(t*1.4)*0.06;
+    chest.scale.y=1+Math.sin(t*2)*0.02; applyBlink(eyes,blink(t,3.1)); };
+  return g;
+}
+
+/* ============================================================
+   2 · SCARAB  (Argentina) — striped dome shell, #26, 6 legs
+   ============================================================ */
+function buildScarab(){
+  const g=new THREE.Group();
+  const dk=matte(0x14171d), dk2=matte(0x0a0c10);
+  const eyes=[];
+  // domed shell — vertical sky/white panels over top hemisphere
+  const shell=new THREE.Group(); shell.position.set(0,0.72,-0.1);
+  const R=1.05, segs=12;
+  for(let i=0;i<segs;i++){
+    const p=new THREE.Mesh(new THREE.SphereGeometry(R,segs,7,(i/segs)*Math.PI*2,(1/segs)*Math.PI*2,0,Math.PI*0.52),
+      paint(i%2===0?C.sky:C.white,{rough:0.42,metal:0.15})); shell.add(p);
+  }
+  shell.scale.set(1.15,1.0,1.3);
+  // elytra seam down the middle
+  const seam=box(0.03,0.02,2.1, dk2); seam.position.set(0,R*0.5,0); shell.add(seam);
+  g.add(shell);
+  // #26 patch on shell
+  const patch=box(0.5,0.02,0.55, paint(C.white)); patch.position.set(0,1.42,0.35); patch.rotation.x=-0.5; g.add(patch);
+  const num=numberPlane('26',0.42); num.position.set(0,1.44,0.37); num.rotation.x=-0.5; g.add(num);
+  // dark underbody
+  const under=box(1.6,0.4,2.2, dk); under.position.set(0,0.5,-0.1); g.add(under);
+  // head (front +Z)
+  const head=new THREE.Group(); head.position.set(0,0.55,1.15);
+  const hb=box(0.5,0.4,0.5, dk); head.add(hb);
+  const cly=box(0.44,0.12,0.18, dk2); cly.position.set(0,-0.14,0.28); head.add(cly);
+  [-1,1].forEach(s=>{ const mand=cone(0.05,0.18,dk2,6); mand.rotation.x=Math.PI/2; mand.position.set(s*0.14,-0.14,0.42); head.add(mand);
+    const e=eye(0.08); e.position.set(s*0.26,0.06,0.18); head.add(e); eyes.push(e); });
+  // antennae
+  const ants=[];
+  [-1,1].forEach(s=>{ const a=new THREE.Group(); a.position.set(s*0.2,0.1,0.4);
+    const seg=box(0.03,0.03,0.28, dk2); seg.position.z=0.14; a.rotation.x=-0.5; a.rotation.y=s*0.4;
+    const club=box(0.08,0.05,0.1, dk2); club.position.set(0,0,0.28); a.add(seg,club); head.add(a); ants.push(a); });
+  g.add(head);
+  // six legs (blue-tipped, dark)
+  const legPos=[[-0.9,0.9],[0.9,0.9],[-1.0,0.0],[1.0,0.0],[-0.9,-0.9],[0.9,-0.9]];
+  legPos.forEach(p=>{ const lg=new THREE.Group(); lg.position.set(p[0],0.5,p[1]);
+    const fem=box(0.09,0.09,0.4, dk); fem.position.set(Math.sign(p[0])*0.16,-0.05,0); fem.rotation.z=Math.sign(p[0])*0.9; lg.add(fem);
+    const tib=box(0.06,0.34,0.06, dk); tib.position.set(Math.sign(p[0])*0.32,-0.2,0); lg.add(tib);
+    const foot=box(0.07,0.08,0.07, paint(C.blueLt)); foot.position.set(Math.sign(p[0])*0.32,-0.38,0); lg.add(foot);
+    g.add(lg); });
+  g.add(contactShadow(2.6,2.8));
+  g.userData.tick=(t)=>{ shell.position.y=0.72+Math.sin(t*1.4)*0.015; ants.forEach((a,i)=>a.rotation.z=Math.sin(t*3+i)*0.15); applyBlink(eyes,blink(t,2.7)); };
+  return g;
+}
+
+/* ============================================================
+   3 · MOOSE  (Norway) — red, palmate antlers, flank stripe
+   ============================================================ */
+function buildMoose(){
+  const g=new THREE.Group();
+  const red=paint(C.red), redD=paint(C.redDk), white=paint(C.white), blue=paint(C.blue),
+        tan=paint(C.tan,{rough:0.75}), muz=matte(0x3a2c22), hoof=matte(C.hoof);
+  const eyes=[];
+  // torso
+  const torso=box(1.5,1.05,2.6, red); torso.position.set(0,1.75,-0.15); g.add(torso);
+  const shoulder=box(1.55,1.1,1.0, red); shoulder.position.set(0,1.85,0.7); g.add(shoulder);
+  // diagonal blue+white stripe on flanks
+  [-1,1].forEach(s=>{ const ws=box(0.03,0.34,2.9, white); ws.position.set(s*0.77,1.7,-0.1); ws.rotation.x=0.12; g.add(ws);
+    const bs=box(0.035,0.18,2.9, blue); bs.position.set(s*0.78,1.5,-0.1); bs.rotation.x=0.12; g.add(bs); });
+  // legs
+  const legPos=[[-0.55,1.9,0.95],[0.55,1.9,0.95],[-0.55,1.8,-1.0],[0.55,1.8,-1.0]];
+  legPos.forEach(p=>{ const lg=standLeg(1.8,0.26,red,hoof,0.22,0.5); lg.position.set(p[0],p[1],p[2]); g.add(lg); });
+  // neck up-forward
+  const neck=box(0.7,1.0,0.7, red); neck.position.set(0,2.25,1.35); neck.rotation.x=0.5; g.add(neck);
+  // dewlap (bell)
+  const bell=box(0.24,0.5,0.2, muz); bell.position.set(0,1.7,1.5); g.add(bell);
+  // head + long drooping muzzle
+  const head=new THREE.Group(); head.position.set(0,2.75,1.85);
+  const skull=box(0.6,0.55,0.7, red); head.add(skull);
+  const snout=box(0.5,0.55,0.7, muz); snout.position.set(0,-0.2,0.55); head.add(snout);
+  const lip=box(0.44,0.24,0.3, muz); lip.position.set(0,-0.4,0.72); head.add(lip);
+  [-1,1].forEach(s=>{ const e=eye(0.09); e.position.set(s*0.28,0.14,0.3); head.add(e); eyes.push(e);
+    const ear=cone(0.13,0.3,red,6); ear.position.set(s*0.4,0.28,-0.15); ear.rotation.z=s*0.5; head.add(ear); });
+  // palmate antlers
+  [-1,1].forEach(s=>{ const A=new THREE.Group(); A.position.set(s*0.32,0.42,-0.05); A.rotation.z=s*0.5; A.rotation.x=-0.3;
+    const beam=box(0.12,0.4,0.12, tan); beam.position.y=0.2; A.add(beam);
+    const palm=box(0.12,0.42,0.5, tan); palm.position.set(0,0.5,0.05); palm.rotation.z=s*0.3; A.add(palm);
+    for(let i=0;i<4;i++){ const pt=cone(0.05,0.2,tan,6); pt.position.set(0,0.72,-0.18+i*0.14); pt.rotation.x=-0.2; A.add(pt); }
+    head.add(A); });
+  g.add(head);
+  const tail=box(0.16,0.34,0.14, red); tail.position.set(0,1.7,-1.45); g.add(tail);
+  g.add(contactShadow(2.8,3.4));
+  g.userData.tick=(t)=>{ head.rotation.y=Math.sin(t*0.4)*0.08; head.position.y=2.75+Math.sin(t*0.8)*0.03; applyBlink(eyes,blink(t,3.6)); };
+  return g;
+}
+
+/* ============================================================
+   4 · GIRAFFE  (Netherlands) — orange, window-band neck+back
+   ============================================================ */
+function buildGiraffe(){
+  const g=new THREE.Group();
+  const orange=paint(C.orange), orangeD=paint(C.orangeDk), cream=paint(C.cream,{rough:0.75}),
+        band=matte(0x14171d), hoof=matte(C.hoof), tan=paint(C.tan);
+  const eyes=[];
+  // torso (sloping, front higher)
+  const torso=box(0.95,0.95,2.4, orange); torso.position.set(0,2.05,-0.2); torso.rotation.x=-0.08; g.add(torso);
+  // window band along the back (bus callback)
+  const backBand=box(0.5,0.12,2.2, band); backBand.position.set(0,2.55,-0.2); backBand.rotation.x=-0.08; g.add(backBand);
+  for(let i=-3;i<=3;i++){ const d=box(0.52,0.14,0.06, orange); d.position.set(0,2.56,i*0.34-0.2); g.add(d); }
+  // legs (tall, cream lower, dark hooves)
+  const legPos=[[-0.38,2.0,0.9],[0.38,2.0,0.9],[-0.38,2.0,-1.1],[0.38,2.0,-1.1]];
+  legPos.forEach(p=>{ const lg=new THREE.Group(); lg.position.set(p[0],p[1],p[2]);
+    const up=box(0.2,1.1,0.2, orange); up.position.y=-0.55; lg.add(up);
+    const lo=box(0.15,0.95,0.15, cream); lo.position.y=-1.55; lg.add(lo);
+    const h=box(0.2,0.18,0.26, hoof); h.position.set(0,-2.05,0.03); lg.add(h); g.add(lg); });
+  // long neck up-forward with window band
+  const neck=new THREE.Group(); neck.position.set(0,2.5,0.9); neck.rotation.x=0.62;
+  const nb=box(0.5,2.0,0.55, orange); nb.position.y=1.0; neck.add(nb);
+  const nBand=box(0.16,2.0,0.06, band); nBand.position.set(0,1.0,0.29); neck.add(nBand);
+  for(let i=0;i<6;i++){ const d=box(0.18,0.06,0.08, orange); d.position.set(0,0.2+i*0.34,0.3); neck.add(d); }
+  g.add(neck);
+  // head
+  const head=new THREE.Group(); head.position.set(0,4.2,2.05);
+  const skull=box(0.42,0.4,0.62, orange); head.add(skull);
+  const muzzle=box(0.34,0.3,0.34, cream); muzzle.position.set(0,-0.05,0.42); head.add(muzzle);
+  [-1,1].forEach(s=>{ const e=eye(0.08); e.position.set(s*0.2,0.1,0.22); head.add(e); eyes.push(e);
+    const oss=cyl(0.05,0.06,0.24,orangeD,6); oss.position.set(s*0.13,0.3,-0.05); head.add(oss);
+    const knob=sphere(0.07,tan,7,6); knob.position.set(s*0.13,0.44,-0.05); head.add(knob);
+    const ear=cone(0.09,0.2,orange,6); ear.position.set(s*0.26,0.2,-0.1); ear.rotation.z=s*0.7; head.add(ear); });
+  g.add(head);
+  // tail with tuft
+  const tail=new THREE.Group(); tail.position.set(0,2.0,-1.4);
+  const ts=box(0.06,0.7,0.06, orange); ts.position.y=-0.3; tail.add(ts);
+  const tuft=box(0.1,0.24,0.1, band); tuft.position.y=-0.72; tail.add(tuft); g.add(tail);
+  g.add(contactShadow(2.2,3.2));
+  g.userData.tick=(t)=>{ neck.rotation.z=Math.sin(t*0.35)*0.05; head.rotation.z=Math.sin(t*0.35)*0.05; head.rotation.y=Math.sin(t*0.5)*0.08;
+    tail.rotation.z=Math.sin(t*1.6)*0.2; applyBlink(eyes,blink(t,3.9)); };
+  return g;
+}
+
+/* ============================================================
+   5 · BEAVER  (Canada) — brown face, white/blue body, blade tail
+   ============================================================ */
+function buildBeaver(){
+  const g=new THREE.Group();
+  const white=paint(C.white), blue=paint(C.blue), red=paint(C.red),
+        brown=paint(C.brown,{rough:0.8}), brownD=matte(C.brownDk), teeth=paint(C.teeth,{rough:0.4}), dk=matte(0x0a0c10);
+  const eyes=[];
+  // body (white upper, blue lower) — zamboni scheme
+  const body=box(1.5,1.1,2.4, white); body.position.set(0,1.0,-0.15); g.add(body);
+  const lower=box(1.52,0.5,2.42, blue); lower.position.set(0,0.6,-0.15); g.add(lower);
+  const back=box(1.35,0.5,1.0, white); back.position.set(0,1.55,-0.4); g.add(back); // rounded upper hump
+  // maple leaf on flank
+  const leaf=mapleLeaf(0.5); leaf.position.set(0.76,1.15,-0.2); leaf.rotation.y=-Math.PI/2; g.add(leaf);
+  // head (brown, front +Z) with buck teeth
+  const head=new THREE.Group(); head.position.set(0,1.05,1.15);
+  const skull=box(0.85,0.8,0.7, brown); head.add(skull);
+  const muzzle=box(0.55,0.45,0.4, brown); muzzle.position.set(0,-0.12,0.42); head.add(muzzle);
+  const nzb=box(0.2,0.14,0.12, dk); nzb.position.set(0,0.06,0.62); head.add(nzb);
+  const tth=box(0.22,0.24,0.06, teeth); tth.position.set(0,-0.28,0.58); head.add(tth);
+  const tsplit=box(0.02,0.24,0.07, brownD); tsplit.position.set(0,-0.28,0.59); head.add(tsplit);
+  [-1,1].forEach(s=>{ const e=eye(0.09); e.position.set(s*0.24,0.18,0.34); head.add(e); eyes.push(e);
+    const ear=sphere(0.11,brownD,7,6); ear.position.set(s*0.34,0.36,0.02); head.add(ear);
+    // whiskers
+    const wsk=box(0.3,0.01,0.01, dk); wsk.position.set(s*0.34,-0.1,0.55); wsk.rotation.y=s*0.3; head.add(wsk); });
+  g.add(head);
+  // legs (short)
+  [[-0.5,0.9],[0.5,0.9]].forEach(p=>{ const paw=box(0.28,0.4,0.35, brownD); paw.position.set(p[0],0.35,p[1]); g.add(paw); });
+  [[-0.55,-0.9],[0.55,-0.9]].forEach(p=>{ const foot=box(0.34,0.28,0.5, brownD); foot.position.set(p[0],0.3,p[1]); g.add(foot); });
+  // broad flat blade tail (zamboni blade callback), cross-hatch grooves
+  const tail=new THREE.Group(); tail.position.set(0,0.5,-1.4);
+  const paddle=box(0.9,0.14,1.1, brownD); paddle.position.set(0,-0.05,-0.5); paddle.rotation.x=0.18; tail.add(paddle);
+  for(let i=-1;i<=1;i++){ const gr=box(0.86,0.02,0.03, brown); gr.position.set(0,0.03,-0.5+i*0.3); gr.rotation.x=0.18; tail.add(gr); }
+  for(let i=-1;i<=1;i++){ const gr=box(0.03,0.02,1.0, brown); gr.position.set(i*0.28,0.03,-0.5); gr.rotation.x=0.18; tail.add(gr); }
+  g.add(tail);
+  g.add(contactShadow(2.4,3.4));
+  g.userData.tick=(t)=>{ head.position.y=1.05+Math.sin(t*2.2)*0.02; const slap=(t%4)<0.3?Math.sin((t%4)/0.3*Math.PI)*0.4:0; tail.rotation.x=slap; applyBlink(eyes,blink(t,2.9)); };
+  return g;
+}
+
+/* ============================================================
+   6 · TURKEY  (Türkiye) — round red body, R/W/B tail fan
+   ============================================================ */
+function buildTurkey(){
+  const g=new THREE.Group();
+  const red=paint(C.red,{rough:0.55}), redD=paint(C.redDk), white=paint(C.white), blue=paint(C.blue),
+        beak=paint(C.beak,{rough:0.4}), wattle=paint(C.wattle,{rough:0.5}), legM=matte(0x6e4c2e), dk=matte(0x0a0c10);
+  const eyes=[];
+  // big round body (balloon callback)
+  const body=sphere(1.15, red,14,11); body.position.set(0,1.25,0); body.scale.set(1.0,1.05,0.92); g.add(body);
+  const breast=sphere(0.7, red,12,10); breast.position.set(0,1.0,0.7); g.add(breast);
+  // small wings on sides
+  [-1,1].forEach(s=>{ const w=box(0.18,0.7,0.9, redD); w.position.set(s*1.02,1.2,-0.1); w.rotation.z=s*0.15; g.add(w); });
+  // TAIL FAN behind (radial R/W/B)
+  const fan=new THREE.Group(); fan.position.set(0,1.5,-0.95);
+  const N=13;
+  for(let i=0;i<N;i++){
+    const dist=Math.abs(i-(N-1)/2);
+    const col=dist<1.5?red:(dist<3.5?white:blue);
+    const holder=new THREE.Group(); const a=(i/(N-1)-0.5)*Math.PI*1.0; holder.rotation.z=-a;
+    const f=box(0.16,1.15,0.06, col); f.position.y=0.62; holder.add(f);
+    const tip=box(0.16,0.12,0.07, col===blue?white:col); tip.position.y=1.18; holder.add(tip);
+    fan.add(holder);
+  }
+  fan.rotation.x=-0.55; g.add(fan);
+  // neck + head
+  const neck=box(0.32,0.6,0.32, red); neck.position.set(0,2.0,0.55); neck.rotation.x=-0.2; g.add(neck);
+  const head=new THREE.Group(); head.position.set(0,2.35,0.7);
+  const skull=sphere(0.24, red,10,8); head.add(skull);
+  const bk=cone(0.11,0.3, beak,6); bk.rotation.x=Math.PI/2; bk.position.set(0,-0.02,0.28); head.add(bk);
+  const snood=box(0.06,0.22,0.06, wattle); snood.position.set(0,0.08,0.28); snood.rotation.x=0.5; head.add(snood);
+  const wat=box(0.12,0.26,0.1, wattle); wat.position.set(0,-0.22,0.16); head.add(wat);
+  [-1,1].forEach(s=>{ const e=eye(0.06); e.position.set(s*0.16,0.06,0.16); head.add(e); eyes.push(e); });
+  g.add(head);
+  // legs (thin)
+  [-1,1].forEach(s=>{ const lg=new THREE.Group(); lg.position.set(s*0.3,0.55,0.2);
+    const shin=box(0.09,0.55,0.09, legM); shin.position.y=-0.27; lg.add(shin);
+    for(let t=-1;t<=1;t++){ const toe=box(0.06,0.05,0.22, legM); toe.position.set(t*0.08,-0.54,0.1); toe.rotation.y=t*0.4; lg.add(toe); }
+    g.add(lg); });
+  g.add(contactShadow(2.4,2.6));
+  g.userData.tick=(t)=>{ head.rotation.y=Math.sin(t*0.7)*0.12; head.position.y=2.35+Math.sin(t*1.5)*0.03;
+    fan.children.forEach((h,i)=>h.rotation.x=Math.sin(t*2+i*0.4)*0.03); applyBlink(eyes,blink(t,2.5)); };
+  return g;
+}
+
+/* ============================================================
+   7 · GRASSHOPPER  (USA) — green, big hind legs, USA wing stripe
+   ============================================================ */
+function buildGrasshopper(){
+  const g=new THREE.Group();
+  const grn=paint(C.green,{rough:0.6}), grnL=paint(C.greenLt,{rough:0.6}), grnD=matte(C.greenDk),
+        yel=paint(C.yellow,{metal:0.1}), red=paint(C.red), white=paint(C.white), blue=paint(C.blue), dk=matte(0x0a0c10);
+  const eyes=[]; const ants=[];
+  // abdomen (tapering back), thorax, head along +Z
+  const abd=cyl(0.42,0.28,1.5, grn,10); abd.rotation.z=Math.PI/2; abd.rotation.y=Math.PI/2; abd.position.set(0,0.85,-0.7); g.add(abd);
+  const abdBelly=box(0.5,0.2,1.4, yel); abdBelly.position.set(0,0.62,-0.7); g.add(abdBelly);
+  const thorax=box(0.55,0.55,0.7, grnL); thorax.position.set(0,0.9,0.25); g.add(thorax);
+  const pronotum=box(0.6,0.3,0.5, grn); pronotum.position.set(0,1.12,0.2); pronotum.rotation.x=0.1; g.add(pronotum);
+  // folded wing with USA stripe (flag callback)
+  [-1,1].forEach(s=>{ const wing=box(0.05,0.42,1.3, grnL); wing.position.set(s*0.42,0.9,-0.6); g.add(wing);
+    const r=box(0.055,0.1,1.2, red); r.position.set(s*0.44,1.02,-0.6); g.add(r);
+    const w=box(0.055,0.08,1.2, white); w.position.set(s*0.445,0.92,-0.6); g.add(w);
+    const b=box(0.055,0.08,1.2, blue); b.position.set(s*0.45,0.83,-0.6); g.add(b); });
+  // head
+  const head=new THREE.Group(); head.position.set(0,0.95,0.75);
+  const hb=box(0.44,0.5,0.5, grn); head.add(hb);
+  const face=box(0.4,0.42,0.16, grnL); face.position.set(0,-0.02,0.28); head.add(face);
+  [-1,1].forEach(s=>{ const e=eye(0.13); e.position.set(s*0.24,0.12,0.18); head.add(e); eyes.push(e); });
+  // mandible hint
+  const jaw=box(0.24,0.12,0.1, grnD); jaw.position.set(0,-0.24,0.28); head.add(jaw);
+  // antennae (exhaust callback) — long thin sweeping back
+  [-1,1].forEach(s=>{ const a=new THREE.Group(); a.position.set(s*0.12,0.24,0.2);
+    const seg=box(0.03,0.03,0.9, grnD); seg.position.z=0.42; a.add(seg); a.rotation.x=-1.0; a.rotation.y=s*0.25;
+    const tip=box(0.04,0.04,0.1, dk); tip.position.z=0.88; a.add(tip); head.add(a); ants.push(a); });
+  g.add(head);
+  // BIG hind legs (Z-shape jump legs)
+  const hind=[];
+  [-1,1].forEach(s=>{ const L=new THREE.Group(); L.position.set(s*0.34,0.85,-0.3);
+    const femG=new THREE.Group(); femG.rotation.x=-0.7; femG.rotation.z=s*0.12;
+    const fem=box(0.2,0.75,0.24, grn); fem.position.y=0.32; femG.add(fem);
+    const femRidge=box(0.05,0.7,0.05, grnD); femRidge.position.set(0,0.32,0.14); femG.add(femRidge);
+    L.add(femG);
+    const tibG=new THREE.Group(); tibG.position.set(0,0.62,-0.42); tibG.rotation.x=2.2;
+    const tib=box(0.08,0.85,0.08, yel); tib.position.y=0.4; tibG.add(tib);
+    for(let k=0;k<4;k++){ const sp=cone(0.03,0.08,grnD,5); sp.position.set(0.05,0.2+k*0.18,0); sp.rotation.z=-1.2; tibG.add(sp); }
+    const foot=box(0.08,0.28,0.06, grnD); foot.position.set(0,0.82,0.06); foot.rotation.x=-0.5; tibG.add(foot);
+    femG.add(tibG); hind.push(L); g.add(L); });
+  // small front + mid legs
+  [[-0.28,0.4],[0.28,0.4],[-0.3,0.05],[0.3,0.05]].forEach(p=>{ const L=new THREE.Group(); L.position.set(p[0],0.75,p[1]);
+    const up=box(0.06,0.34,0.06, grn); up.position.set(Math.sign(p[0])*0.08,-0.14,0.04); up.rotation.z=Math.sign(p[0])*0.6; L.add(up);
+    const lo=box(0.05,0.34,0.05, grnD); lo.position.set(Math.sign(p[0])*0.2,-0.36,0.06); lo.rotation.z=Math.sign(p[0])*0.1; L.add(lo); g.add(L); });
+  g.add(contactShadow(2.2,2.8));
+  g.userData.tick=(t)=>{ ants.forEach((a,i)=>a.rotation.y=(i?1:-1)*(0.2+Math.sin(t*2.5)*0.12));
+    hind.forEach((L,i)=>L.rotation.x=Math.sin(t*3+i*Math.PI)*0.04); applyBlink(eyes,blink(t,2.3)); };
+  return g;
+}
+
+/* ============================================================
+   8 · IBEX  (Switzerland) — red, big curled horns, cross + panels
+   ============================================================ */
+function buildIbex(){
+  const g=new THREE.Group();
+  const red=paint(C.red), redD=paint(C.redDk), horn=paint(C.hornGrey,{rough:0.6,metal:0.15}),
+        beard=matte(0x1a1410), hoof=matte(C.hoof), dk=matte(0x0a0c10);
+  const eyes=[];
+  // torso
+  const torso=box(1.15,0.95,2.3, red); torso.position.set(0,1.55,-0.15); g.add(torso);
+  const chest=box(1.05,0.9,0.8, red); chest.position.set(0,1.55,0.85); g.add(chest);
+  // dark inset gondola-window panels on flanks
+  [-1,1].forEach(s=>{ const pn=box(0.04,0.5,0.9, dk); pn.position.set(s*0.59,1.55,-0.35); g.add(pn);
+    const frame=box(0.045,0.58,0.98, redD); frame.position.set(s*0.585,1.55,-0.35); g.add(frame);
+    const pnl=box(0.04,0.5,0.9, dk); pnl.position.set(s*0.59,1.55,-0.35); g.add(pnl); });
+  // white Swiss cross on flank
+  [-1,1].forEach(s=>{ const cross=swissCross(0.45); cross.position.set(s*0.6,1.65,0.5); cross.rotation.y=-s*Math.PI/2; g.add(cross); });
+  // legs
+  [[-0.42,0.9],[0.42,0.9],[-0.42,-1.05],[0.42,-1.05]].forEach(p=>{ const lg=standLeg(1.5,0.22,red,hoof,0.18,0.4); lg.position.set(p[0],1.6,p[1]); g.add(lg); });
+  // neck + head
+  const neck=box(0.55,0.75,0.6, red); neck.position.set(0,2.05,1.15); neck.rotation.x=0.5; g.add(neck);
+  const head=new THREE.Group(); head.position.set(0,2.45,1.55);
+  const skull=box(0.44,0.46,0.62, red); head.add(skull);
+  const muzzle=box(0.34,0.34,0.4, redD); muzzle.position.set(0,-0.08,0.42); head.add(muzzle);
+  const nzb=box(0.16,0.1,0.1, dk); nzb.position.set(0,-0.02,0.62); head.add(nzb);
+  const bd=box(0.2,0.4,0.14, beard); bd.position.set(0,-0.34,0.22); head.add(bd);
+  [-1,1].forEach(s=>{ const e=eye(0.08); e.position.set(s*0.2,0.1,0.28); head.add(e); eyes.push(e);
+    const ear=cone(0.09,0.24,red,6); ear.position.set(s*0.3,0.16,-0.05); ear.rotation.z=s*0.8; head.add(ear); });
+  // BIG curled horns sweeping up-and-back
+  [-1,1].forEach(s=>{ const H=curvedHorn(7,0.11,0.05,0.3,-0.42,horn); H.position.set(s*0.14,0.3,-0.05); H.rotation.x=-0.5; head.add(H); });
+  g.add(head);
+  const tail=box(0.14,0.3,0.12, red); tail.position.set(0,1.55,-1.32); tail.rotation.x=0.4; g.add(tail);
+  g.add(contactShadow(2.4,3.2));
+  g.userData.tick=(t)=>{ head.rotation.y=Math.sin(t*0.45)*0.1; tail.rotation.z=Math.sin(t*1.5)*0.2; torso.scale.y=1+Math.sin(t*1.8)*0.015; applyBlink(eyes,blink(t,3.3)); };
+  return g;
+}
+
+/* ============================================================
+   9 · TORTOISE  (New Zealand) — camper shell, RV windows, NZ flag
+   ============================================================ */
+function buildTortoise(){
+  const g=new THREE.Group();
+  const white=paint(C.white), blue=paint(C.blue), skin=matte(C.scale,{rough:0.9}), skinD=matte(C.scaleDk,{rough:0.9}),
+        dk=matte(0x0a0c10), nail=matte(0x1a1d14);
+  const eyes=[];
+  // domed camper shell (flatter top, longer in Z)
+  const shell=new THREE.Group(); shell.position.set(0,1.15,-0.1);
+  const dome=sphere(1.35, white,14,10); dome.scale.set(1.05,0.72,1.25);
+  // clip bottom by placing a rim under it
+  shell.add(dome);
+  const rim=cyl(1.42,1.42,0.35, white,16); rim.position.y=-0.55; shell.add(rim);
+  // scute seams on shell
+  const seamM=matte(0xcfd3d8,{rough:0.8});
+  for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; const s=box(0.03,0.02,1.2, seamM); s.position.set(Math.sin(a)*0.5,0.8,Math.cos(a)*0.5); s.rotation.y=a; shell.add(s); }
+  const topSeam=new THREE.Mesh(new THREE.TorusGeometry(0.7,0.02,6,20), seamM); topSeam.rotation.x=Math.PI/2; topSeam.position.y=0.72; shell.add(topSeam);
+  g.add(shell);
+  // blue stripe band around shell
+  const stripe=new THREE.Mesh(new THREE.TorusGeometry(1.4,0.08,8,24), blue); stripe.rotation.x=Math.PI/2; stripe.position.set(0,1.05,-0.1); stripe.scale.set(1.05,1.25,1); g.add(stripe);
+  // RV windows (blue glass) + door on shell side
+  [-1,1].forEach(s=>{ const win=box(0.05,0.4,0.7, GLASS_BLUE()); win.position.set(s*1.32,1.35,0.25); g.add(win);
+    const win2=box(0.05,0.36,0.5, GLASS_BLUE()); win2.position.set(s*1.34,1.35,-0.65); g.add(win2);
+    const frame=box(0.04,0.5,0.85, white); frame.position.set(s*1.3,1.35,0.25); g.add(frame); });
+  // NZ flag decal on shell
+  const flag=nzFlag(0.62,0.42); flag.position.set(1.36,1.75,-0.3); flag.rotation.y=-Math.PI/2; g.add(flag);
+  // head (dark scaly) front +Z on thick neck
+  const neck=box(0.42,0.42,0.5, skin); neck.position.set(0,0.75,1.15); g.add(neck);
+  const head=new THREE.Group(); head.position.set(0,0.8,1.55);
+  const skull=box(0.44,0.42,0.55, skin); head.add(skull);
+  const snout=box(0.34,0.3,0.3, skinD); snout.position.set(0,-0.05,0.36); head.add(snout);
+  [-1,1].forEach(s=>{ const nos=box(0.05,0.05,0.05, dk); nos.position.set(s*0.08,0.02,0.52); head.add(nos);
+    const e=eye(0.07); e.position.set(s*0.2,0.1,0.24); head.add(e); eyes.push(e); });
+  // scaly bumps
+  for(let i=0;i<5;i++){ const b=sphere(0.05,skinD,6,5); b.position.set((Math.random()-0.5)*0.3,0.22,-0.1+i*0.02); head.add(b); }
+  g.add(head);
+  // stubby elephantine legs with toenails
+  [[-0.85,0.85],[0.85,0.85],[-0.85,-0.85],[0.85,-0.85]].forEach(p=>{ const L=new THREE.Group(); L.position.set(p[0],0.5,p[1]);
+    const leg=cyl(0.32,0.36,0.55, skin,8); leg.position.y=-0.1; L.add(leg);
+    for(let t=0;t<3;t++){ const nl=box(0.08,0.06,0.08, nail); nl.position.set(-0.16+t*0.16,-0.36,0.28); L.add(nl); }
+    g.add(L); });
+  // little tail
+  const tail=cone(0.12,0.3, skinD,6); tail.rotation.x=-Math.PI/2.2; tail.position.set(0,0.6,-1.3); g.add(tail);
+  g.add(contactShadow(3.0,3.4));
+  // head slowly extends/retracts
+  g.userData.tick=(t)=>{ const ext=Math.sin(t*0.5)*0.12; head.position.z=1.55+ext; neck.position.z=1.15+ext*0.6; head.rotation.y=Math.sin(t*0.4)*0.1; applyBlink(eyes,blink(t,4.2)); };
+  return g;
+}
+
+/* ============================================================
+   FLOOR
+   ============================================================ */
+const floorMat=new THREE.MeshStandardMaterial({color:0x141720,roughness:0.62,metalness:0.28,envMap:envMap,envMapIntensity:0.55});
+const floor=box(80,0.1,80, floorMat); floor.position.y=-0.06; floor.receiveShadow=true; scene.add(floor);
+
+/* ============================================================
+   LAYOUT — 3×3 grid
+   ============================================================ */
+const roster=[
+  ['1','Cheetah','Racing',      buildCheetah],
+  ['2','Scarab','Argentina',    buildScarab],
+  ['3','Moose','Norway',        buildMoose],
+  ['4','Giraffe','Netherlands', buildGiraffe],
+  ['5','Beaver','Canada',       buildBeaver],
+  ['6','Turkey','Türkiye',      buildTurkey],
+  ['7','Grasshopper','USA',     buildGrasshopper],
+  ['8','Ibex','Switzerland',    buildIbex],
+  ['9','Tortoise','New Zealand',buildTortoise],
+];
+const GAP=8.6;
+const animals=[]; const tilePos=[];
+roster.forEach((r,i)=>{
+  const col=i%3,row=Math.floor(i/3); const x=(col-1)*GAP,z=(row-1)*GAP;
+  tilePos.push(new THREE.Vector3(x,0,z));
+  const tile=box(GAP-0.3,0.12,GAP-0.3,new THREE.MeshStandardMaterial({color:0x1c2027,roughness:0.85,metalness:0.1,envMap:envMap,envMapIntensity:0.25}));
+  tile.position.set(x,-0.05,z); tile.receiveShadow=true; scene.add(tile);
+  const frame=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(GAP-0.3,0.12,GAP-0.3)),new THREE.LineBasicMaterial({color:0x394150}));
+  frame.position.copy(tile.position); scene.add(frame);
+  const stencil=numberPlane(r[0],0.95,'#1c2027','#aeb6c2'); stencil.material.transparent=true; stencil.rotation.x=-Math.PI/2;
+  stencil.position.set(x-GAP/2+1.15,0.03,z-GAP/2+1.15); scene.add(stencil);
+  const a=r[3](); a.position.set(x,0,z); a.rotation.y=-0.5;
+  a.traverse(o=>{ if(o.isMesh){ o.castShadow=true; if(o.receiveShadow!==false) o.receiveShadow=true; } });
+  a.userData.num=r[0]; a.userData.name=r[1]; a.userData.country=r[2];
+  scene.add(a); animals.push(a);
+});
+
+/* ============================================================
+   ORBIT + click-to-focus
+   ============================================================ */
+const target=new THREE.Vector3(0,1.2,0), targetGoal=target.clone();
+let azim=0,polar=0.9,radius=24,radiusGoal=24,dragging=false,px=0,py=0,moved=0;
+const minPolar=0.16,maxPolar=1.46,minR=8,maxR=46;
+function applyCam(){const sp=Math.sin(polar),cp=Math.cos(polar);
+  camera.position.set(target.x+radius*sp*Math.sin(azim),target.y+radius*cp,target.z+radius*sp*Math.cos(azim)); camera.lookAt(target);}
+const el=renderer.domElement;
+el.addEventListener('pointerdown',e=>{dragging=true;moved=0;px=e.clientX;py=e.clientY;el.setPointerCapture(e.pointerId);});
+el.addEventListener('pointerup',e=>{dragging=false; if(moved<5) tryPick(e);});
+el.addEventListener('pointerleave',()=>dragging=false);
+el.addEventListener('pointermove',e=>{ if(dragging){moved+=Math.abs(e.movementX)+Math.abs(e.movementY);
+  azim-=(e.clientX-px)*0.005; polar=Math.min(maxPolar,Math.max(minPolar,polar-(e.clientY-py)*0.005)); px=e.clientX; py=e.clientY;} updateHover(e);});
+el.addEventListener('wheel',e=>{e.preventDefault(); radiusGoal=Math.min(maxR,Math.max(minR,radiusGoal+e.deltaY*0.014));},{passive:false});
+let pinchD=0;
+el.addEventListener('touchmove',e=>{ if(e.touches.length===2){const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,d=Math.hypot(dx,dy);
+  if(pinchD) radiusGoal=Math.min(maxR,Math.max(minR,radiusGoal+(pinchD-d)*0.05)); pinchD=d; e.preventDefault();}},{passive:false});
+el.addEventListener('touchend',()=>pinchD=0);
+function focusOn(i){targetGoal.copy(tilePos[i]).add(new THREE.Vector3(0,1.4,0)); radiusGoal=11;}
+function unfocus(){targetGoal.set(0,1.2,0); radiusGoal=24;}
+
+/* hover + pick */
+const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
+const tag=document.getElementById('tag'); const tagN=tag.querySelector('.n'),tagT=tag.querySelector('.t'),tagF=tag.querySelector('.f');
+function rootOf(o){while(o.parent&&!o.userData.name)o=o.parent;return o;}
+function updateHover(e){ ndc.x=(e.clientX/innerWidth)*2-1; ndc.y=-(e.clientY/innerHeight)*2+1; ray.setFromCamera(ndc,camera);
+  const hits=ray.intersectObjects(animals,true);
+  if(hits.length){const o=rootOf(hits[0].object); if(o.userData.name){tagN.textContent='#'+o.userData.num;tagT.textContent=o.userData.name;tagF.textContent='· '+o.userData.country;
+    tag.style.left=e.clientX+'px';tag.style.top=(e.clientY-14)+'px';tag.style.opacity='1';el.style.cursor='pointer';return;}}
+  tag.style.opacity='0'; el.style.cursor='grab';}
+let focused=-1;
+function tryPick(e){ ndc.x=(e.clientX/innerWidth)*2-1; ndc.y=-(e.clientY/innerHeight)*2+1; ray.setFromCamera(ndc,camera);
+  const hits=ray.intersectObjects(animals,true);
+  if(hits.length){const o=rootOf(hits[0].object); const i=animals.indexOf(o); if(i>=0){ if(focused===i){focused=-1;unfocus();}else{focused=i;focusOn(i);} }}
+  else{focused=-1;unfocus();}}
+document.getElementById('grid').addEventListener('click',e=>{const li=e.target.closest('li'); if(!li)return; const i=+li.dataset.i;
+  if(focused===i){focused=-1;unfocus();}else{focused=i;focusOn(i);}});
+
+/* ============================================================
+   ANIMATE
+   ============================================================ */
+const t0=performance.now();
+function loop(){ const t=(performance.now()-t0)/1000;
+  radius+=(radiusGoal-radius)*0.08; target.lerp(targetGoal,0.08); applyCam();
+  animals.forEach((a,i)=>{ const sway=(focused===i)?0:Math.sin(t*0.25+i)*0.3; a.rotation.y=-0.5+sway; if(a.userData.tick) a.userData.tick(t); });
+  renderer.render(scene,camera); requestAnimationFrame(loop);
+}
+applyCam(); loop();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>

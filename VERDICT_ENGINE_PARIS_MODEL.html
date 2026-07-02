@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>VERDICT ENGINE · THE PARIS MODEL</title>
+<style>
+:root{
+  --bg:#000;--panel:#060708;--ink:#fff;--muted:#7e858c;--line:#252a2f;
+  --teal:#19e6c8;--blue:#3b82f6;--amber:#ffd23f;--red:#ff2e2e;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+  font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;height:100dvh;background:var(--bg);color:var(--ink);overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.35;cursor:not-allowed}
+.hidden{display:none!important}
+#app{height:100dvh;display:grid;grid-template-rows:auto auto 1fr;overflow:hidden;background:#000}
+#topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:calc(10px + var(--safe-t)) 12px 10px;border-bottom:1px solid var(--line);background:#000;z-index:20}
+#brand{font-weight:800;letter-spacing:.18em;font-size:12px;white-space:nowrap}
+#brand small{display:block;color:var(--teal);font-size:8px;letter-spacing:.16em;margin-top:3px}
+#mode-tabs{display:flex;gap:7px}
+.mode-tab{min-width:98px;height:46px;border:1px solid #2a2e34;background:#090a0b;font-size:20px;font-weight:900;letter-spacing:.06em}
+.mode-tab.active{border-color:var(--red);background:#e51d38;color:#fff;box-shadow:0 0 24px #e51d3855}
+#menu-btn{justify-self:end;width:46px;height:46px;border:1px solid var(--teal);background:#020303;color:var(--teal);font-size:22px}
+#stagebar{display:grid;grid-template-columns:1fr auto;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);background:#020303}
+#stage-title{font-size:12px;letter-spacing:.16em;color:var(--teal)}
+#stage-step{font-size:9px;letter-spacing:.12em;color:#aeb5bc}
+#main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 390px;overflow:hidden}
+#scene-column{min-width:0;min-height:0;display:grid;grid-template-rows:minmax(330px,1fr) auto;border-right:1px solid var(--line)}
+#scene-wrap{position:relative;min-height:0;overflow:hidden;background:radial-gradient(circle at 50% 45%,#101417 0,#050607 44%,#000 78%)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#scene-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(#000b,transparent 18%,transparent 76%,#000b)}
+#case-tag{position:absolute;left:14px;top:12px;border:1px solid var(--line);background:#000c;padding:7px 9px;font-size:8px;letter-spacing:.12em;color:#b5bcc3;z-index:5}
+#case-tag b{color:var(--teal)}
+#view-tag{position:absolute;right:14px;top:12px;border:1px solid var(--line);background:#000c;padding:7px 9px;font-size:8px;letter-spacing:.12em;color:#b5bcc3;z-index:5}
+#ring{position:absolute;left:50%;top:50%;width:min(72vmin,620px);aspect-ratio:1;transform:translate(-50%,-50%);border:1px solid #aab1b933;border-radius:50%;z-index:6;pointer-events:none}
+#ring:before{content:"";position:absolute;inset:13%;border:1px solid #aab1b922;border-radius:50%;pointer-events:none}
+.ring-btn{position:absolute;width:62px;height:62px;margin:-31px;border:1px solid #4a5158;background:#030405e8;color:#fff;pointer-events:auto;display:grid;place-items:center;text-align:center;font-size:8px;letter-spacing:.08em;line-height:1.2}
+.ring-btn strong{display:block;font-size:18px;line-height:1;margin-bottom:3px;color:var(--teal);font-weight:500}
+.ring-btn.active{border-color:var(--teal);box-shadow:0 0 16px #19e6c844}
+.ring-btn.danger strong{color:var(--red)}
+.ring-btn.warn strong{color:var(--amber)}
+.ring-btn.blue strong{color:var(--blue)}
+#timeline{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(620px,86%);height:52px;border:1px solid var(--line);background:#000d;display:grid;grid-template-columns:52px 1fr 54px;align-items:center;z-index:9}
+#play-btn,#replay-btn{height:100%;border:0;border-right:1px solid var(--line);background:#040506;font-size:19px}
+#replay-btn{border-right:0;border-left:1px solid var(--line)}
+#timeline-mid{padding:0 12px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;font-size:8px;color:#aab1b9}
+#time-slider{width:100%;accent-color:var(--teal)}
+#scene-caption{padding:9px 12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;background:#020303;font-size:8px;letter-spacing:.09em;color:#8d959d}
+#scene-caption b{color:#fff}
+#work{min-width:0;min-height:0;overflow:auto;padding:12px;background:#020303;touch-action:pan-y}
+.section{border:1px solid var(--line);background:#050607;margin-bottom:10px}
+.section-head{display:flex;justify-content:space-between;align-items:center;padding:10px 11px;border-bottom:1px solid var(--line);font-size:9px;letter-spacing:.12em;color:var(--teal)}
+.section-body{padding:11px}
+.kicker{font-size:8px;color:var(--muted);letter-spacing:.1em;line-height:1.5}
+textarea,input[type=text],input[type=number],select{width:100%;border:1px solid #444b52;background:#020303;padding:11px;outline:none;border-radius:0}
+textarea:focus,input:focus,select:focus{border-color:var(--teal)}
+textarea{min-height:108px;resize:vertical;line-height:1.5}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.btn{min-height:46px;border:1px solid #444b52;background:#050607;font-size:9px;font-weight:800;letter-spacing:.1em;padding:8px}
+.btn.primary{border-color:var(--teal);color:var(--teal)}
+.btn.fill{background:var(--teal);border-color:var(--teal);color:#000}
+.btn.blue{border-color:var(--blue);color:var(--blue)}
+.btn.amber{border-color:var(--amber);color:var(--amber)}
+.btn.red{border-color:var(--red);color:var(--red)}
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.mode-choice{min-height:48px;border:1px solid #41474d;background:#020303;font-size:8px;letter-spacing:.08em}
+.mode-choice.active{border-color:var(--teal);color:var(--teal)}
+.party-strip{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:10px}
+.party-btn{height:42px;border:0;background:#040506;color:#777;font-size:9px;letter-spacing:.12em}
+.party-btn.active.party-a{color:var(--blue);box-shadow:inset 0 -2px var(--blue)}
+.party-btn.active.party-b{color:var(--amber);box-shadow:inset 0 -2px var(--amber)}
+.claim{border:1px solid #333940;padding:9px;margin-bottom:7px;background:#020303;cursor:pointer}
+.claim.active{border-color:var(--teal)}
+.claim-top{display:flex;justify-content:space-between;gap:8px;font-size:8px;letter-spacing:.08em}
+.claim p{font-size:9px;color:#c2c8ce;line-height:1.45;margin:7px 0 0}
+.badge{border:1px solid #485057;padding:3px 5px;font-size:7px;letter-spacing:.08em;white-space:nowrap}
+.badge.observed{border-color:var(--teal);color:var(--teal)}
+.badge.inferred{border-color:var(--blue);color:var(--blue)}
+.badge.hypothetical{border-color:var(--amber);color:var(--amber)}
+.badge.fabricated{border-color:var(--red);color:var(--red)}
+.slider{margin-bottom:10px}
+.slider label{display:flex;justify-content:space-between;font-size:8px;color:#aab1b8;margin-bottom:5px}
+.slider input{width:100%;accent-color:var(--teal)}
+.mini-ledger{display:grid;gap:6px}
+.ledger-row{display:grid;grid-template-columns:84px 1fr auto;gap:8px;align-items:start;border-top:1px solid #292e33;padding:8px 0;font-size:8px;line-height:1.4;color:#aeb5bc}
+.score-grid{display:grid;gap:8px}
+.score-row{display:grid;grid-template-columns:116px 1fr 38px;gap:8px;align-items:center;font-size:8px}
+.score-track{height:8px;border:1px solid #394047;background:#010202}
+.score-fill{height:100%;background:var(--teal);width:0}
+#toast{position:fixed;left:50%;top:18%;transform:translate(-50%,-8px);background:#000;border:1px solid #fff;padding:9px 12px;font-size:8px;letter-spacing:.11em;opacity:0;pointer-events:none;transition:.18s;z-index:100}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#drawer{position:fixed;right:12px;top:calc(70px + var(--safe-t));width:min(330px,calc(100vw - 24px));border:1px solid var(--teal);background:#020303;z-index:50;display:none;padding:10px;box-shadow:0 18px 70px #000}
+#drawer.show{display:block}
+#drawer h3{font-size:10px;color:var(--teal);letter-spacing:.12em;margin:0 0 10px}
+#drawer p{font-size:8px;color:#9da5ac;line-height:1.55}
+#boot{position:fixed;inset:0;background:#000;z-index:200;display:grid;place-items:center;padding:24px;text-align:center}
+#boot h1{font-size:clamp(34px,10vw,84px);line-height:.9;margin:14px 0;letter-spacing:-.05em}
+#boot small{color:var(--teal);letter-spacing:.24em}
+.loader{width:min(420px,80vw);height:2px;background:#20252a;margin:20px auto;overflow:hidden}.loader i{display:block;height:100%;width:32%;background:var(--teal);animation:load 1.2s infinite}@keyframes load{from{transform:translateX(-110%)}to{transform:translateX(430%)}}
+@media(max-width:900px){
+  #main{grid-template-columns:1fr;grid-template-rows:minmax(390px,56vh) minmax(0,1fr)}
+  #scene-column{border-right:0;border-bottom:1px solid var(--line);grid-template-rows:1fr auto}
+  #work{padding:10px}
+  #brand small{display:none}
+  .mode-tab{min-width:84px;height:42px;font-size:18px}
+  #ring{width:min(82vw,520px)}
+  .ring-btn{width:54px;height:54px;margin:-27px;font-size:7px}.ring-btn strong{font-size:16px}
+}
+@media(max-width:520px){
+  #topbar{grid-template-columns:1fr auto auto;padding-left:9px;padding-right:9px}
+  #brand{font-size:9px;letter-spacing:.12em}
+  .mode-tab{min-width:72px;height:40px;font-size:15px}
+  #menu-btn{width:40px;height:40px}
+  #main{grid-template-rows:minmax(330px,53vh) minmax(0,1fr)}
+  #ring{width:min(88vw,430px)}
+  .ring-btn{width:48px;height:48px;margin:-24px}
+  #timeline{width:92%;height:46px;bottom:8px}
+  #case-tag,#view-tag{font-size:7px;padding:5px 6px}
+  .row3{grid-template-columns:1fr}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>window.THREE||document.write('<scr'+'ipt src="https://unpkg.com/three@0.160.0/build/three.min.js"><\/scr'+'ipt>')</script>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div id="brand">VERDICT ENGINE<small>THE PARIS MODEL</small></div>
+    <div id="mode-tabs">
+      <button class="mode-tab active" data-mode="hello">HELLO</button>
+      <button class="mode-tab" data-mode="world">WORLD</button>
+    </div>
+    <button id="menu-btn" aria-label="menu">≡</button>
+  </header>
+  <div id="stagebar"><div id="stage-title">WITNESS</div><div id="stage-step">STEP 01 OF 07</div></div>
+  <main id="main">
+    <section id="scene-column">
+      <div id="scene-wrap">
+        <canvas id="gl"></canvas><div id="scene-shade"></div>
+        <div id="case-tag"><b>CASE</b> 19-247-A · CAM 02</div>
+        <div id="view-tag">EVIDENCE REPLAY</div>
+        <div id="ring"></div>
+        <div id="timeline">
+          <button id="play-btn" aria-label="play">▶</button>
+          <div id="timeline-mid"><span id="time-now">00:00</span><input id="time-slider" type="range" min="0" max="12" step="0.01" value="0"><span>00:12</span></div>
+          <button id="replay-btn" aria-label="replay">↺</button>
+        </div>
+      </div>
+      <div id="scene-caption"><span id="caption-left">WATCH THE SAME INCIDENT</span><span id="caption-right"><b>PASS 1 / 2</b></span></div>
+    </section>
+    <aside id="work"></aside>
+  </main>
+</div>
+<div id="drawer"><h3>CASE MENU</h3><p>The source replay is fixed. Party accounts are sealed before roles are assigned. Every reconstruction claim must be marked OBSERVED, INFERRED, or HYPOTHETICAL.</p><button class="btn primary" id="reset-game">RESET CASE</button></div>
+<div id="toast"></div>
+<div id="boot"><div><small>THREE.JS + JOLT WASM</small><h1>VERDICT<br>ENGINE</h1><div class="loader"><i></i></div><div id="boot-state" class="kicker">LOADING EVIDENCE WORLD</div></div></div>
+<script type="module">
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=n=>String(Math.floor(n)).padStart(2,'0')+':'+String(Math.floor((n%1)*60)).padStart(2,'0');
+const uid=()=>Math.random().toString(36).slice(2,8).toUpperCase();
+let toastTimer=0;
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('show'),1400)}
+
+const TRUTH={
+  redSpeed:11.6, graySpeed:8.4, signal:'red', grayTurn:'left', brake:0.32,
+  wet:true, skid:6.8, impact:18.7, duration:12
+};
+const partyTemplate=role=>({
+  role,account:'',sealed:false,built:false,submitted:false,
+  spec:{redSpeed:10,graySpeed:8,signal:'unknown',grayTurn:'straight',brake:.5,wet:false,skid:0},
+  claims:[],versions:[],challenges:[],rulings:[],score:null
+});
+const state={
+  mode:'hello',stage:'witnessA',activeParty:'A',viewMode:'source',playing:false,time:0,pass:1,
+  selectedTool:'prompt',selectedClaim:null,selectedOpponentClaim:null,challengeType:'NOT VISIBLE',
+  parties:{A:partyTemplate('PROSECUTION'),B:partyTemplate('DEFENSE')},
+  ruling:null,verdict:null
+};
+const STAGES={witnessA:[1,'WITNESS · PARTY A'],witnessB:[1,'WITNESS · PARTY B'],buildA:[2,'RECONSTRUCT · PROSECUTION'],buildB:[3,'RECONSTRUCT · DEFENSE'],challengeA:[4,'CONFRONTATION · PROSECUTION'],challengeB:[5,'CONFRONTATION · DEFENSE'],ruling:[6,'RULING'],verdict:[7,'VERDICT']};
+
+if(!window.THREE){$('boot-state').textContent='THREE.JS FAILED TO LOAD';throw new Error('Three unavailable')}
+let Jolt=null,jolt=null,physicsSystem=null,bodyInterface=null;
+try{
+  const importWithTimeout=(url,ms=7000)=>Promise.race([import(url),new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),ms))]);
+  let mod;
+  try{mod=await importWithTimeout('https://cdn.jsdelivr.net/npm/jolt-physics@1.0.0/dist/jolt-physics.wasm-compat.js')}
+  catch(_){mod=await importWithTimeout('https://unpkg.com/jolt-physics@1.0.0/dist/jolt-physics.wasm-compat.js')}
+  Jolt=await Promise.race([mod.default(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Jolt init timeout')),9000))]);
+  const settings=new Jolt.JoltSettings();
+  settings.mMaxWorkerThreads=Math.max(1,Math.min(3,(navigator.hardwareConcurrency||4)-1));
+  const pair=new Jolt.ObjectLayerPairFilterTable(2);pair.EnableCollision(0,1);pair.EnableCollision(1,1);
+  const bp0=new Jolt.BroadPhaseLayer(0),bp1=new Jolt.BroadPhaseLayer(1);
+  const bpi=new Jolt.BroadPhaseLayerInterfaceTable(2,2);bpi.MapObjectToBroadPhaseLayer(0,bp0);bpi.MapObjectToBroadPhaseLayer(1,bp1);
+  settings.mObjectLayerPairFilter=pair;settings.mBroadPhaseLayerInterface=bpi;settings.mObjectVsBroadPhaseLayerFilter=new Jolt.ObjectVsBroadPhaseLayerFilterTable(bpi,2,pair,2);
+  jolt=new Jolt.JoltInterface(settings);Jolt.destroy(settings);physicsSystem=jolt.GetPhysicsSystem();bodyInterface=physicsSystem.GetBodyInterface();physicsSystem.SetGravity(new Jolt.Vec3(0,-9.81,0));
+}catch(err){console.warn('Jolt unavailable, using deterministic replay fallback',err)}
+
+const renderer=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x030405);scene.fog=new THREE.FogExp2(0x030405,.025);
+const camera=new THREE.PerspectiveCamera(48,1,.1,160);camera.position.set(12,14,15);camera.lookAt(0,0,0);
+scene.add(new THREE.HemisphereLight(0xaecbff,0x160e0c,1.5));
+const sun=new THREE.DirectionalLight(0xffffff,3);sun.position.set(-8,18,10);scene.add(sun);
+const tealLight=new THREE.PointLight(0x19e6c8,24,18,2);tealLight.position.set(0,7,0);scene.add(tealLight);
+const world=new THREE.Group();scene.add(world);
+const overlayGroup=new THREE.Group();scene.add(overlayGroup);
+
+function mat(color,rough=.62,metal=.05,opacity=1){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal,transparent:opacity<1,opacity})}
+function toyCar(color){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.BoxGeometry(2.15,.65,4.2),mat(color,.42,.18));body.position.y=.55;g.add(body);
+  const hood=new THREE.Mesh(new THREE.BoxGeometry(1.9,.42,1.25),mat(color,.38,.2));hood.position.set(0,.93,1.12);g.add(hood);
+  const cabin=new THREE.Mesh(new THREE.BoxGeometry(1.7,.72,1.65),mat(0x14191f,.22,.25,.92));cabin.position.set(0,1.15,-.42);g.add(cabin);
+  for(const x of [-1.05,1.05])for(const z of [-1.35,1.35]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.28,18),mat(0x101214,.9,.05));w.rotation.z=Math.PI/2;w.position.set(x,.42,z);g.add(w)}
+  g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g;
+}
+function road(){
+  const g=new THREE.Group();
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(16,.45,16),mat(0x121417,.86,.02));slab.position.y=-.25;g.add(slab);
+  const grid=new THREE.GridHelper(16,16,0x56616a,0x262b30);grid.position.y=.01;g.add(grid);
+  const stripeMat=new THREE.MeshBasicMaterial({color:0xe8edf2});
+  for(let i=-7;i<=7;i+=2){const a=new THREE.Mesh(new THREE.BoxGeometry(.18,.02,1.1),stripeMat);a.position.set(-2.9,.03,i);g.add(a);const b=a.clone();b.position.x=2.9;g.add(b);const c=new THREE.Mesh(new THREE.BoxGeometry(1.1,.02,.18),stripeMat);c.position.set(i,.03,-2.9);g.add(c);const d=c.clone();d.position.z=2.9;g.add(d)}
+  for(const z of [-4.4,4.4])for(let x=-6.5;x<=6.5;x+=1.3){const m=new THREE.Mesh(new THREE.BoxGeometry(.8,.025,.32),stripeMat);m.position.set(x,.035,z);g.add(m)}
+  for(const x of [-4.4,4.4])for(let z=-6.5;z<=6.5;z+=1.3){const m=new THREE.Mesh(new THREE.BoxGeometry(.32,.025,.8),stripeMat);m.position.set(x,.035,z);g.add(m)}
+  return g;
+}
+world.add(road());
+function trafficLight(x,z,rot=0){const g=new THREE.Group();const pole=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,5,10),mat(0x383d42,.75,.2));pole.position.y=2.5;g.add(pole);const box=new THREE.Mesh(new THREE.BoxGeometry(.52,1.5,.42),mat(0x1b1e20));box.position.y=4.6;g.add(box);['red','amber','green'].forEach((k,i)=>{const c={red:0xff2e2e,amber:0xffd23f,green:0x19e6c8}[k];const l=new THREE.Mesh(new THREE.SphereGeometry(.13,16,10),new THREE.MeshBasicMaterial({color:c}));l.position.set(0,5.05-i*.46,.23);g.add(l)});g.position.set(x,0,z);g.rotation.y=rot;world.add(g)}
+trafficLight(-5.7,-5.7,.78);trafficLight(5.7,5.7,-2.36);
+const debrisMat=mat(0x4a4d50,.9,.02);for(let i=0;i<26;i++){const d=new THREE.Mesh(new THREE.BoxGeometry(.08+Math.random()*.28,.05+Math.random()*.14,.08+Math.random()*.28),debrisMat);d.position.set((Math.random()-.5)*4.4,.08,(Math.random()-.5)*4.4);d.rotation.y=Math.random()*6;world.add(d)}
+
+const cars={red:toyCar(0xc62534),gray:toyCar(0xa5abb1)};world.add(cars.red,cars.gray);
+let bodies={red:null,gray:null};
+function createBody(car,pos,rot,mass=1200){
+  if(!Jolt)return null;const shape=new Jolt.BoxShape(new Jolt.Vec3(1.05,.43,2.05),.04,null);const q=Jolt.Quat.prototype.sRotation(new Jolt.Vec3(0,1,0),rot);const cs=new Jolt.BodyCreationSettings(shape,new Jolt.RVec3(pos.x,pos.y,pos.z),q,Jolt.EMotionType_Dynamic,1);cs.mOverrideMassProperties=Jolt.EOverrideMassProperties_CalculateInertia;cs.mMassPropertiesOverride.mMass=mass;const b=bodyInterface.CreateBody(cs);Jolt.destroy(cs);b.SetFriction(.9);b.SetRestitution(.03);b.SetLinearDamping(.05);b.SetAngularDamping(.2);bodyInterface.AddBody(b.GetID(),Jolt.EActivation_Activate);return b;
+}
+if(Jolt){
+  const ground=new Jolt.BoxShape(new Jolt.Vec3(8,.25,8),.04,null);const cs=new Jolt.BodyCreationSettings(ground,new Jolt.RVec3(0,-.25,0),Jolt.Quat.prototype.sIdentity(),Jolt.EMotionType_Static,0);const gb=bodyInterface.CreateBody(cs);Jolt.destroy(cs);bodyInterface.AddBody(gb.GetID(),Jolt.EActivation_DontActivate);
+  bodies.red=createBody(cars.red,{x:0,y:.55,z:-8},0);bodies.gray=createBody(cars.gray,{x:-8,y:.55,z:0},Math.PI/2);
+}
+function syncBody(body,obj){const p=body.GetPosition(),q=body.GetRotation();obj.position.set(p.GetX(),p.GetY(),p.GetZ());obj.quaternion.set(q.GetX(),q.GetY(),q.GetZ(),q.GetW())}
+function setBody(body,pos,rot,vel){const q=Jolt.Quat.prototype.sRotation(new Jolt.Vec3(0,1,0),rot);bodyInterface.SetPositionAndRotation(body.GetID(),new Jolt.RVec3(pos.x,pos.y,pos.z),q,Jolt.EActivation_Activate);bodyInterface.SetLinearAndAngularVelocity(body.GetID(),new Jolt.Vec3(vel.x,0,vel.z),new Jolt.Vec3(0,0,0))}
+function resetReplay(spec=TRUTH){state.time=0;$('time-slider').value=0;const redV=spec.redSpeed,grayV=spec.graySpeed;cars.red.visible=true;cars.gray.visible=true;if(Jolt){setBody(bodies.red,{x:0,y:.55,z:-8},0,{x:0,z:redV});setBody(bodies.gray,{x:-8,y:.55,z:0},Math.PI/2,{x:grayV,z:0})}else{cars.red.position.set(0,.55,-8);cars.red.rotation.y=0;cars.gray.position.set(-8,.55,0);cars.gray.rotation.y=Math.PI/2}}
+function sampleFallback(t,spec){const r=Math.min(t*spec.redSpeed*.12,8.2),g=Math.min(t*spec.graySpeed*.12,8.2);cars.red.position.set(0,.55,-8+r);cars.gray.position.set(-8+g,.55,0);if(t>6.5){const k=(t-6.5)*.18;cars.red.rotation.z=-k;cars.gray.rotation.z=k*.8}}
+function specForView(){if(state.viewMode==='A')return state.parties.A.spec;if(state.viewMode==='B')return state.parties.B.spec;return TRUTH}
+resetReplay(TRUTH);
+
+const ringTools={
+  witness:[['REPLAY','↺'],['PAUSE','Ⅱ'],['MARK','⌖'],['ACCOUNT','T']],
+  build:[['PROMPT','…'],['OBJECTS','□'],['MOTION','∿'],['TRACES','≋'],['CLAIMS','≡'],['VERSIONS','▤'],['SUBMIT','→']],
+  challenge:[['VIDEO','▶'],['PARTY A','A'],['PARTY B','B'],['OVERLAY','◎'],['CLAIMS','≡'],['CHALLENGE','!'],['JUDGE','J']],
+  verdict:[['VIDEO','▶'],['OVERLAY','◎'],['LEDGER','≡'],['EXPORT','⇧']]
+};
+function stageFamily(){if(state.stage.startsWith('witness'))return'witness';if(state.stage.startsWith('build'))return'build';if(state.stage.startsWith('challenge'))return'challenge';if(state.stage==='ruling')return'challenge';return'verdict'}
+function setRing(){const ring=$('ring');ring.innerHTML='';const tools=ringTools[stageFamily()];tools.forEach((t,i)=>{const a=(Math.PI*2*i/tools.length)-Math.PI/2;const b=document.createElement('button');b.className='ring-btn'+(t[0]===state.selectedTool?' active':'');b.style.left=(50+44*Math.cos(a))+'%';b.style.top=(50+44*Math.sin(a))+'%';b.innerHTML=`<span><strong>${t[1]}</strong>${t[0]}</span>`;b.onclick=()=>ringAction(t[0]);ring.appendChild(b)})}
+function ringAction(tool){state.selectedTool=tool;setRing();
+  if(tool==='REPLAY'){resetReplay(TRUTH);state.playing=true}
+  if(tool==='PAUSE')state.playing=!state.playing;
+  if(tool==='ACCOUNT')document.querySelector('textarea')?.focus();
+  if(tool==='SUBMIT')submitBuild();
+  if(tool==='VIDEO'){state.viewMode='source';resetReplay(TRUTH);updateViewTag()}
+  if(tool==='PARTY A'){state.viewMode='A';resetReplay(state.parties.A.spec);updateViewTag()}
+  if(tool==='PARTY B'){state.viewMode='B';resetReplay(state.parties.B.spec);updateViewTag()}
+  if(tool==='OVERLAY'){state.viewMode='overlay';showOverlay();updateViewTag()}
+  if(tool==='JUDGE')advanceJudge();
+  renderWork();
+}
+function showOverlay(){overlayGroup.clear();const specs=[['A',state.parties.A.spec,0x3b82f6],['B',state.parties.B.spec,0xffd23f]];for(const [id,s,c] of specs){const r=toyCar(c),g=toyCar(c);r.traverse(o=>{if(o.material){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.32;o.material.wireframe=true}});g.traverse(o=>{if(o.material){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.32;o.material.wireframe=true}});r.position.set(0,.55,-2.4+(s.redSpeed-TRUTH.redSpeed)*.18);g.position.set(-2.4+(s.graySpeed-TRUTH.graySpeed)*.18,.55,0);g.rotation.y=Math.PI/2;overlayGroup.add(r,g)}cars.red.visible=false;cars.gray.visible=false}
+function clearOverlay(){overlayGroup.clear();cars.red.visible=true;cars.gray.visible=true}
+function updateViewTag(){clearOverlay();if(state.viewMode==='overlay')showOverlay();$('view-tag').textContent={source:'EVIDENCE REPLAY',A:'PROSECUTION MODEL',B:'DEFENSE MODEL',overlay:'MODEL OVERLAY'}[state.viewMode]}
+
+function stageInfo(){return STAGES[state.stage]||[1,'WITNESS']}
+function updateChrome(){const [n,title]=stageInfo();$('stage-title').textContent=title;$('stage-step').textContent=`STEP ${String(n).padStart(2,'0')} OF 07`;$('caption-left').textContent=stageFamily()==='witness'?'WATCH · RECALL · SEAL':stageFamily()==='build'?'PROMPT · TUNE · PROVENANCE':stageFamily()==='challenge'?'COMPARE · CHALLENGE · RESPOND':'SCORE · EXPLAIN · SEAL';$('caption-right').innerHTML=stageFamily()==='witness'?`<b>PASS ${state.pass} / 2</b>`:`<b>${state.viewMode.toUpperCase()}</b>`;setRing();updateViewTag();document.querySelectorAll('.mode-tab').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode))}
+function party(){return state.parties[state.activeParty]}
+function opponentKey(){return state.activeParty==='A'?'B':'A'}
+function opponent(){return state.parties[opponentKey()]}
+function partyStrip(){return `<div class="party-strip"><button class="party-btn party-a ${state.activeParty==='A'?'active':''}" data-party="A">PROSECUTION</button><button class="party-btn party-b ${state.activeParty==='B'?'active':''}" data-party="B">DEFENSE</button></div>`}
+function bindPartyStrip(){document.querySelectorAll('[data-party]').forEach(b=>b.onclick=()=>{state.activeParty=b.dataset.party;renderWork()})}
+function claimBadge(type,fabricated=false){return `<span class="badge ${fabricated?'fabricated':type.toLowerCase()}">${fabricated?'FABRICATED':type}</span>`}
+function renderClaims(list,selectable=true){if(!list.length)return '<div class="kicker">NO CLAIMS YET.</div>';return list.map(c=>`<div class="claim ${state.selectedOpponentClaim===c.id||state.selectedClaim===c.id?'active':''}" data-claim="${c.id}"><div class="claim-top"><span>#${c.id}</span>${claimBadge(c.type,c.fabricated)}</div><p>${escapeHtml(c.text)}</p><div class="kicker">${c.source||'NO SOURCE'} · ${c.key||'GENERAL'}</div></div>`).join('')}
+function escapeHtml(s=''){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+
+function witnessTemplate(){const p=party();return `<div class="section"><div class="section-head"><span>THE INCIDENT</span><span>${state.activeParty==='A'?'PARTY A':'PARTY B'}</span></div><div class="section-body"><div class="kicker">WATCH THE SAME 12-SECOND REPLAY. DO NOT ARGUE YET. DESCRIBE ONLY WHAT YOU BELIEVE YOU SAW.</div></div></div><div class="section"><div class="section-head"><span>WHAT DID YOU OBSERVE?</span><span>${p.account.length}/1200</span></div><div class="section-body"><textarea id="account" maxlength="1200" placeholder="describe without arguing. stick to what you saw.">${escapeHtml(p.account)}</textarea><div class="row" style="margin-top:8px"><button class="btn primary" id="seal">SEAL ACCOUNT</button><button class="btn" id="replay-once">REPLAY ONCE</button></div><div class="kicker" style="margin-top:8px">THE SEALED ACCOUNT BECOMES EVIDENCE AND CANNOT BE EDITED.</div></div></div>`}
+function bindWitness(){const p=party();$('account').oninput=e=>{p.account=e.target.value};$('replay-once').onclick=()=>{if(state.pass>=2){toast('NO REPLAYS REMAIN');return}state.pass++;resetReplay(TRUTH);state.playing=true;updateChrome()};$('seal').onclick=()=>{if(p.account.trim().length<12){toast('WRITE A SHORT ACCOUNT FIRST');return}p.sealed=true;toast('ACCOUNT SEALED');if(state.stage==='witnessA'){state.stage='witnessB';state.activeParty='B';state.pass=1;resetReplay(TRUTH);state.playing=false}else{state.stage='buildA';state.activeParty='A';state.mode='hello';state.viewMode='A';resetReplay(party().spec)}render()}}
+function parsePrompt(text,p,type,source){const low=text.toLowerCase();const c={id:uid(),text:text.trim(),type,source:type==='OBSERVED'?(source||'VIDEO 00:00–00:12'):'PARTY INFERENCE',key:'general',fabricated:false};
+  if(/red light|signal was red|ran the red/.test(low)){p.spec.signal='red';c.key='signal'}
+  if(/yellow|amber/.test(low)){p.spec.signal='yellow';c.key='signal'}
+  if(/green light|signal was green/.test(low)){p.spec.signal='green';c.key='signal'}
+  if(/left turn|turning left/.test(low)){p.spec.grayTurn='left';c.key='turn'}
+  if(/right turn|turning right/.test(low)){p.spec.grayTurn='right';c.key='turn'}
+  if(/wet|rain|slick/.test(low)){p.spec.wet=true;c.key='wet'}
+  if(/skid/.test(low)){const m=low.match(/(\d+(?:\.\d+)?)\s*(?:m|meter)/);p.spec.skid=m?+m[1]:8;c.key='skid'}
+  if(/brake failure|brakes failed/.test(low)){p.spec.brake=0;c.key='brake';if(type==='OBSERVED')c.fabricated=true}
+  if(/brak/.test(low)&&c.key==='general'){p.spec.brake=.6;c.key='brake'}
+  if(/distracted|phone|texting/.test(low)){c.key='distraction';if(type==='OBSERVED')c.fabricated=true}
+  const mph=low.match(/(\d+(?:\.\d+)?)\s*mph/);if(mph){p.spec.redSpeed=+mph[1]*.44704;c.key='redSpeed'}
+  const ms=low.match(/(\d+(?:\.\d+)?)\s*m\/s/);if(ms){p.spec.redSpeed=+ms[1];c.key='redSpeed'}
+  if(/fast|speeding/.test(low)&&!mph&&!ms){p.spec.redSpeed=14;c.key='redSpeed'}
+  if(type==='OBSERVED'&&!source)c.fabricated=true;
+  p.claims.push(c);p.versions.push({id:uid(),at:Date.now(),prompt:text,spec:{...p.spec}});return c}
+function buildTemplate(){const p=party();return `${partyStrip()}<div class="section"><div class="section-head"><span>SCENE PROMPT</span><span>${p.role}</span></div><div class="section-body"><textarea id="prompt" placeholder="describe the next change…"></textarea><div class="mode-grid" style="margin-top:8px"><button class="mode-choice active" data-type="OBSERVED">OBSERVED</button><button class="mode-choice" data-type="INFERRED">INFERRED</button><button class="mode-choice" data-type="HYPOTHETICAL">HYPOTHETICAL</button></div><div style="margin-top:8px"><input id="source" type="text" placeholder="source interval, e.g. VIDEO 00:04–00:07"></div><button class="btn fill" id="apply-prompt" style="width:100%;margin-top:8px">APPLY TO SCENE</button></div></div><div class="section"><div class="section-head"><span>MANUAL TUNE</span><span>PHYSICS</span></div><div class="section-body"><div class="slider"><label><span>RED SPEED</span><b id="red-v">${p.spec.redSpeed.toFixed(1)} m/s</b></label><input id="red-speed" type="range" min="4" max="18" step=".1" value="${p.spec.redSpeed}"></div><div class="slider"><label><span>GRAY SPEED</span><b id="gray-v">${p.spec.graySpeed.toFixed(1)} m/s</b></label><input id="gray-speed" type="range" min="4" max="16" step=".1" value="${p.spec.graySpeed}"></div><div class="slider"><label><span>BRAKE RESPONSE</span><b id="brake-v">${Math.round(p.spec.brake*100)}%</b></label><input id="brake" type="range" min="0" max="1" step=".01" value="${p.spec.brake}"></div><div class="row"><select id="signal"><option value="unknown">SIGNAL UNKNOWN</option><option value="red">SIGNAL RED</option><option value="yellow">SIGNAL YELLOW</option><option value="green">SIGNAL GREEN</option></select><select id="turn"><option value="straight">GRAY STRAIGHT</option><option value="left">GRAY LEFT</option><option value="right">GRAY RIGHT</option></select></div><div class="row" style="margin-top:8px"><button class="btn primary" id="test-scene">PLAY TEST</button><button class="btn" id="save-version">SAVE VERSION</button></div></div></div><div class="section"><div class="section-head"><span>CLAIMS</span><span>${p.claims.length}</span></div><div class="section-body" id="claim-list">${renderClaims(p.claims)}</div></div><button class="btn fill" id="submit-build" style="width:100%">SUBMIT ${p.role} MODEL</button>`}
+function bindBuild(){bindPartyStrip();let type='OBSERVED';document.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{type=b.dataset.type;document.querySelectorAll('[data-type]').forEach(x=>x.classList.toggle('active',x===b))});const p=party();$('signal').value=p.spec.signal;$('turn').value=p.spec.grayTurn;
+  $('apply-prompt').onclick=()=>{const t=$('prompt').value.trim();if(!t){toast('WRITE A SCENE CHANGE');return}parsePrompt(t,p,type,$('source').value.trim());state.viewMode=state.activeParty;resetReplay(p.spec);state.playing=true;toast('SCENE UPDATED');render()};
+  const map=[['red-speed','redSpeed','red-v',' m/s'],['gray-speed','graySpeed','gray-v',' m/s'],['brake','brake','brake-v','%']];map.forEach(([id,key,out,suf])=>$(id).oninput=e=>{p.spec[key]=+e.target.value;$(out).textContent=key==='brake'?Math.round(p.spec[key]*100)+suf:p.spec[key].toFixed(1)+suf});$('signal').onchange=e=>p.spec.signal=e.target.value;$('turn').onchange=e=>p.spec.grayTurn=e.target.value;
+  $('test-scene').onclick=()=>{state.viewMode=state.activeParty;resetReplay(p.spec);state.playing=true;updateChrome()};$('save-version').onclick=()=>{p.versions.push({id:uid(),at:Date.now(),prompt:'manual tune',spec:{...p.spec}});toast('VERSION SAVED')};$('submit-build').onclick=submitBuild;document.querySelectorAll('[data-claim]').forEach(c=>c.onclick=()=>{state.selectedClaim=c.dataset.claim;renderWork()})}
+function submitBuild(){const p=party();if(!p.claims.length){toast('ADD AT LEAST ONE CLAIM');return}p.built=true;p.submitted=true;if(state.stage==='buildA'){state.stage='buildB';state.activeParty='B';state.viewMode='B';resetReplay(state.parties.B.spec)}else{state.stage='challengeA';state.activeParty='A';state.mode='world';state.viewMode='overlay';showOverlay()}render()}
+function supportClaim(c,p){switch(c.key){case'signal':return p.spec.signal===TRUTH.signal;case'turn':return p.spec.grayTurn===TRUTH.grayTurn;case'wet':return p.spec.wet===TRUTH.wet;case'skid':return Math.abs(p.spec.skid-TRUTH.skid)<2.5;case'brake':return p.spec.brake>0&&Math.abs(p.spec.brake-TRUTH.brake)<.35;case'redSpeed':return Math.abs(p.spec.redSpeed-TRUTH.redSpeed)<3;case'distraction':return false;default:return c.type!=='OBSERVED'||!!c.source}}
+function challengeTemplate(){const opp=opponent();return `${partyStrip()}<div class="section"><div class="section-head"><span>OPPONENT CLAIMS</span><span>${opp.role}</span></div><div class="section-body">${renderClaims(opp.claims)}</div></div><div class="section"><div class="section-head"><span>CHALLENGE</span><span>${state.activeParty==='A'?'PROSECUTION':'DEFENSE'}</span></div><div class="section-body"><select id="challenge-type"><option>NOT VISIBLE</option><option>CONTRADICTED BY VIDEO</option><option>WRONG TIME</option><option>WRONG VEHICLE</option><option>PHYSICALLY IMPOSSIBLE</option><option>UNVERIFIED SOURCE</option><option>MISQUOTED CASE</option></select><button class="btn red" id="file-challenge" style="width:100%;margin-top:8px">FILE CHALLENGE</button><div class="kicker" style="margin-top:8px">A FAILED CHALLENGE COSTS CREDIBILITY. TARGET A SPECIFIC CLAIM.</div></div></div><div class="section"><div class="section-head"><span>MODEL VIEW</span><span>${state.viewMode.toUpperCase()}</span></div><div class="section-body row3"><button class="btn blue" data-view="A">PROSECUTION</button><button class="btn amber" data-view="B">DEFENSE</button><button class="btn primary" data-view="overlay">OVERLAY</button></div></div>`}
+function bindChallenge(){bindPartyStrip();document.querySelectorAll('[data-claim]').forEach(c=>c.onclick=()=>{state.selectedOpponentClaim=c.dataset.claim;renderWork()});document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.viewMode=b.dataset.view;if(state.viewMode==='overlay')showOverlay();else resetReplay(state.parties[state.viewMode].spec);updateChrome()});$('file-challenge').onclick=()=>{const c=opponent().claims.find(x=>x.id===state.selectedOpponentClaim);if(!c){toast('SELECT A CLAIM');return}const sustained=!supportClaim(c,opponent())||c.fabricated;const item={id:uid(),by:state.activeParty,against:opponentKey(),claimId:c.id,type:$('challenge-type').value,sustained};party().challenges.push(item);opponent().rulings.push(item);state.ruling={...item,claim:c};toast('CHALLENGE FILED');state.stage='ruling';render()}}
+function rulingTemplate(){const r=state.ruling;return `<div class="section"><div class="section-head"><span>CONTESTED CLAIM</span><span>#${r.claim.id}</span></div><div class="section-body"><div class="claim active"><div class="claim-top"><span>${r.type}</span>${claimBadge(r.claim.type,r.claim.fabricated)}</div><p>${escapeHtml(r.claim.text)}</p><div class="kicker">${r.claim.source||'NO SOURCE'}</div></div></div></div><div class="section"><div class="section-head"><span>AI REFEREE</span><span>${r.sustained?'SUSTAINED':'OVERRULED'}</span></div><div class="section-body"><div style="font-size:28px;letter-spacing:.08em;color:${r.sustained?'var(--red)':'var(--teal)'};margin:8px 0 14px">${r.sustained?'SUSTAINED':'OVERRULED'}</div><div class="kicker">${r.sustained?'THE CLAIM IS UNSUPPORTED, MISCLASSIFIED, OR CONTRADICTED BY THE FIXED SOURCE REPLAY.':'THE CLAIM REMAINS PLAUSIBLE UNDER THE SOURCE REPLAY AND DECLARED PROVENANCE.'}</div><button class="btn primary" id="next-challenge" style="width:100%;margin-top:12px">NEXT PHASE</button></div></div>`}
+function bindRuling(){$('next-challenge').onclick=()=>{if(state.ruling.by==='A'){state.stage='challengeB';state.activeParty='B';state.ruling=null;state.viewMode='overlay'}else{state.stage='verdict';state.ruling=null;computeVerdict()}render()}}
+function fidelity(p){let s=100;s-=Math.min(28,Math.abs(p.spec.redSpeed-TRUTH.redSpeed)*4);s-=Math.min(22,Math.abs(p.spec.graySpeed-TRUTH.graySpeed)*4);s-=p.spec.signal===TRUTH.signal?0:18;s-=p.spec.grayTurn===TRUTH.grayTurn?0:14;s-=p.spec.wet===TRUTH.wet?0:6;return clamp(Math.round(s),0,100)}
+function temporal(p){let s=100;s-=p.spec.signal===TRUTH.signal?0:35;s-=p.spec.grayTurn===TRUTH.grayTurn?0:25;s-=Math.min(30,Math.abs(p.spec.redSpeed-p.spec.graySpeed-(TRUTH.redSpeed-TRUTH.graySpeed))*5);return clamp(Math.round(s),0,100)}
+function physical(p){const arrival=Math.abs(8/p.spec.redSpeed-8/p.spec.graySpeed);let s=100-Math.min(55,arrival*80)-Math.min(25,Math.abs(p.spec.brake-TRUTH.brake)*50);return clamp(Math.round(s),0,100)}
+function provenance(p){if(!p.claims.length)return 0;let good=0;for(const c of p.claims){if(c.type!=='OBSERVED')good+=1;else if(supportClaim(c,p)&&c.source&&!c.fabricated)good+=1}let s=100*good/p.claims.length;const drift=p.claims.filter(c=>c.type==='OBSERVED'&&!p.account.toLowerCase().includes(c.text.toLowerCase().split(' ').slice(0,3).join(' '))).length;s-=drift*5;return clamp(Math.round(s),0,100)}
+function challengeScore(p){if(!p.challenges.length)return 50;return Math.round(100*p.challenges.filter(c=>c.sustained).length/p.challenges.length)}
+function computeVerdict(){for(const k of ['A','B']){const p=state.parties[k];p.score={video:fidelity(p),temporal:temporal(p),physical:physical(p),provenance:provenance(p),challenge:challengeScore(p)};p.score.total=Math.round(p.score.video*.3+p.score.temporal*.2+p.score.physical*.2+p.score.provenance*.2+p.score.challenge*.1)}const a=state.parties.A.score.total,b=state.parties.B.score.total;state.verdict={winner:a>=b?'A':'B',decisive:decisiveReason(a>=b?'A':'B')};state.mode='world';state.viewMode='overlay';showOverlay()}
+function decisiveReason(k){const p=state.parties[k],o=state.parties[k==='A'?'B':'A'];const diffs=['video','temporal','physical','provenance','challenge'].map(x=>[x,p.score[x]-o.score[x]]).sort((a,b)=>b[1]-a[1]);return diffs[0][0].toUpperCase().replace('VIDEO','VIDEO FIDELITY').replace('PROVENANCE','PROVENANCE HONESTY')}
+function verdictTemplate(){const A=state.parties.A,B=state.parties.B,w=state.verdict.winner==='A'?A:B;const scoreRows=['video','temporal','physical','provenance','challenge'].map(k=>`<div class="score-row"><span>${k.toUpperCase()}</span><div class="score-track"><div class="score-fill" style="width:${w.score[k]}%"></div></div><b>${w.score[k]}</b></div>`).join('');const all=[...A.claims.map(c=>({...c,party:'PROSECUTION'})),...B.claims.map(c=>({...c,party:'DEFENSE'}))];return `<div class="section"><div class="section-head"><span>${w.role} PREVAILS</span><span>${w.score.total}/100</span></div><div class="section-body"><div style="font-size:24px;letter-spacing:.08em;margin-bottom:8px">${w.role} WINS</div><div class="kicker">DECISIVE DIMENSION: ${state.verdict.decisive}. THE WINNING MODEL BEST ALIGNS WITH THE SOURCE REPLAY WHILE KEEPING OBSERVATION, INFERENCE, AND HYPOTHESIS DISTINCT.</div></div></div><div class="section"><div class="section-head"><span>WINNING SCORE</span><span>AI JUDGE</span></div><div class="section-body score-grid">${scoreRows}</div></div><div class="section"><div class="section-head"><span>PROVENANCE LEDGER</span><span>${all.length} CLAIMS</span></div><div class="section-body mini-ledger">${all.map(c=>`<div class="ledger-row"><span>${claimBadge(c.type,c.fabricated)}</span><span>${escapeHtml(c.text)}</span><span>${c.party}</span></div>`).join('')}</div></div><div class="row"><button class="btn fill" id="issue-verdict">ISSUE VERDICT</button><button class="btn primary" id="export-record">EXPORT RECORD</button></div>`}
+function bindVerdict(){$('issue-verdict').onclick=()=>toast('VERDICT SEALED');$('export-record').onclick=exportRecord}
+function exportRecord(){const payload={case:'19-247-A',truth:TRUTH,parties:state.parties,verdict:state.verdict,exported:new Date().toISOString()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='verdict-engine-case-19-247-A.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function advanceJudge(){if(stageFamily()==='challenge'&&state.stage!=='ruling'){if(state.activeParty==='A')state.stage='challengeB';else{state.stage='verdict';computeVerdict()}render()}}
+function renderWork(){const work=$('work');if(state.stage.startsWith('witness')){work.innerHTML=witnessTemplate();bindWitness()}else if(state.stage.startsWith('build')){work.innerHTML=buildTemplate();bindBuild()}else if(state.stage.startsWith('challenge')){work.innerHTML=challengeTemplate();bindChallenge()}else if(state.stage==='ruling'){work.innerHTML=rulingTemplate();bindRuling()}else{work.innerHTML=verdictTemplate();bindVerdict()}updateChrome()}
+function render(){renderWork();updateChrome()}
+
+$('play-btn').onclick=()=>state.playing=!state.playing;$('replay-btn').onclick=()=>{resetReplay(specForView());state.playing=true};$('time-slider').oninput=e=>{state.time=+e.target.value;if(!Jolt)sampleFallback(state.time,specForView())};
+$('menu-btn').onclick=()=>$('drawer').classList.toggle('show');$('reset-game').onclick=()=>location.reload();
+document.querySelectorAll('.mode-tab').forEach(b=>b.onclick=()=>{const desired=b.dataset.mode;if(desired==='world'&&!state.parties.A.submitted&&!state.parties.B.submitted){toast('BUILD BOTH MODELS FIRST');return}state.mode=desired;if(desired==='hello'&&state.stage.startsWith('challenge')){state.stage='buildA';state.activeParty='A';state.viewMode='A'}if(desired==='world'&&state.stage.startsWith('build')){state.stage='challengeA';state.activeParty='A';state.viewMode='overlay'}render()});
+
+let last=performance.now(),acc=0;const fixed=1/60;let drag=false,lastX=0,orbit=.6;
+renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;renderer.domElement.setPointerCapture(e.pointerId)});renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;orbit+=(e.clientX-lastX)*.006;lastX=e.clientX});renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointercancel',()=>drag=false);
+function resize(){const r=$('scene-wrap').getBoundingClientRect();renderer.setSize(r.width,r.height,false);renderer.setPixelRatio(Math.min(devicePixelRatio,2));camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe($('scene-wrap'));
+function cameraUpdate(){const rad=20;camera.position.set(Math.sin(orbit)*rad,13,Math.cos(orbit)*rad);camera.lookAt(0,.6,0)}
+function animate(now){requestAnimationFrame(animate);const dt=Math.min(.04,(now-last)/1000);last=now;cameraUpdate();if(state.playing&&state.viewMode!=='overlay'){state.time+=dt;if(state.time>TRUTH.duration){state.time=TRUTH.duration;state.playing=false}$('time-slider').value=state.time;$('time-now').textContent=fmt(state.time);if(Jolt){acc+=dt;while(acc>=fixed){jolt.Step(fixed,1);acc-=fixed}syncBody(bodies.red,cars.red);syncBody(bodies.gray,cars.gray)}else sampleFallback(state.time,specForView())}renderer.render(scene,camera)}
+
+render();resize();$('boot-state').textContent=Jolt?'EVIDENCE WORLD READY':'READY · KINEMATIC FALLBACK';setTimeout(()=>$('boot').style.display='none',360);requestAnimationFrame(animate);
+</script>
+</body>
+</html>
