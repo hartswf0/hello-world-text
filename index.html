@@ -2326,7 +2326,9 @@
       border-radius: 0;
       background: transparent;
       box-shadow: none;
-      padding: 0 0 0 10px;
+      padding: 0 0 0 8px;
+      min-height: 26px;
+      align-content: center;
     }
 
     .family-page b {
@@ -2340,6 +2342,52 @@
       font-size: 10px;
       font-weight: 600;
       text-transform: none;
+    }
+
+    .family-summary {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .family-summary > b,
+    .family-summary > span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .family-summary > b {
+      flex: 0 0 auto;
+      max-width: 38%;
+    }
+
+    .family-summary .family-counts {
+      flex: 1 1 auto;
+    }
+
+    .family-summary .family-best-inline,
+    .family-summary .family-difference-inline {
+      display: none;
+    }
+
+    .family-summary .family-page-actions {
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    .family-summary .family-page-actions a {
+      padding: 2px 6px;
+      font-size: 8px;
+      line-height: 1.2;
+    }
+
+    .family-page > .family-best,
+    .family-page > .family-difference {
+      display: none;
     }
 
     .family-page .family-best,
@@ -2511,6 +2559,20 @@
       .frame-action {
         min-width: 34px;
         min-height: 34px;
+      }
+
+      .family-summary {
+        flex-wrap: wrap;
+        gap: 4px 7px;
+        white-space: normal;
+      }
+
+      .family-summary > b {
+        max-width: 100%;
+      }
+
+      .family-summary .family-difference-inline {
+        flex-basis: 100%;
       }
     }
   </style>
@@ -3025,16 +3087,23 @@
       const label = isAll ? "All families" : familyFilterValue;
       const scope = isAll ? `${stats.familyCount} families` : meta.note;
       const best = stats.best ? `${stats.best.video.badge} ${stats.best.title}` : "No files";
+      const counts = isAll
+        ? `${stats.familyCount} families · ${stats.count} files · ${stats.stars}★ · ${stats.cancels}X`
+        : `${stats.count} files · ${stats.stars}★ · ${stats.cancels}X`;
+      const bestLine = `${stats.best ? stats.best.video.score : 0}/5 ${best}`;
+      const summaryTitle = `${scope}. Best: ${bestLine}. ${meta.difference}`;
       els.familyPage.style.setProperty("--page-color", meta.color);
       els.familyPage.style.setProperty("--page-ink", meta.ink);
       els.familyPage.innerHTML = `
-        <b>${escapeHtml(label)}</b>
-        <span>${escapeHtml(scope)} · ${stats.count} files · ${stats.stars} starred · ${stats.cancels} canceled</span>
-        <span class="family-best"><b>${stats.best ? stats.best.video.score : 0}/5</b><span>${escapeHtml(best)}</span></span>
-        <div class="family-difference"><b>Difference</b><span>${escapeHtml(meta.difference)}</span></div>
-        <div class="family-page-actions">
-          <a href="${routeForFamily(familyFilterValue)}">Page</a>
-          ${isAll ? "" : '<a href="#families">All</a>'}
+        <div class="family-summary" title="${escapeAttr(summaryTitle)}">
+          <b>${escapeHtml(label)}</b>
+          <span class="family-counts">${escapeHtml(counts)}</span>
+          <span class="family-best-inline">${escapeHtml(bestLine)}</span>
+          <span class="family-difference-inline">${escapeHtml(meta.difference)}</span>
+          <span class="family-page-actions">
+            <a href="${routeForFamily(familyFilterValue)}">Page</a>
+            ${isAll ? "" : '<a href="#families">All</a>'}
+          </span>
         </div>
       `;
     }
