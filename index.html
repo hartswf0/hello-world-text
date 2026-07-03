@@ -342,6 +342,48 @@
     .item[data-rating="bad"] .dot::after { content: "X"; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
     .item[data-rating="maybe"] .dot::after { content: "?"; display: grid; place-items: center; font-size: 12px; font-weight: 900; }
 
+    .item-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 5px;
+      align-items: stretch;
+    }
+
+    .item-row + .item-row {
+      margin-top: 5px;
+    }
+
+    .item-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 30px);
+      gap: 4px;
+      align-items: stretch;
+    }
+
+    .row-action,
+    .frame-action {
+      border: 2px solid var(--black);
+      background: var(--white);
+      color: var(--black);
+      min-width: 30px;
+      min-height: 30px;
+      display: inline-grid;
+      place-items: center;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .row-action:hover,
+    .frame-action:hover,
+    .row-action.active,
+    .frame-action.active {
+      background: var(--black);
+      color: var(--white);
+    }
+
     .item-title {
       font-size: 12px;
       font-weight: 850;
@@ -388,6 +430,16 @@
       grid-template-rows: auto minmax(0, 1fr) auto;
       background: var(--white);
       min-width: 0;
+      position: relative;
+    }
+
+    .frame-actions {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 6;
+      display: flex;
+      gap: 4px;
     }
 
     .preview-bar {
@@ -759,6 +811,44 @@
 
     .family-page .family-best {
       border-top: 1px solid var(--line);
+    }
+
+    .family-difference {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 5px;
+    }
+
+    .family-difference span {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      text-transform: none;
+    }
+
+    .family-page-actions {
+      display: flex;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .family-page-actions a {
+      border: 1px solid var(--line);
+      background: #fbfcfc;
+      color: var(--black);
+      padding: 3px 6px;
+      border-radius: 5px;
+      font-size: 8px;
+      font-weight: 900;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .family-page-actions a:hover {
+      background: var(--black);
+      color: var(--white);
     }
 
     .seg {
@@ -1872,6 +1962,317 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Bare iframe index: no search, ratings, notes, or explanatory chrome. */
+    body {
+      background: #e4ecec;
+    }
+
+    .app {
+      width: 100%;
+      height: 100dvh;
+      margin: 0;
+      padding: 6px;
+      display: grid;
+      grid-template-columns: minmax(210px, 22vw) minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    header,
+    .filters,
+    .preview-bar,
+    .inspector {
+      display: none !important;
+    }
+
+    aside,
+    main {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #f4f7f7;
+      box-shadow: var(--shadow-tight);
+      overflow: hidden;
+    }
+
+    aside {
+      grid-column: 1;
+      grid-row: 1;
+      display: block;
+      height: auto;
+      min-height: 0;
+    }
+
+    main {
+      grid-column: 2;
+      grid-row: 1;
+      display: block;
+      min-height: 0;
+    }
+
+    .list {
+      height: 100%;
+      padding: 5px;
+      overflow: auto;
+      background: #e8eeee;
+      scrollbar-width: thin;
+    }
+
+    .family {
+      margin: 0 0 5px;
+    }
+
+    .family-head {
+      min-height: 24px;
+      padding: 4px 6px;
+      border: 0;
+      border-radius: 4px;
+      background: #f7f9f9;
+      box-shadow: inset 3px 0 0 color-mix(in srgb, var(--section-color) 90%, white 10%);
+      font-size: 8px;
+    }
+
+    .family-head a {
+      display: none;
+    }
+
+    .item {
+      min-height: 39px;
+      margin-top: 4px;
+      padding: 6px;
+      border-radius: 4px;
+      border-color: #d5dfdf;
+      box-shadow: inset 3px 0 0 color-mix(in srgb, var(--item-color, var(--family-color)) 88%, white 12%);
+    }
+
+    .item-title {
+      font-size: 10px;
+    }
+
+    .item-path {
+      display: none;
+    }
+
+    .badges {
+      display: none;
+    }
+
+    .frame-wrap {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      padding: 0;
+      background: #000;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    @media (max-width: 760px) {
+      html,
+      body {
+        height: auto;
+        min-height: 100%;
+      }
+
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        gap: 0;
+      }
+
+      main {
+        order: 1;
+        height: 88dvh;
+        min-height: 620px;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      aside {
+        order: 2;
+        height: 44dvh;
+        min-height: 260px;
+        margin: 6px;
+        border-radius: 7px;
+      }
+
+      .list {
+        padding: 5px;
+      }
+
+      .family-head {
+        position: static;
+      }
+
+      .item {
+        min-height: 42px;
+      }
+
+      .item-title {
+        font-size: 11px;
+      }
+    }
+
+    /* Compact judgement pass: keep the bare iframe index, but expose review operations. */
+    aside {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .filters {
+      display: grid !important;
+      padding: 5px;
+      gap: 5px;
+      border-bottom: 1px solid var(--line-soft);
+      background: #e8eeee;
+    }
+
+    .seg {
+      display: none;
+    }
+
+    .family-page {
+      border: 1px solid #d5dfdf;
+      border-radius: 5px;
+      background: #f7f9f9;
+      padding: 6px;
+      gap: 4px;
+      box-shadow: inset 3px 0 0 color-mix(in srgb, var(--page-color) 88%, white 12%);
+    }
+
+    .family-page b {
+      font-size: 9px;
+    }
+
+    .family-page span,
+    .family-difference span {
+      font-size: 8px;
+      line-height: 1.2;
+    }
+
+    .family-difference {
+      padding-top: 4px;
+      border-top-color: #d5dfdf;
+    }
+
+    .family-page-actions a {
+      border-color: #d5dfdf;
+      border-radius: 4px;
+    }
+
+    .list {
+      height: auto;
+      min-height: 0;
+    }
+
+    .family-head a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d5dfdf;
+      border-radius: 4px;
+      background: #fbfcfc;
+      color: var(--black);
+      padding: 2px 5px;
+      text-decoration: none;
+    }
+
+    .item-row {
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .item-row + .item-row {
+      margin-top: 4px;
+    }
+
+    .item-row .item {
+      min-width: 0;
+      margin-top: 0;
+    }
+
+    .item-actions {
+      grid-template-columns: repeat(3, 27px);
+      gap: 3px;
+    }
+
+    .row-action,
+    .frame-action {
+      min-width: 27px;
+      min-height: 27px;
+      border: 1px solid #d5dfdf;
+      border-radius: 4px;
+      background: #f7f9f9;
+      color: var(--black);
+      font-size: 13px;
+    }
+
+    .row-action.open,
+    .frame-action.open {
+      font-size: 12px;
+    }
+
+    .row-action.star.active,
+    .frame-action.star.active {
+      background: #f6d65d;
+      color: #111;
+      border-color: #d3af25;
+    }
+
+    .row-action.cancel.active,
+    .frame-action.cancel.active {
+      background: #f0a1a1;
+      color: #111;
+      border-color: #d47979;
+    }
+
+    .item[data-rating="good"] .dot::after {
+      content: "★";
+    }
+
+    .item[data-rating="bad"] .dot::after {
+      content: "X";
+    }
+
+    main {
+      position: relative;
+    }
+
+    .frame-actions {
+      top: 8px;
+      right: 8px;
+      display: flex;
+      gap: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .filters {
+        padding: 5px;
+      }
+
+      .item-actions {
+        grid-template-columns: repeat(3, 31px);
+      }
+
+      .row-action,
+      .frame-action {
+        min-width: 31px;
+        min-height: 31px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1910,6 +2311,11 @@
         <a id="openLink" class="pill" href="#" target="_blank" rel="noopener">Open</a>
         <button id="reloadBtn" class="icon-btn" title="Reload iframe">↻</button>
         <button id="copyBtn" class="icon-btn" title="Copy iframe embed">⧉</button>
+      </div>
+      <div class="frame-actions" aria-label="Selected game actions">
+        <a id="openWindowBtn" class="frame-action open" href="#" target="_blank" rel="noopener" title="Open selected game in a new window" aria-label="Open selected game in a new window">↗</a>
+        <button id="starActiveBtn" class="frame-action star" type="button" title="Star selected game" aria-label="Star selected game">★</button>
+        <button id="cancelActiveBtn" class="frame-action cancel" type="button" title="Cancel selected game" aria-label="Cancel selected game">X</button>
       </div>
       <div class="frame-wrap">
         <iframe id="preview" title="Prototype preview"></iframe>
@@ -2003,7 +2409,18 @@
       "inverse-kernel.html",
       "operator-studio-14.html",
       "files (26)/operator-studio-14.html",
-      "files (27)/THUNDER_FORGE.html"
+      "files (27)/THUNDER_FORGE.html",
+      "HELLO TEST/families/index.html",
+      "HELLO TEST/families/thor.html",
+      "HELLO TEST/families/zeus.html",
+      "HELLO TEST/families/raijin.html",
+      "HELLO TEST/families/tlaloc.html",
+      "HELLO TEST/families/perun.html",
+      "HELLO TEST/families/shango.html",
+      "HELLO TEST/families/indra.html",
+      "HELLO TEST/families/leigong.html",
+      "HELLO TEST/families/thunderbird.html",
+      "HELLO TEST/families/ursus.html"
     ];
 
     const titleOverrides = {
@@ -2011,19 +2428,91 @@
       "THUNDER_RIGS_PROTOCOL_KERNEL_v0.3_BUNDLE (1)/THUNDER_RIGS_PROTOCOL_KERNEL_v0.3.html": "Thunder Rigs Protocol Kernel v0.3",
       "THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL_BUNDLE/THUNDER_RIGS_VERDICT_WORLD_v1.0_FULL.html": "Thunder Rigs Verdict World v1.0",
       "COLLISION_TRACE_JOLT_3D/index.html": "Collision Trace Jolt 3D",
-      "COLLISION_TRACE_JOLT_3D 2/index.html": "Collision Trace Jolt 3D Copy"
+      "COLLISION_TRACE_JOLT_3D 2/index.html": "Collision Trace Jolt 3D Copy",
+      "HELLO TEST/families/index.html": "World Family Research Index",
+      "HELLO TEST/families/thor.html": "Storm Hammer Pass Family",
+      "HELLO TEST/families/zeus.html": "Olympus Switchback Family",
+      "HELLO TEST/families/raijin.html": "Taiko Storm Alley Family",
+      "HELLO TEST/families/tlaloc.html": "Jade Rain Causeway Family",
+      "HELLO TEST/families/perun.html": "Oak War Ridge Family",
+      "HELLO TEST/families/shango.html": "Oshe Storm Court Family",
+      "HELLO TEST/families/indra.html": "Vajra Cloud Road Family",
+      "HELLO TEST/families/leigong.html": "Thunder Drum Runway Family",
+      "HELLO TEST/families/thunderbird.html": "Feather Storm Canyon Family",
+      "HELLO TEST/families/ursus.html": "Ironhide Den Pass Family"
     };
 
     const familyMeta = {
-      "Hello World": { slug: "hello-world", color: "#edca55", ink: "#111", note: "Origin builds and OpenAI variants" },
-      "Thunder Rigs": { slug: "thunder-rigs", color: "#ef8079", ink: "#111", note: "Rig sandboxes, material engines, and film operators" },
-      "Garage": { slug: "garage", color: "#82addb", ink: "#111", note: "Inspectable 3D asset garages" },
-      "Golf": { slug: "golf", color: "#8ac89a", ink: "#111", note: "Golf physics, shot cameras, and operator takes" },
-      "Wreck": { slug: "wreck", color: "#d9798e", ink: "#111", note: "Crash, recall, forecast, and director workflows" },
-      "Collision Trace": { slug: "collision-trace", color: "#6fc9c4", ink: "#111", note: "Counterfactual collision traces and JOLT timelines" },
-      "Paris / Verdict": { slug: "paris-verdict", color: "#b997db", ink: "#111", note: "Evidence, replay, and adjudication models" },
-      "Operator / Forge": { slug: "operator-forge", color: "#e2a163", ink: "#111", note: "Operator studios and forge tooling" },
-      "Other": { slug: "other", color: "#aeb8bf", ink: "#111", note: "Unsorted prototypes" }
+      "Hello World": {
+        slug: "hello-world",
+        color: "#edca55",
+        ink: "#111",
+        note: "Origin builds and OpenAI variants",
+        difference: "The difference is lineage drift: each file asks how the same first-world idea changes as the shell, prompt, and OpenAI path mutate."
+      },
+      "Thunder Rigs": {
+        slug: "thunder-rigs",
+        color: "#ef8079",
+        ink: "#111",
+        note: "Rig sandboxes, material engines, and film operators",
+        difference: "The difference is rig behavior: materials, vehicles, and operators are judged by how they make the system move."
+      },
+      "Garage": {
+        slug: "garage",
+        color: "#82addb",
+        ink: "#111",
+        note: "Inspectable 3D asset garages",
+        difference: "The difference is inspection: the work is to see, compare, and stage families of objects before turning them into play."
+      },
+      "Golf": {
+        slug: "golf",
+        color: "#8ac89a",
+        ink: "#111",
+        note: "Golf physics, shot cameras, and operator takes",
+        difference: "The difference is shot consequence: a small input becomes a legible ball path, camera take, score, or replay."
+      },
+      "Wreck": {
+        slug: "wreck",
+        color: "#d9798e",
+        ink: "#111",
+        note: "Crash, recall, forecast, and director workflows",
+        difference: "The difference is consequence memory: crashes are kept as replayable causes, forecasts, recalls, and director decisions."
+      },
+      "Collision Trace": {
+        slug: "collision-trace",
+        color: "#6fc9c4",
+        ink: "#111",
+        note: "Counterfactual collision traces and JOLT timelines",
+        difference: "The difference is evidence trace: the important object is not the crash spectacle, but the recorded before/after path through impact."
+      },
+      "Paris / Verdict": {
+        slug: "paris-verdict",
+        color: "#b997db",
+        ink: "#111",
+        note: "Evidence, replay, and adjudication models",
+        difference: "The difference is judgement: replay evidence is organized into claims, verdicts, and case records instead of pure play."
+      },
+      "Operator / Forge": {
+        slug: "operator-forge",
+        color: "#e2a163",
+        ink: "#111",
+        note: "Operator studios and forge tooling",
+        difference: "The difference is production control: these files make, compile, test, or direct other prototypes rather than being only the prototype."
+      },
+      "World Families": {
+        slug: "world-families",
+        color: "#19e6c8",
+        ink: "#06211e",
+        note: "WORLD, AI Builder, and bot prompt contracts by golden family",
+        difference: "The difference is domain pressure: each family maps one HELLO vehicle golden into a world genome, local builder target, and bot doctrine."
+      },
+      "Other": {
+        slug: "other",
+        color: "#aeb8bf",
+        ink: "#111",
+        note: "Unsorted prototypes",
+        difference: "The difference is unresolved signal: these files need review before they can be assigned a stronger family theory."
+      }
     };
 
     const familyOrder = [
@@ -2035,6 +2524,7 @@
       "Collision Trace",
       "Paris / Verdict",
       "Operator / Forge",
+      "World Families",
       "Other"
     ];
 
@@ -2092,6 +2582,9 @@
       activeTitle: document.getElementById("activeTitle"),
       activePath: document.getElementById("activePath"),
       openLink: document.getElementById("openLink"),
+      openWindowBtn: document.getElementById("openWindowBtn"),
+      starActiveBtn: document.getElementById("starActiveBtn"),
+      cancelActiveBtn: document.getElementById("cancelActiveBtn"),
       reloadBtn: document.getElementById("reloadBtn"),
       copyBtn: document.getElementById("copyBtn"),
       ratingFilter: document.getElementById("ratingFilter"),
@@ -2161,6 +2654,8 @@
         render();
       });
       els.rates.forEach(btn => btn.addEventListener("click", () => setRating(btn.dataset.rate)));
+      els.starActiveBtn.addEventListener("click", () => setQuickRating(activePath, "good"));
+      els.cancelActiveBtn.addEventListener("click", () => setQuickRating(activePath, "bad"));
       els.tags.addEventListener("input", saveCurrentReview);
       els.notes.addEventListener("input", saveCurrentReview);
       els.reloadBtn.addEventListener("click", () => {
@@ -2214,7 +2709,9 @@
 
     function renderFamilyPage() {
       const isAll = familyFilterValue === "all";
-      const meta = isAll ? { color: "#000", ink: "#fff", note: "All prototype families" } : (familyMeta[familyFilterValue] || familyMeta.Other);
+      const meta = isAll
+        ? { color: "#000", ink: "#fff", note: "All prototype families", difference: "The difference is family purpose: each group is separated by the kind of decision its prototypes make possible." }
+        : (familyMeta[familyFilterValue] || familyMeta.Other);
       const stats = getFamilyStats(familyFilterValue);
       const label = isAll ? "All families" : familyFilterValue;
       const scope = isAll ? `${stats.familyCount} families` : meta.note;
@@ -2223,8 +2720,13 @@
       els.familyPage.style.setProperty("--page-ink", meta.ink);
       els.familyPage.innerHTML = `
         <b>${escapeHtml(label)}</b>
-        <span>${escapeHtml(scope)} · ${stats.count} files · ${stats.recorders} native recorders</span>
+        <span>${escapeHtml(scope)} · ${stats.count} files · ${stats.stars} starred · ${stats.cancels} canceled</span>
         <span class="family-best"><b>${stats.best ? stats.best.video.score : 0}/5</b><span>${escapeHtml(best)}</span></span>
+        <div class="family-difference"><b>Difference</b><span>${escapeHtml(meta.difference)}</span></div>
+        <div class="family-page-actions">
+          <a href="${routeForFamily(familyFilterValue)}">Page</a>
+          ${isAll ? "" : '<a href="#families">All</a>'}
+        </div>
       `;
     }
 
@@ -2245,6 +2747,7 @@
 
     function getFamilyStats(family) {
       const members = prototypes.filter(p => family === "all" || p.family === family);
+      const memberReviews = members.map(p => reviews[p.path] || {});
       const best = members.reduce((winner, p) => {
         if (!winner) return p;
         if (p.video.priority !== winner.video.priority) return p.video.priority > winner.video.priority ? p : winner;
@@ -2254,6 +2757,8 @@
         count: members.length,
         familyCount: new Set(members.map(p => p.family)).size,
         recorders: members.filter(p => p.video.score >= 4).length,
+        stars: memberReviews.filter(r => r.rating === "good").length,
+        cancels: memberReviews.filter(r => r.rating === "bad").length,
         best
       };
     }
@@ -2328,8 +2833,12 @@
 
     function itemButton(p) {
       const review = reviews[p.path] || {};
+      const row = document.createElement("div");
+      row.className = "item-row";
+      row.dataset.rating = review.rating || "untested";
       const button = document.createElement("button");
       button.className = "item";
+      button.type = "button";
       button.dataset.rating = review.rating || "untested";
       button.dataset.video = p.video.tier;
       button.classList.toggle("active", p.path === activePath);
@@ -2349,7 +2858,17 @@
         </span>
       `;
       button.addEventListener("click", () => select(p.path, true));
-      return button;
+      const actions = document.createElement("span");
+      actions.className = "item-actions";
+      actions.innerHTML = `
+        <a class="row-action open" href="${escapeAttr(p.path)}" target="_blank" rel="noopener" title="Open ${escapeAttr(p.title)} in a new window" aria-label="Open ${escapeAttr(p.title)} in a new window">↗</a>
+        <button class="row-action star${review.rating === "good" ? " active" : ""}" type="button" title="Star ${escapeAttr(p.title)}" aria-label="Star ${escapeAttr(p.title)}">★</button>
+        <button class="row-action cancel${review.rating === "bad" ? " active" : ""}" type="button" title="Cancel ${escapeAttr(p.title)}" aria-label="Cancel ${escapeAttr(p.title)}">X</button>
+      `;
+      actions.querySelector(".star").addEventListener("click", () => setQuickRating(p.path, "good"));
+      actions.querySelector(".cancel").addEventListener("click", () => setQuickRating(p.path, "bad"));
+      row.append(button, actions);
+      return row;
     }
 
     function select(path, shouldRender = true) {
@@ -2361,6 +2880,7 @@
       els.activeTitle.textContent = p.title;
       els.activePath.textContent = p.path;
       els.openLink.href = p.path;
+      els.openWindowBtn.href = p.path;
       els.tags.value = review.tags || "";
       els.notes.value = review.notes || "";
       document.documentElement.style.setProperty("--family-color", p.familyColor);
@@ -2373,6 +2893,8 @@
       els.metaSource.textContent = p.folder;
       els.metaEmbed.textContent = `<iframe src="${p.path}"></iframe>`;
       els.rates.forEach(btn => btn.classList.toggle("active", (review.rating || "untested") === btn.dataset.rate));
+      els.starActiveBtn.classList.toggle("active", (review.rating || "untested") === "good");
+      els.cancelActiveBtn.classList.toggle("active", (review.rating || "untested") === "bad");
       renderLineage(p);
       if (shouldRender) render();
     }
@@ -2390,11 +2912,31 @@
     }
 
     function setRating(rating) {
-      reviews[activePath] = reviews[activePath] || {};
-      reviews[activePath].rating = rating;
+      setRatingForPath(activePath, rating, false);
+    }
+
+    function setQuickRating(path, rating) {
+      setRatingForPath(path, rating, true);
+    }
+
+    function setRatingForPath(path, rating, toggle) {
+      const p = prototypes.find(x => x.path === path);
+      if (!p) return;
+      reviews[path] = reviews[path] || {};
+      const current = reviews[path].rating || "untested";
+      const next = toggle && current === rating ? "untested" : rating;
+      reviews[path].rating = next;
       persist();
-      select(activePath, true);
+      if (path === activePath) {
+        select(activePath, true);
+      } else {
+        render();
+      }
       updateStats();
+      renderFamilyNav();
+      renderFamilyPage();
+      const label = next === "good" ? "Starred" : next === "bad" ? "Canceled" : "Cleared";
+      toast(`${label}: ${p.title}`);
     }
 
     function saveCurrentReview() {
@@ -2465,6 +3007,9 @@
     function getVideoCapability(path, family) {
       if (videoOverrides[path]) return videoOverrides[path];
       const p = path.toLowerCase();
+      if (family === "World Families") {
+        return videoProfile("index", "Research prompt page for WORLD, AI Builder, and bot family contracts.");
+      }
       if (p.includes("film") && (p.includes("operator") || p.includes("studio"))) {
         return videoProfile("studio", "Film/operator build name; inspect first for capture workflow.");
       }
@@ -2494,6 +3039,7 @@
       if (p.includes("wreck")) return "Wreck";
       if (p.includes("collision_trace")) return "Collision Trace";
       if (p.includes("paris") || p.includes("verdict")) return "Paris / Verdict";
+      if (p.includes("hello test/families")) return "World Families";
       if (p.includes("operator") || p.includes("forge")) return "Operator / Forge";
       if (p.includes("thunder_rigs") || p.includes("thunder-rigs") || p.includes("thunderhead")) return "Thunder Rigs";
       return "Other";

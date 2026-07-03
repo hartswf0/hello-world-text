@@ -1,0 +1,270 @@
+version: 1
+purpose: "Per-family WORLD, AI Builder, and bot prompt contracts for HELLO TEST."
+selection_rule: "Pick the closest golden family from user text, reference image, active world, or selected object."
+
+domain_prompt_rules:
+  world:
+    - "Build a traversable rule-bearing world, not a prop scatter."
+    - "Include one major landmark, route grammar, zones, rules, and visual continuity."
+    - "Use collidable solids for gameplay and visual-only details for richness."
+    - "Output must preserve spawn clearance and driving readability."
+  ai_builder:
+    - "Build one local focal construction inside the active world."
+    - "Include base, silhouette, detail, material contrast, and one affordance."
+    - "Do not change global atmosphere, terrain family, player rig, or game mode."
+  bots:
+    - "Bots must read the world, not act generically."
+    - "Use routes, zones, hazards, landmarks, and material rules."
+    - "Return structured actors, roles, patrols, triggers, and objectives."
+
+families:
+  - id: thor
+    family: NORSE
+    world_genome:
+      title: "Storm Hammer Pass"
+      seed: "A storm road shaped by hammer law, rune gates, wet stone, goat markers, and lightning pylons."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "storm mountain pass"
+        landmark_system: ["hammer road", "rune gates", "lightning pylons", "goat side markers"]
+        traversal_affordances: ["two driving lanes", "wet stone ramps", "gate thresholds", "safe central court"]
+      rules:
+        traction: 0.82
+        visibility: "medium with lightning flashes"
+        noise: "metal and stone impacts travel farther"
+    inside_world:
+      landmarks: ["hammer road", "cracked anvil court", "rune gate pair"]
+      routes: ["main hammer lane", "goat-marker side path", "ramp over anvil crack"]
+      zones: ["wet stone low traction", "rune boost strip", "lightning danger visual zone"]
+      builder_targets: ["Rune Hammer Gate", "Cracked Anvil Shrine", "Lightning Battery"]
+      bot_roles: ["rune guard", "goat scout", "storm charger"]
+    world_prompt: "Build Storm Hammer Pass as a drivable Norse storm world. Make the road read like a hammer silhouette, add rune gates and lightning pylons, keep two clean lanes, and encode wet stone traction."
+    ai_builder_prompt: "Build a Rune Hammer Gate with two stone uprights, hammer-head lintel, rune plates, small lightning rods, and a drive-through opening."
+    bot_prompt: "Spawn rune guards that hold gate thresholds, goat scouts that patrol side paths, and storm chargers that ram across wet stone lanes."
+
+  - id: zeus
+    family: GREEK
+    world_genome:
+      title: "Olympus Switchback"
+      seed: "A bright marble switchback climbing toward eagle pylons, laurel checkpoints, and gold bolt beacons."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "mountain temple road"
+        landmark_system: ["marble temple platform", "eagle pylons", "laurel rings", "bolt beacon"]
+        traversal_affordances: ["switchback roads", "ramped dais", "long-sight straightaways"]
+      rules:
+        traction: 0.95
+        visibility: "high"
+        noise: "open marble carries sound cleanly"
+    inside_world:
+      landmarks: ["eagle pylon ridge", "laurel checkpoint", "bolt dais"]
+      routes: ["marble switchback", "temple stair ramp", "eagle overlook curve"]
+      zones: ["visibility boost plateau", "slippery polished marble", "checkpoint ring"]
+      builder_targets: ["Eagle Bolt Dais", "Laurel Beacon", "Marble Wing Gate"]
+      bot_roles: ["eagle sentry", "laurel racer", "bolt keeper"]
+    world_prompt: "Build Olympus Switchback as a clear, readable marble driving world with temple geometry, eagle pylons, laurel checkpoint rings, and high-visibility gameplay."
+    ai_builder_prompt: "Build an Eagle Bolt Dais with a ramped marble base, wing side fins, a gold bolt spire, and laurel trim."
+    bot_prompt: "Spawn eagle sentries with long sightlines, laurel racers that hold switchback routes, and bolt keepers guarding the dais."
+
+  - id: raijin
+    family: JAPANESE
+    world_genome:
+      title: "Taiko Storm Alley"
+      seed: "A red storm alley of taiko towers, oni gates, lantern paths, and pulse-lit crossings."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "storm shrine alley"
+        landmark_system: ["taiko drum tower", "oni mask gate", "lantern rows"]
+        traversal_affordances: ["alley lanes", "gate chicanes", "pulse crossings"]
+      rules:
+        traction: 0.9
+        visibility: "medium, lantern-guided"
+        pulse_hazard: "crossings glow before danger"
+    inside_world:
+      landmarks: ["oni gate", "taiko tower", "lantern bend"]
+      routes: ["main alley", "drum-circle detour", "mask gate shortcut"]
+      zones: ["pulse hazard crossing", "lantern safe zone", "echo noise strip"]
+      builder_targets: ["Oni Taiko Signal", "Lantern Gate", "Thunder Mask Totem"]
+      bot_roles: ["oni seeker", "drum caller", "lantern ally"]
+    world_prompt: "Build Taiko Storm Alley as a rhythmic storm route with drum towers, oni gates, red lantern guidance, and pulse hazards."
+    ai_builder_prompt: "Build an Oni Taiko Signal with drum body, horned mask, lantern posts, thunder strips, and a protected drive-around base."
+    bot_prompt: "Spawn oni seekers that move on pulse cycles, drum callers that summon patrol shifts, and lantern allies that reveal safe routes."
+
+  - id: tlaloc
+    family: AZTEC
+    world_genome:
+      title: "Jade Rain Causeway"
+      seed: "A wet jade temple road with serpent canals, mask fountains, slick stone, and rain towers."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "rain temple causeway"
+        landmark_system: ["serpent canal", "mask fountain", "jade temple gate"]
+        traversal_affordances: ["causeway", "canal edge", "stepped temple route"]
+      rules:
+        traction: 0.76
+        visibility: "rain softened"
+        water: "canal edges punish careless turns"
+    inside_world:
+      landmarks: ["mask fountain", "serpent canal", "jade gate"]
+      routes: ["main causeway", "canal-side lane", "temple step ramp"]
+      zones: ["slick jade", "shallow splash edge", "rain cover"]
+      builder_targets: ["Serpent Rain Altar", "Jade Cistern", "Mask Fountain"]
+      bot_roles: ["rain guard", "serpent scout", "cistern ally"]
+    world_prompt: "Build Jade Rain Causeway as a slick temple world with serpent canals, mask fountains, rain towers, and water-aware driving rules."
+    ai_builder_prompt: "Build a Serpent Rain Altar with stepped jade base, serpent-coil sides, mask face, cistern basin, and visual rain rods."
+    bot_prompt: "Spawn rain guards that hold causeways, serpent scouts that flank along canal edges, and cistern allies that guide through slick zones."
+
+  - id: perun
+    family: SLAVIC
+    world_genome:
+      title: "Oak War Ridge"
+      seed: "An oak-root war ridge with axe gates, shield stones, split-log barricades, and thunder roots."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "storm oak ridge"
+        landmark_system: ["axe gate", "shield stone", "oak root barricade"]
+        traversal_affordances: ["ridge road", "root slalom", "log bridge"]
+      rules:
+        traction: 0.88
+        visibility: "interrupted by roots and trunks"
+        noise: "wood impacts alert nearby bots"
+    inside_world:
+      landmarks: ["axe gate", "shield grove", "thunder-root ridge"]
+      routes: ["oak ridge road", "root slalom", "shield stone loop"]
+      zones: ["root occlusion", "wood impact noise", "storm charge lane"]
+      builder_targets: ["Axe Shield Post", "Oak Watch Post", "Root Barricade"]
+      bot_roles: ["axe guard", "root ambusher", "shield ally"]
+    world_prompt: "Build Oak War Ridge as a Slavic thunder forest with axe gates, shield stones, root obstacles, and wood impact rules."
+    ai_builder_prompt: "Build an Axe Shield Post with crossed axe blades, shield face, oak-root footings, iron caps, and a safe side gap."
+    bot_prompt: "Spawn axe guards at gates, root ambushers in occlusion zones, and shield allies that hold defensive loops."
+
+  - id: shango
+    family: YORUBA
+    world_genome:
+      title: "Oshe Storm Court"
+      seed: "A red storm courtyard with double-axe lanes, drum circles, fire stones, and percussion pulses."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "storm court"
+        landmark_system: ["double-axe gate", "drum circle", "fire boundary"]
+        traversal_affordances: ["open court", "axe lane", "drum loop"]
+      rules:
+        traction: 0.92
+        visibility: "high in court, flickering at fire edge"
+        pulse: "drum zones time bot movement"
+    inside_world:
+      landmarks: ["double-axe gate", "talking drum tower", "fire court"]
+      routes: ["central court", "axe lane", "drum circle loop"]
+      zones: ["pulse zone", "fire boundary", "open duel court"]
+      builder_targets: ["Double Axe Drum Gate", "Talking Drum Tower", "Fire Marker"]
+      bot_roles: ["axe striker", "drum commander", "court ally"]
+    world_prompt: "Build Oshe Storm Court as a bold red arena with double-axe gates, drum-circle routes, fire boundaries, and pulse-driven play."
+    ai_builder_prompt: "Build a Double Axe Drum Gate with paired blade silhouettes, drum base, fire caps, and a readable threshold."
+    bot_prompt: "Spawn axe strikers that charge lanes, drum commanders that shift patrol rhythm, and court allies that defend the open center."
+
+  - id: indra
+    family: VEDIC
+    world_genome:
+      title: "Vajra Cloud Road"
+      seed: "A monsoon road with elephant-foot pylons, vajra gates, rain ramps, and cloud-bank visuals."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "monsoon sky road"
+        landmark_system: ["vajra mast", "elephant-foot pylons", "cloud banks"]
+        traversal_affordances: ["rain road", "pylon gate", "cloud-edge ramp"]
+      rules:
+        traction: 0.8
+        visibility: "misty but beacon-guided"
+        weather: "rain reduces control but highlights beacons"
+    inside_world:
+      landmarks: ["vajra mast", "elephant gate", "cloud plinth"]
+      routes: ["rain road", "pylon slalom", "cloud-edge curve"]
+      zones: ["monsoon slick", "beacon visibility zone", "soft cloud visual edge"]
+      builder_targets: ["Vajra Elephant Gate", "Cloud Plinth", "Rain Mast"]
+      bot_roles: ["vajra guard", "monsoon racer", "cloud guide"]
+    world_prompt: "Build Vajra Cloud Road as a monsoon driving world with elephant-foot pylons, vajra masts, cloud visuals, and rain traction rules."
+    ai_builder_prompt: "Build a Vajra Elephant Gate with four pillar legs, a central opening, vajra mast, cloud plinth visuals, and gold-blue contrast."
+    bot_prompt: "Spawn vajra guards around gate openings, monsoon racers that exploit slick lanes, and cloud guides that mark safe curves."
+
+  - id: leigong
+    family: CHINESE
+    world_genome:
+      title: "Thunder Drum Runway"
+      seed: "A cloud runway of drum beacons, wing bridges, mallet towers, and blue bolt cages."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "storm runway"
+        landmark_system: ["drum beacon", "wing bridge", "mallet tower", "bolt cage"]
+        traversal_affordances: ["straight runway", "bridge crossing", "beacon turn"]
+      rules:
+        traction: 0.9
+        visibility: "blue beacon guided"
+        hazard: "bolt cages are visual warnings and collision boundaries"
+    inside_world:
+      landmarks: ["drum beacon", "wing bridge", "mallet tower"]
+      routes: ["runway straight", "wing bridge", "bolt cage turn"]
+      zones: ["beacon safe line", "bolt boundary", "drum pulse zone"]
+      builder_targets: ["Wing Drum Beacon", "Mallet Tower", "Bolt Cage"]
+      bot_roles: ["drum sentry", "wing runner", "bolt keeper"]
+    world_prompt: "Build Thunder Drum Runway as a readable storm runway with drum beacons, wing bridges, mallet towers, and blue bolt boundaries."
+    ai_builder_prompt: "Build a Wing Drum Beacon with drum core, wing side fins, mallet posts, bolt detail, and a low stable base."
+    bot_prompt: "Spawn drum sentries at beacons, wing runners on bridge routes, and bolt keepers that guard boundary turns."
+
+  - id: thunderbird
+    family: PLAINS_NATIONS
+    world_genome:
+      title: "Feather Storm Canyon"
+      seed: "A painted mesa canyon with feather totems, storm perches, wing ramps, and open sky lanes."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "painted storm canyon"
+        landmark_system: ["feather totems", "storm perch", "wing ramp", "painted mesa"]
+        traversal_affordances: ["canyon lane", "wing ramp", "perch curve"]
+      rules:
+        traction: 0.86
+        visibility: "open sky, canyon occlusion near walls"
+        wind: "side gust zones near ramps"
+    inside_world:
+      landmarks: ["feather totem", "storm perch", "painted mesa gate"]
+      routes: ["canyon road", "wing ramp", "perch loop"]
+      zones: ["wind push", "painted safe marker", "canyon shadow"]
+      builder_targets: ["Feather Totem Ramp", "Beak Gate", "Storm Perch"]
+      bot_roles: ["perch seeker", "wing racer", "totem ally"]
+    world_prompt: "Build Feather Storm Canyon as a painted mesa world with feather totems, wing ramps, storm perches, and wind-aware route rules."
+    ai_builder_prompt: "Build a Feather Totem Ramp with ramp affordance, feather panels, beak gate, perch top, and painted color bands."
+    bot_prompt: "Spawn perch seekers that watch from high curves, wing racers that use ramps, and totem allies that mark safe routes."
+
+  - id: ursus
+    family: CREATURE
+    world_genome:
+      title: "Ironhide Den Pass"
+      seed: "A forest den pass with fallen branch arches, claw rocks, moss hide zones, den-road loops, and muffled soil."
+      world_type: "playable environment"
+      embodiment_mode: "third-person chase"
+      terrain_logic:
+        biome: "bear forest pass"
+        landmark_system: ["fallen branch arch", "claw rocks", "den landmark", "moss pads"]
+        traversal_affordances: ["den-road loop", "branch arch", "rock slalom", "moss side path"]
+      rules:
+        traction: 0.84
+        visibility: "broken by branches and trunks"
+        noise: "moss muffles, stones amplify"
+        stealth: "moss zones hide better than open rock"
+    inside_world:
+      landmarks: ["fallen branch arch", "bear den", "claw-mark stones"]
+      routes: ["den loop", "branch tunnel", "rock slalom", "moss side path"]
+      zones: ["moss hide zone", "stone noise zone", "den objective zone"]
+      builder_targets: ["Claw Den Barricade", "Fallen Branch Beam", "Moss Camp"]
+      bot_roles: ["den seeker", "claw guard", "moss ally", "decoy cub"]
+    world_prompt: "Build Ironhide Den Pass as a traversable forest world with fallen branch arches, claw rocks, moss hide zones, den loops, and noise/stealth rules."
+    ai_builder_prompt: "Build a Claw Den Barricade with fallen branch beam, claw-mark stones, moss pads, a drive-around gap, and small camp detail."
+    bot_prompt: "Spawn den seekers that patrol branch tunnels, claw guards at rock slaloms, moss allies that guide through hide zones, and decoys that draw seekers to stone noise zones."
