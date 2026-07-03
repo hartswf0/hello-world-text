@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Base Core Atlas</title>
+  <style>
+    :root {
+      --bg: #edf1f0;
+      --paper: #fbfcfc;
+      --ink: #14201d;
+      --muted: #5f6f6a;
+      --line: #bbc8c4;
+      --soft: #dfe7e4;
+      --black: #18231f;
+      --green: #2f8054;
+      --teal: #168f85;
+      --blue: #356f9f;
+      --gold: #a56d13;
+      --red: #b84646;
+      --violet: #6e579d;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; }
+    .app {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100dvh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      overflow: auto;
+      padding: 14px;
+      background: var(--black);
+      color: #f5f8f7;
+      border-right: 1px solid #0a0f0e;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 18px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      color: #c6d0cc;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.15);
+    }
+
+    nav a, .side-note {
+      display: block;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 6px;
+      padding: 8px;
+      background: rgba(255,255,255,.05);
+      text-decoration: none;
+      font-size: 10px;
+      line-height: 1.3;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .side-note {
+      color: #c6d0cc;
+      font-weight: 700;
+      text-transform: none;
+    }
+
+    main {
+      min-width: 0;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(20,32,29,.08);
+    }
+
+    .panel > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft);
+      background: #fff;
+    }
+
+    h2 {
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      font-size: 12px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 7px;
+      border: 1px solid var(--soft);
+      border-radius: 999px;
+      background: #f6f8f7;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .body {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      padding: 9px;
+      background: #fff;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .stack-row {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr) 72px;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--soft);
+      border-left: 5px solid var(--accent);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    .stack-row strong {
+      font-size: 10px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .stack-row span {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .layer {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+    }
+
+    .layer header {
+      padding: 10px;
+      border-bottom: 1px solid var(--soft);
+      box-shadow: inset 5px 0 0 var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .layer .body {
+      padding: 10px;
+    }
+
+    .diagram {
+      min-height: 150px;
+      border-bottom: 1px solid var(--soft);
+      background: #f4f7f6;
+      display: block;
+      width: 100%;
+    }
+
+    .flow-box {
+      fill: #fff;
+      stroke: #9faaa6;
+      stroke-width: 1;
+      rx: 6;
+    }
+
+    .flow-hot {
+      fill: #fff4f0;
+      stroke: var(--red);
+    }
+
+    .flow-core {
+      fill: #eef9f6;
+      stroke: var(--teal);
+      stroke-width: 1.5;
+    }
+
+    .flow-rule {
+      fill: #f4f0ff;
+      stroke: var(--violet);
+    }
+
+    .flow-text {
+      font: 700 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      fill: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .flow-small {
+      font: 700 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      fill: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .arrow {
+      stroke: #66746f;
+      stroke-width: 1.3;
+      marker-end: url(#arrow);
+      fill: none;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 98px minmax(0, 1fr);
+      gap: 6px;
+      align-items: start;
+    }
+
+    .kv b {
+      font-size: 9px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .kv span {
+      min-width: 0;
+    }
+
+    .risk-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .risk-row {
+      display: grid;
+      grid-template-columns: 128px 82px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    .risk-row b {
+      font-size: 10px;
+      line-height: 1.3;
+      text-transform: uppercase;
+    }
+
+    .risk-row span, .risk-row p {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .shot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    figure {
+      margin: 0;
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      background: #dfe7e4;
+    }
+
+    figcaption {
+      padding: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .callout {
+      border-left: 5px solid var(--red);
+      padding: 10px;
+      background: #fff7f4;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .hero, .grid, .shot-grid { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .risk-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 Z" fill="#66746f"></path>
+      </marker>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <aside>
+      <div>
+        <h1>Base Core Atlas</h1>
+        <p class="subtitle">Step back from feature islands. This page shows which features need to become shared <substrates> before the missing games and film/case systems can work.</p>
+      </div>
+      <nav aria-label="Atlas navigation">
+        <a href="#base">Shared Core</a>
+        <a href="#layers">Feature Layers</a>
+        <a href="#deadends">Deadends</a>
+        <a href="#expensive">Expensive Differences</a>
+        <a href="#screenshots">Screenshots</a>
+        <a href="./FEATURE_TEST_INDEX.html">Feature Test Index</a>
+        <a href="../hello-world-004-openai%20(8).html">Open Target Game</a>
+      </nav>
+      <div class="side-note">Rule: a feature is not integrated until it owns data in a shared core, mutates play, records events, and has a test row.</div>
+    </aside>
+
+    <main>
+      <section class="hero" id="base">
+        <article class="panel">
+          <header>
+            <h2>What Is The Base?</h2>
+            <span class="tag">shared core</span>
+          </header>
+          <div class="body">
+            <p>The base is not another page. The base is a <strong>runtime context</strong> that every surface can read, mutate, validate, record, and export.</p>
+            <div class="summary">
+              <div class="metric"><b>8</b><span>required substrates</span></div>
+              <div class="metric"><b>7</b><span>major surfaces</span></div>
+              <div class="metric"><b>90</b><span>known integration points</span></div>
+              <div class="metric"><b>4</b><span>highest-risk seams</span></div>
+            </div>
+            <div class="callout">The main missing step is converting feature behavior into <strong>shared contracts</strong>. Until then, HELLO builds geometry, WORLD decorates a scene, DIRECT sends commands, and FILM/PARIS cannot prove what happened.</div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header>
+            <h2>Core Stack</h2>
+            <span class="tag">bottom up</span>
+          </header>
+          <div class="body stack">
+            <div class="stack-row" style="--accent:var(--blue)"><strong>Surfaces</strong><span>HELLO, WORLD, DIRECT, PLAY, FILM, PARIS, RAIL</span><span>visible</span></div>
+            <div class="stack-row" style="--accent:var(--teal)"><strong>Graphs</strong><span>RigGraph, WorldGraph, DirectiveGraph</span><span>data</span></div>
+            <div class="stack-row" style="--accent:var(--violet)"><strong>Modes</strong><span>GameModeRegistry with setup, tick, teardown, HUD, scoring</span><span>rules</span></div>
+            <div class="stack-row" style="--accent:var(--green)"><strong>Events</strong><span>EventStream feeds FilmRecord, ParisCase, replay, export</span><span>time</span></div>
+            <div class="stack-row" style="--accent:var(--gold)"><strong>Rail</strong><span>AI log, diagnostics, import/export, hidden apparatus</span><span>tools</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" id="layers">
+        <header>
+          <h2>Feature Layers</h2>
+          <span class="tag">surface -> substrate -> effect</span>
+        </header>
+        <div class="body grid">
+          <article class="layer" id="layer-rig" style="--accent:var(--teal)">
+            <header><h3>HELLO / RigGraph</h3><span class="tag">8 pts</span></header>
+            <svg class="diagram" viewBox="0 0 520 160" role="img" aria-label="HELLO to RigGraph diagram">
+              <rect class="flow-box" x="18" y="25" width="120" height="46"></rect><text class="flow-text" x="38" y="52">HELLO</text><text class="flow-small" x="38" y="66">prompt + parts</text>
+              <path class="arrow" d="M145 48 H205"></path>
+              <rect class="flow-hot" x="210" y="25" width="120" height="46"></rect><text class="flow-text" x="228" y="52">myParts</text><text class="flow-small" x="228" y="66">array + mesh</text>
+              <path class="arrow" d="M335 48 H395"></path>
+              <rect class="flow-core" x="400" y="25" width="102" height="46"></rect><text class="flow-text" x="421" y="52">RigGraph</text><text class="flow-small" x="421" y="66">ids + tags</text>
+              <rect class="flow-rule" x="70" y="100" width="380" height="34"></rect><text class="flow-small" x="92" y="121">needed: stable identity, clone policy, damage/hide/film tags</text>
+            </svg>
+            <div class="body">
+              <div class="kv"><b>Dead end</b><span>Generated geometry and part arrays do not fully explain the rig to another mode.</span></div>
+              <div class="kv"><b>Base need</b><span>A copyable <code>&lt;RigGraph&gt;</code> with part ids, transforms, parents, materials, sources, and gameplay tags.</span></div>
+              <div class="kv"><b>Cost</b><span>High because physics, visuals, multiplayer sync, clone, film, and export all touch the rig.</span></div>
+            </div>
+          </article>
+
+          <article class="layer" id="layer-world" style="--accent:var(--green)">
+            <header><h3>WORLD / WorldGraph</h3><span class="tag">8 pts</span></header>
+            <svg class="diagram" viewBox="0 0 520 160" role="img" aria-label="WORLD to WorldGraph diagram">
+              <rect class="flow-box" x="18" y="24" width="120" height="46"></rect><text class="flow-text" x="38" y="51">WORLD</text><text class="flow-small" x="38" y="65">look + family</text>
+              <path class="arrow" d="M145 47 H195"></path>
+              <rect class="flow-hot" x="200" y="24" width="132" height="46"></rect><text class="flow-text" x="218" y="51">decor scene</text><text class="flow-small" x="218" y="65">props/colors</text>
+              <path class="arrow" d="M337 47 H397"></path>
+              <rect class="flow-core" x="402" y="24" width="100" height="46"></rect><text class="flow-text" x="419" y="51">WorldGraph</text><text class="flow-small" x="419" y="65">rules/zones</text>
+              <rect class="flow-rule" x="70" y="100" width="380" height="34"></rect><text class="flow-small" x="90" y="121">needed: traction, visibility, hazards, objectives, evidence anchors</text>
+            </svg>
+            <div class="body">
+              <div class="kv"><b>Dead end</b><span>Worlds look different but do not reliably change stealth, scoring, handling, evidence, or objectives.</span></div>
+              <div class="kv"><b>Base need</b><span>A <code>&lt;WorldGraph&gt;</code> that includes both geometry and rule payload.</span></div>
+              <div class="kv"><b>Cost</b><span>High because every game mode must read world rules without duplicating world code.</span></div>
+            </div>
+          </article>
+
+          <article class="layer" id="layer-direct" style="--accent:var(--blue)">
+            <header><h3>SAY / DIRECT / DirectiveGraph</h3><span class="tag">8 pts</span></header>
+            <svg class="diagram" viewBox="0 0 520 160" role="img" aria-label="DIRECT to DirectiveGraph diagram">
+              <rect class="flow-box" x="18" y="24" width="120" height="46"></rect><text class="flow-text" x="44" y="51">DIRECT</text><text class="flow-small" x="44" y="65">say command</text>
+              <path class="arrow" d="M145 47 H195"></path>
+              <rect class="flow-hot" x="200" y="24" width="132" height="46"></rect><text class="flow-text" x="220" y="51">parser</text><text class="flow-small" x="220" y="65">one-shot actions</text>
+              <path class="arrow" d="M337 47 H397"></path>
+              <rect class="flow-core" x="402" y="24" width="100" height="46"></rect><text class="flow-text" x="412" y="51">Directive</text><text class="flow-small" x="412" y="65">actors/goals</text>
+              <rect class="flow-rule" x="70" y="100" width="380" height="34"></rect><text class="flow-small" x="92" y="121">needed: AI-generated JSON, preview, validation, apply/reject</text>
+            </svg>
+            <div class="body">
+              <div class="kv"><b>Dead end</b><span>Parser commands can spawn or place things, but cannot author durable bots/enemies/allies as apparatus.</span></div>
+              <div class="kv"><b>Base need</b><span>A <code>&lt;DirectiveGraph&gt;</code> that turns language into actors, roles, teams, goals, behaviors, and small structures.</span></div>
+              <div class="kv"><b>Cost</b><span>High because generated actions need safety, validation, preview, failure handling, and undo semantics.</span></div>
+            </div>
+          </article>
+
+          <article class="layer" id="layer-mode" style="--accent:var(--violet)">
+            <header><h3>PLAY / GameModeRegistry</h3><span class="tag">13 pts</span></header>
+            <svg class="diagram" viewBox="0 0 520 160" role="img" aria-label="PLAY to GameModeRegistry diagram">
+              <rect class="flow-box" x="18" y="24" width="120" height="46"></rect><text class="flow-text" x="50" y="51">PLAY</text><text class="flow-small" x="50" y="65">modes</text>
+              <path class="arrow" d="M145 47 H195"></path>
+              <rect class="flow-hot" x="200" y="24" width="132" height="46"></rect><text class="flow-text" x="218" y="51">special cases</text><text class="flow-small" x="218" y="65">soon stubs</text>
+              <path class="arrow" d="M337 47 H397"></path>
+              <rect class="flow-core" x="402" y="24" width="100" height="46"></rect><text class="flow-text" x="416" y="51">Registry</text><text class="flow-small" x="416" y="65">tick/setup</text>
+              <rect class="flow-rule" x="70" y="100" width="380" height="34"></rect><text class="flow-small" x="92" y="121">needed: setup, teardown, tick, HUD, score, export hooks</text>
+            </svg>
+            <div class="body">
+              <div class="kv"><b>Dead end</b><span>Each game mode becomes its own private loop, so missing games cannot be added in clean chunks.</span></div>
+              <div class="kv"><b>Base need</b><span>A <code>&lt;GameModeRegistry&gt;</code> that consumes RigGraph, WorldGraph, DirectiveGraph, and EventStream.</span></div>
+              <div class="kv"><b>Cost</b><span>Very high because mode lifecycle touches UI visibility, physics ticks, scoring, bots, and replay.</span></div>
+            </div>
+          </article>
+
+          <article class="layer" id="layer-events" style="--accent:var(--gold)">
+            <header><h3>FILM / PARIS / EventStream</h3><span class="tag">13 pts</span></header>
+            <svg class="diagram" viewBox="0 0 520 160" role="img" aria-label="FILM PARIS EventStream diagram">
+              <rect class="flow-box" x="18" y="24" width="120" height="46"></rect><text class="flow-text" x="44" y="51">play</text><text class="flow-small" x="44" y="65">what happens</text>
+              <path class="arrow" d="M145 47 H195"></path>
+              <rect class="flow-core" x="200" y="24" width="132" height="46"></rect><text class="flow-text" x="222" y="51">EventStream</text><text class="flow-small" x="222" y="65">time + ids</text>
+              <path class="arrow" d="M337 47 H397"></path>
+              <rect class="flow-rule" x="402" y="24" width="100" height="46"></rect><text class="flow-text" x="418" y="51">Film/Case</text><text class="flow-small" x="418" y="65">evidence</text>
+              <rect class="flow-hot" x="70" y="100" width="380" height="34"></rect><text class="flow-small" x="96" y="121">dead end: screenshots/video without semantic event history</text>
+            </svg>
+            <div class="body">
+              <div class="kv"><b>Dead end</b><span>A film can show pixels but cannot explain collisions, clones, hide checks, orders, or verdicts.</span></div>
+              <div class="kv"><b>Base need</b><span>An <code>&lt;EventStream&gt;</code> that feeds <code>&lt;FilmRecord&gt;</code> and <code>&lt;ParisCase&gt;</code>.</span></div>
+              <div class="kv"><b>Cost</b><span>Very high because time, identity, camera, mode state, and export must agree.</span></div>
+            </div>
+          </article>
+
+          <article class="layer" id="layer-rail" style="--accent:var(--red)">
+            <header><h3>RAIL / Hidden Apparatus</h3><span class="tag">5 pts</span></header>
+            <svg class="diagram" viewBox="0 0 520 160" role="img" aria-label="RAIL hidden apparatus diagram">
+              <rect class="flow-hot" x="18" y="24" width="120" height="46"></rect><text class="flow-text" x="38" y="51">floating UI</text><text class="flow-small" x="38" y="65">clutter</text>
+              <path class="arrow" d="M145 47 H195"></path>
+              <rect class="flow-core" x="200" y="24" width="132" height="46"></rect><text class="flow-text" x="222" y="51">Rail</text><text class="flow-small" x="222" y="65">system drawers</text>
+              <path class="arrow" d="M337 47 H397"></path>
+              <rect class="flow-box" x="402" y="24" width="100" height="46"></rect><text class="flow-text" x="426" y="51">play</text><text class="flow-small" x="426" y="65">clean</text>
+              <rect class="flow-rule" x="70" y="100" width="380" height="34"></rect><text class="flow-small" x="100" y="121">needed: AI log, API, diagnostics, export, graph drawers</text>
+            </svg>
+            <div class="body">
+              <div class="kv"><b>Dead end</b><span>Tools compete with play, and advanced/debug elements become permanent chrome.</span></div>
+              <div class="kv"><b>Base need</b><span>A <code>&lt;RailApparatus&gt;</code> with sections: BUILD, DIRECT, FILM, CASE, SYSTEM.</span></div>
+              <div class="kv"><b>Cost</b><span>Medium because it is mostly information architecture, but every surface needs a clean home.</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="deadends">
+        <header>
+          <h2>Deadends And Culdesacs</h2>
+          <span class="tag">what blocks the base</span>
+        </header>
+        <div class="body risk-table">
+          <div class="risk-row"><b>Geometry-only HELLO</b><span>Looks successful</span><p>Builds meshes but does not expose stable rig semantics to game modes.</p><p>Exit: promote every part into <code>&lt;RigGraph&gt;</code> records before rendering.</p></div>
+          <div class="risk-row"><b>Decor-only WORLD</b><span>Main culprit</span><p>World prompts affect color/props but do not alter friction, sight, hiding, evidence, or scoring.</p><p>Exit: make family differences mechanical and testable.</p></div>
+          <div class="risk-row"><b>Parser-only DIRECT</b><span>Too narrow</span><p>Commands can run, but they are not validated authored systems.</p><p>Exit: produce <code>&lt;DirectiveGraph&gt;</code> with preview/apply/reject.</p></div>
+          <div class="risk-row"><b>Mode stubs</b><span>Accumulating debt</span><p>Missing games stay missing because each requires custom state and UI.</p><p>Exit: one <code>&lt;GameModeRegistry&gt;</code> contract with vertical slices.</p></div>
+          <div class="risk-row"><b>Pixel-only film</b><span>Weak record</span><p>Video alone cannot support replay, evidence, or verdict.</p><p>Exit: pair capture with <code>&lt;EventStream&gt;</code> and graph snapshots.</p></div>
+          <div class="risk-row"><b>Floating apparatus</b><span>UI bloat</span><p>AI log/API/debug surfaces pollute play mode and make features feel bloated.</p><p>Exit: hide apparatus in rail drawers and mode-gate surfaces.</p></div>
+        </div>
+      </section>
+
+      <section class="panel" id="expensive">
+        <header>
+          <h2>Most Expensive Differences</h2>
+          <span class="tag">integration risk</span>
+        </header>
+        <div class="body risk-table">
+          <div class="risk-row"><b>Identity Model</b><span>13 pts</span><p>Meshes, rig parts, bots, clones, events, and film frames all need the same entity ids.</p><p>Without this, every export/replay/case feature becomes a manual reconstruction.</p></div>
+          <div class="risk-row"><b>World Rules</b><span>13 pts</span><p>Families must differ by mechanics: sight, traction, cover, noise, hazards, evidence anchors.</p><p>This is expensive because physics, AI, UI, and scoring must consume the same rule payload.</p></div>
+          <div class="risk-row"><b>AI Contracts</b><span>8 pts</span><p>HELLO and DIRECT need generated JSON that validates before touching the live scene.</p><p>This is expensive because invalid AI output must fail safely and still teach the user what changed.</p></div>
+          <div class="risk-row"><b>Mode Lifecycle</b><span>13 pts</span><p>Sneak, film, Paris, CTF, golf, free drive, and future games need setup/tick/teardown/export.</p><p>This is expensive because UI gating, camera, scoring, bots, and event recording all meet here.</p></div>
+          <div class="risk-row"><b>Event Time</b><span>8 pts</span><p>Film and Paris need a durable timeline of actions, collisions, zones, clone births, and claims.</p><p>This is expensive because current behavior is live-state oriented, not history oriented.</p></div>
+          <div class="risk-row"><b>Rail IA</b><span>5 pts</span><p>The advanced apparatus needs one map so features do not sprawl across the screen.</p><p>This is cheaper than graphs, but it is necessary before the system feels coherent.</p></div>
+        </div>
+      </section>
+
+      <section class="panel" id="screenshots">
+        <header>
+          <h2>Screenshots And Visual References</h2>
+          <span class="tag">generated locally</span>
+        </header>
+        <div class="body">
+          <p>These screenshots are generated into <code>hello-world-004-openai-8-fusion-pack/screenshots/</code>. They are evidence surfaces, not the core itself.</p>
+          <div class="shot-grid">
+            <figure>
+              <img src="screenshots/target-main.png" alt="Target game first view screenshot">
+              <figcaption>Target game: current combined surface where many features exist but share too little substrate.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/feature-test-index.png" alt="Feature test index screenshot">
+              <figcaption>Feature Test Index: the comparison surface for proving each integration chunk.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/base-core-atlas.png" alt="Base core atlas screenshot">
+              <figcaption>Base Core Atlas: this page, used as the step-back map for deadends and expensive differences.</figcaption>
+            </figure>
+          </div>
+          <div class="shot-grid">
+            <figure>
+              <img src="screenshots/layer-rig.png" alt="HELLO RigGraph layer screenshot">
+              <figcaption>HELLO / RigGraph layer: actual vehicle parts must become a text scene graph.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/layer-world.png" alt="WORLD WorldGraph layer screenshot">
+              <figcaption>WORLD / WorldGraph layer: world families must carry rules, zones, and consequences.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/layer-direct.png" alt="DIRECT DirectiveGraph layer screenshot">
+              <figcaption>SAY / DIRECT layer: commands should become validated actor/objective apparatus.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/layer-mode.png" alt="PLAY GameModeRegistry layer screenshot">
+              <figcaption>PLAY / GameModeRegistry layer: modes need setup, tick, teardown, HUD, score, and export.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/layer-events.png" alt="FILM PARIS EventStream layer screenshot">
+              <figcaption>FILM / PARIS layer: video and verdicts need semantic event history.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/layer-rail.png" alt="RAIL hidden apparatus layer screenshot">
+              <figcaption>RAIL layer: AI log, API, diagnostics, graph, and exports belong in hidden apparatus.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

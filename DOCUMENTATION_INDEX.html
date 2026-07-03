@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentation Index</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071214;
+      --panel: #0d1a1d;
+      --line: #244247;
+      --text: #edf7f7;
+      --muted: #9fb3b6;
+      --mint: #19e6c8;
+      --coral: #ff444b;
+      --gold: #ffd23f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #133137, var(--bg) 42%);
+      color: var(--text);
+      font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+    header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 5vw, 58px);
+      line-height: 1;
+      letter-spacing: 0;
+      color: var(--mint);
+    }
+    h2 {
+      margin: 30px 0 12px;
+      color: var(--gold);
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .lede {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+    }
+    a.card {
+      display: grid;
+      gap: 7px;
+      min-height: 118px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel) 92%, black 8%);
+      color: var(--text);
+      text-decoration: none;
+    }
+    a.card:hover {
+      border-color: var(--mint);
+      box-shadow: 0 0 0 1px var(--mint), 0 0 28px rgba(25,230,200,.18);
+    }
+    .card b {
+      color: var(--mint);
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+    .card span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .path {
+      margin-top: auto;
+      color: #c6d4d6;
+      overflow-wrap: anywhere;
+      font-size: 11px;
+    }
+    .shot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    figure {
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #050b0d;
+    }
+    img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+    }
+    figcaption {
+      padding: 9px 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .rule {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Documentation Index</h1>
+      <p class="lede">The bigger-family research shelf for HELLO / WORLD / AI Builder integration. These files describe the shared core, world-text language, prompt contracts, evidence packets, feature gaps, and story-point backlog.</p>
+      <div class="rule">
+        <span class="pill">Information architecture</span>
+        <span class="pill">World text grammar</span>
+        <span class="pill">Prompt handoff</span>
+        <span class="pill">Feature tests</span>
+        <span class="pill">Risk and backlog</span>
+      </div>
+    </header>
+
+    <h2>Load First</h2>
+    <section class="grid">
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/MASTER_PROMPT.md"><b>Master Prompt</b><span>Paste-first handoff prompt for another LLM to plan the fusion.</span><span class="path">hello-world-004-openai-8-fusion-pack/MASTER_PROMPT.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/FABLE5_TOKEN_EFFICIENT_PROMPT.md"><b>Token Efficient Prompt</b><span>XML-style prompt optimized for low-token, evidence-bounded planning.</span><span class="path">hello-world-004-openai-8-fusion-pack/FABLE5_TOKEN_EFFICIENT_PROMPT.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/SNIPPET_EVIDENCE_INDEX.md"><b>Snippet Evidence Index</b><span>Line-range and screenshot map for creating small evidence packets.</span><span class="path">hello-world-004-openai-8-fusion-pack/SNIPPET_EVIDENCE_INDEX.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/FILE_MANIFEST.json"><b>File Manifest</b><span>Machine-readable handoff list for target files, reference files, domains, and tests.</span><span class="path">hello-world-004-openai-8-fusion-pack/FILE_MANIFEST.json</span></a>
+      <a class="card" href="hello-world-004-openai-8-gap-prompt.html"><b>Gap Prompt</b><span>Human-readable missing-feature analysis and copyable prompt for the HELLO WORLD target.</span><span class="path">hello-world-004-openai-8-gap-prompt.html</span></a>
+    </section>
+
+    <h2>Base System</h2>
+    <section class="grid">
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/INFORMATION_ARCHITECTURE.md"><b>Information Architecture</b><span>Domain contracts, invariants, and how HELLO, WORLD, SAY, games, and commits should meet.</span><span class="path">INFORMATION_ARCHITECTURE.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/WORLD_TEXT_LANGUAGE.md"><b>World Text Language</b><span>Primitives, dialect conflicts, entities, relations, and morphisms across the engine.</span><span class="path">WORLD_TEXT_LANGUAGE.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/BASE_STANDARDIZATION_BLUEPRINT.md"><b>Base Standardization Blueprint</b><span>Standard shell, registry, room, commit, graph, and directive services before integration.</span><span class="path">BASE_STANDARDIZATION_BLUEPRINT.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/SUBSTRATES_AND_SURFACES.md"><b>Substrates and Surfaces</b><span>Which layers are real foundations, which are UI surfaces, and where integration cost lives.</span><span class="path">SUBSTRATES_AND_SURFACES.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/CORE_RISK_MAP.md"><b>Core Risk Map</b><span>Dead ends, culdesacs, and expensive differences that should not be fused blindly.</span><span class="path">CORE_RISK_MAP.md</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/INTEGRATION_BACKLOG.md"><b>Integration Backlog</b><span>Story-pointed chunks for making the base receive games, rooms, bots, and film workflows.</span><span class="path">INTEGRATION_BACKLOG.md</span></a>
+    </section>
+
+    <h2>Visual Atlases</h2>
+    <section class="grid">
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/BASE_CORE_ATLAS.html"><b>Base Core Atlas</b><span>Visual map of feature layers, shared core, dead ends, and costly differences.</span><span class="path">BASE_CORE_ATLAS.html</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/BASE_STANDARDIZATION_INDEX.html"><b>Base Standardization Index</b><span>Current PLAY, MULTI, BOTS, SAY, COMMIT screens mapped to standardized modules.</span><span class="path">BASE_STANDARDIZATION_INDEX.html</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/WORLD_TEXT_LANGUAGE_ATLAS.html"><b>World Text Language Atlas</b><span>Visual grammar map for shared entities, dialects, and morphisms.</span><span class="path">WORLD_TEXT_LANGUAGE_ATLAS.html</span></a>
+      <a class="card" href="hello-world-004-openai-8-fusion-pack/FEATURE_TEST_INDEX.html"><b>Feature Test Index</b><span>Manual comparison index for testing features against other instances.</span><span class="path">FEATURE_TEST_INDEX.html</span></a>
+    </section>
+
+    <h2>World Family Prompt Contracts</h2>
+    <section class="grid">
+      <a class="card" href="HELLO TEST/GOLDEN_TRIAD_PROMPT_FLOW.md"><b>Golden Triad Prompt Flow</b><span>How HELLO vehicle examples become matching WORLD and AI Builder examples.</span><span class="path">HELLO TEST/GOLDEN_TRIAD_PROMPT_FLOW.md</span></a>
+      <a class="card" href="HELLO TEST/WORLD_FAMILY_PROMPT_PACK.md"><b>World Family Prompt Pack</b><span>Reusable prompt contracts for building worlds, local constructions, and bots per family.</span><span class="path">HELLO TEST/WORLD_FAMILY_PROMPT_PACK.md</span></a>
+      <a class="card" href="HELLO TEST/world-family-prompts.yaml"><b>World Family YAML</b><span>Structured family genomes for WORLD, AI Builder, and bot prompting.</span><span class="path">HELLO TEST/world-family-prompts.yaml</span></a>
+      <a class="card" href="HELLO TEST/families/index.html"><b>World Family Pages</b><span>Browseable family index with each family's difference that makes the difference.</span><span class="path">HELLO TEST/families/index.html</span></a>
+    </section>
+
+    <h2>Screenshot Evidence</h2>
+    <section class="shot-grid">
+      <figure><img src="hello-world-004-openai-8-fusion-pack/screenshots/base-standardization-index.png" alt="Base standardization index screenshot"><figcaption>Standardized base system overview</figcaption></figure>
+      <figure><img src="hello-world-004-openai-8-fusion-pack/screenshots/base-core-atlas.png" alt="Base core atlas screenshot"><figcaption>Shared core and feature layers</figcaption></figure>
+      <figure><img src="hello-world-004-openai-8-fusion-pack/screenshots/world-text-language-atlas.png" alt="World text language atlas screenshot"><figcaption>World text language atlas</figcaption></figure>
+      <figure><img src="hello-world-004-openai-8-fusion-pack/screenshots/feature-test-index.png" alt="Feature test index screenshot"><figcaption>Feature test index</figcaption></figure>
+    </section>
+  </main>
+</body>
+</html>

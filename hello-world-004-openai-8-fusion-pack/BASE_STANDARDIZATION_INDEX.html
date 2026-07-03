@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Base Standardization Index</title>
+  <style>
+    :root {
+      --bg: #eef2f1;
+      --paper: #fbfcfc;
+      --ink: #14201d;
+      --muted: #5d6f69;
+      --line: #b9c7c2;
+      --soft: #dde7e3;
+      --dark: #17221f;
+      --teal: #168f85;
+      --blue: #3b6f9d;
+      --gold: #a97512;
+      --red: #b94545;
+      --violet: #715aa1;
+      --green: #2d8053;
+      --orange: #c06420;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; }
+    .app {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      overflow: auto;
+      background: var(--dark);
+      color: #f5f8f7;
+      padding: 14px;
+      border-right: 1px solid #07100d;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 18px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      font-size: 12px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      color: #c5d0cc;
+      font-size: 11px;
+      line-height: 1.45;
+      margin-top: 7px;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.15);
+    }
+
+    nav a, .side-note {
+      display: block;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 6px;
+      padding: 8px;
+      background: rgba(255,255,255,.05);
+      text-decoration: none;
+      font-size: 10px;
+      line-height: 1.3;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .side-note {
+      color: #c5d0cc;
+      font-weight: 700;
+      text-transform: none;
+    }
+
+    main {
+      min-width: 0;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(20,32,29,.08);
+    }
+
+    .panel > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft);
+      background: #fff;
+    }
+
+    .body {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border: 1px solid var(--soft);
+      border-radius: 999px;
+      padding: 0 7px;
+      background: #f6f8f7;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .flow {
+      min-height: 280px;
+      border: 1px solid var(--soft);
+      border-radius: 8px;
+      background: #fff;
+      width: 100%;
+    }
+
+    .box {
+      fill: #fff;
+      stroke: #9eaaa6;
+      stroke-width: 1;
+      rx: 7;
+    }
+
+    .core {
+      fill: #edf9f6;
+      stroke: var(--teal);
+      stroke-width: 1.6;
+    }
+
+    .risk {
+      fill: #fff5ef;
+      stroke: var(--orange);
+      stroke-width: 1.4;
+    }
+
+    .text {
+      font: 800 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      fill: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .small {
+      font: 700 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      fill: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .arrow {
+      fill: none;
+      stroke: #66746f;
+      stroke-width: 1.25;
+      marker-end: url(#arrow);
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .module {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: inset 5px 0 0 var(--accent);
+    }
+
+    .module header {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid var(--soft);
+    }
+
+    .module .body {
+      padding: 10px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    .kv b {
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .kv span {
+      min-width: 0;
+    }
+
+    .table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 100px 130px minmax(0, 1fr) 64px;
+      gap: 8px;
+      align-items: start;
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    .row b {
+      font-size: 10px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .row span, .row p {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .shots {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    figure {
+      margin: 0;
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 10 / 16;
+      object-fit: cover;
+      background: #dfe7e4;
+    }
+
+    figcaption {
+      padding: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    code {
+      background: #eef2f1;
+      border: 1px solid var(--soft);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+
+    aside code {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+      color: #f5f8f7;
+    }
+
+    @media (max-width: 1040px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .hero, .module-grid, .shots { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 Z" fill="#66746f"></path>
+      </marker>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <aside>
+      <div>
+        <h1>Base Standardization Index</h1>
+        <p class="sub">A modular host map for PLAY, MULTI, BOTS, SAY, SCENE GRAPH, COMMIT, and future games.</p>
+      </div>
+      <nav aria-label="Base standardization navigation">
+        <a href="#flow">Play Flow</a>
+        <a href="#modules">Base Modules</a>
+        <a href="#surfaces">Surface Mapping</a>
+        <a href="#commit">Commit Contract</a>
+        <a href="#screens">Current Screens</a>
+        <a href="./BASE_STANDARDIZATION_BLUEPRINT.md">Blueprint</a>
+        <a href="../hello-world-004-openai%20(8).html">Open Target Game</a>
+      </nav>
+      <div class="side-note">Do not add new modes until each mode can enter through <code>&lt;GameRegistry&gt;</code>, configure through <code>&lt;PanelFrame&gt;</code>, sync through <code>&lt;RoomSession&gt;</code>, and mutate through <code>&lt;CommitPipeline&gt;</code>.</div>
+    </aside>
+
+    <main>
+      <section class="hero" id="flow">
+        <article class="panel">
+          <header>
+            <h2>PLAY Should Become A Registry Flow</h2>
+            <span class="tag">base first</span>
+          </header>
+          <div class="body">
+            <svg class="flow" viewBox="0 0 720 280" role="img" aria-label="Standard play flow">
+              <rect class="box" x="24" y="34" width="110" height="42"></rect><text class="text" x="48" y="60">PLAY</text><text class="small" x="44" y="72">button</text>
+              <path class="arrow" d="M140 55 H195"></path>
+              <rect class="core" x="202" y="34" width="130" height="42"></rect><text class="text" x="224" y="60">GameCatalog</text><text class="small" x="224" y="72">registry list</text>
+              <path class="arrow" d="M338 55 H395"></path>
+              <rect class="core" x="402" y="34" width="126" height="42"></rect><text class="text" x="422" y="60">GameConfig</text><text class="small" x="422" y="72">schema panel</text>
+              <path class="arrow" d="M535 55 H590"></path>
+              <rect class="box" x="598" y="34" width="98" height="42"></rect><text class="text" x="620" y="60">START</text><text class="small" x="620" y="72">setup</text>
+
+              <rect class="risk" x="80" y="126" width="148" height="44"></rect><text class="text" x="102" y="152">RoomSession</text><text class="small" x="102" y="165">host/join/roster</text>
+              <rect class="risk" x="286" y="126" width="148" height="44"></rect><text class="text" x="308" y="152">BotService</text><text class="small" x="308" y="165">actors/orders</text>
+              <rect class="risk" x="492" y="126" width="148" height="44"></rect><text class="text" x="514" y="152">Directive</text><text class="small" x="514" y="165">say/ai/preview</text>
+
+              <path class="arrow" d="M154 126 V93 H466 V78"></path>
+              <path class="arrow" d="M360 126 V93 H466 V78"></path>
+              <path class="arrow" d="M566 126 V93 H466 V78"></path>
+
+              <rect class="core" x="202" y="212" width="130" height="42"></rect><text class="text" x="224" y="238">Commit</text><text class="small" x="224" y="250">draft/apply</text>
+              <rect class="core" x="402" y="212" width="126" height="42"></rect><text class="text" x="424" y="238">EventStream</text><text class="small" x="424" y="250">history/sync</text>
+              <path class="arrow" d="M434 170 V198 H267 V212"></path>
+              <path class="arrow" d="M332 233 H396"></path>
+            </svg>
+            <p>PLAY should not decide game UI by hand. It should open <code>GameCatalog</code>, select a <code>GamePlugin</code>, render its <code>configSchema</code>, and start it through the registry.</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header>
+            <h2>Base Rule</h2>
+            <span class="tag">anti-bloat</span>
+          </header>
+          <div class="body">
+            <p>Every visible feature must map to one modular base service.</p>
+            <div class="table">
+              <div class="row"><b>PLAY</b><span>GameRegistry</span><p>Game choice and game setup are plugin-driven.</p><span>13 pts</span></div>
+              <div class="row"><b>MULTI</b><span>RoomSession</span><p>Room, chat, invite, AI host, roster, authority.</p><span>8 pts</span></div>
+              <div class="row"><b>BOTS/SAY</b><span>DirectiveService</span><p>Bot panel and typed SAY create the same draft object.</p><span>8 pts</span></div>
+              <div class="row"><b>COMMIT</b><span>CommitPipeline</span><p>World, rig, bot, scene, and AI edits share preview/apply/cancel.</p><span>13 pts</span></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" id="modules">
+        <header>
+          <h2>Modular Elements To Build Games On Top Of</h2>
+          <span class="tag">host services</span>
+        </header>
+        <div class="body module-grid">
+          <article class="module" style="--accent:var(--teal)">
+            <header><h3>AppShell + PanelFrame</h3><span class="tag">5 pts</span></header>
+            <div class="body">
+              <div class="kv"><b>Owns</b><span>modal frame, drawer frame, close behavior, status, primary/secondary/danger actions.</span></div>
+              <div class="kv"><b>Receives</b><span>PanelSpec from game, room, bot, direct, graph, and commit services.</span></div>
+              <div class="kv"><b>Stops</b><span>each feature inventing its own modal and button grammar.</span></div>
+            </div>
+          </article>
+
+          <article class="module" style="--accent:var(--violet)">
+            <header><h3>GameRegistry</h3><span class="tag">13 pts</span></header>
+            <div class="body">
+              <div class="kv"><b>Owns</b><span>game list, game config schema, lifecycle, status, dependencies.</span></div>
+              <div class="kv"><b>Receives</b><span>Free, Golf, Flag Run, Sneak, Film, Paris as plugins.</span></div>
+              <div class="kv"><b>Stops</b><span>PLAY becoming a menu of special cases.</span></div>
+            </div>
+          </article>
+
+          <article class="module" style="--accent:var(--orange)">
+            <header><h3>RoomSession</h3><span class="tag">8 pts</span></header>
+            <div class="body">
+              <div class="kv"><b>Owns</b><span>room id, peer id, role, roster, authority, sequence, AI host, room events.</span></div>
+              <div class="kv"><b>Receives</b><span>game.start, bot.order, directive.apply, draft.commit, entity.update.</span></div>
+              <div class="kv"><b>Stops</b><span>multiplayer being re-solved per game mode.</span></div>
+            </div>
+          </article>
+
+          <article class="module" style="--accent:var(--gold)">
+            <header><h3>CommitPipeline</h3><span class="tag">13 pts</span></header>
+            <div class="body">
+              <div class="kv"><b>Owns</b><span>draft id, kind, source, validation, preview, apply, cancel, undo, room scope.</span></div>
+              <div class="kv"><b>Receives</b><span>world drafts, rig edits, bot directives, scene graph patches, AI output.</span></div>
+              <div class="kv"><b>Stops</b><span>COMMIT meaning different things in different tools.</span></div>
+            </div>
+          </article>
+
+          <article class="module" style="--accent:var(--blue)">
+            <header><h3>SceneGraphService</h3><span class="tag">8 pts</span></header>
+            <div class="body">
+              <div class="kv"><b>Owns</b><span>rig, world, directive, entity, room, and event graph views.</span></div>
+              <div class="kv"><b>Receives</b><span>selection changes, graph export requests, patches to turn into drafts.</span></div>
+              <div class="kv"><b>Stops</b><span>scene graph being only an isolated inspector.</span></div>
+            </div>
+          </article>
+
+          <article class="module" style="--accent:var(--green)">
+            <header><h3>DirectiveService</h3><span class="tag">8 pts</span></header>
+            <div class="body">
+              <div class="kv"><b>Owns</b><span>SAY text, bot presets, AI directives, actor/objective/rule drafts.</span></div>
+              <div class="kv"><b>Receives</b><span>typed command, bot panel selections, team commander requests.</span></div>
+              <div class="kv"><b>Stops</b><span>bot command and SAY/DIRECT splitting into two incompatible systems.</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="surfaces">
+        <header>
+          <h2>Current Surface Mapping</h2>
+          <span class="tag">what to standardize</span>
+        </header>
+        <div class="body table">
+          <div class="row"><b>Choose Game</b><span>GameCatalogPanel</span><p>Should render from registered <code>GamePlugin</code> records and status flags.</p><span>base</span></div>
+          <div class="row"><b>Flag Run Setup</b><span>GameConfigPanel</span><p>Teams, cap limit, build phase, time limit, bots, commander become config schema fields.</p><span>base</span></div>
+          <div class="row"><b>Multiplayer</b><span>RoomPanel</span><p>Host, join, invite link, chat, roster, and room AI are <code>RoomSession</code> controls.</p><span>base</span></div>
+          <div class="row"><b>Bot Command</b><span>DirectivePanel</span><p>Role/faction/doctrine/count become a <code>DirectiveDraft</code>, not direct bot-only state.</p><span>base</span></div>
+          <div class="row"><b>Direct The Game</b><span>DirectivePanel</span><p>Typed SAY and chips create the same draft shape as bot commands and AI output.</p><span>base</span></div>
+          <div class="row"><b>Command Bar</b><span>QuickDirective</span><p>Top command bar is a shortcut into <code>DirectiveService</code>, not a separate command system.</p><span>base</span></div>
+          <div class="row"><b>Inspector</b><span>GraphEditPanel</span><p>Clone/delete/transform/commit should use graph patches and the standard commit flow.</p><span>base</span></div>
+          <div class="row"><b>AI LOG</b><span>SYSTEM Rail</span><p>Diagnostic output is hidden under SYSTEM and never floats as default play chrome.</p><span>base</span></div>
+        </div>
+      </section>
+
+      <section class="panel" id="commit">
+        <header>
+          <h2>Standard Commit Contract</h2>
+          <span class="tag">one meaning</span>
+        </header>
+        <div class="body">
+          <p>COMMIT should be a transaction, not a button style. The same pipeline should handle world blueprints, rig parts, bot orders, generated directives, graph edits, and future film/case annotations.</p>
+          <div class="table">
+            <div class="row"><b>Draft</b><span>created</span><p><code>{id, kind, source, targetGraph, patch, preview, validation, roomScope}</code></p><span>required</span></div>
+            <div class="row"><b>Preview</b><span>visible</span><p>Show what will change in a standard panel, with graph nodes and affected entities.</p><span>required</span></div>
+            <div class="row"><b>Validate</b><span>safe</span><p>Reject invalid AI, bot, world, or graph output before live mutation.</p><span>required</span></div>
+            <div class="row"><b>Commit</b><span>transaction</span><p>Apply patch, record event, sync room if scoped, update graph, close or clear panel.</p><span>required</span></div>
+            <div class="row"><b>Cancel</b><span>discard</span><p>Remove preview, record cancel when useful, leave live state untouched.</p><span>required</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="screens">
+        <header>
+          <h2>Current Screens As Base Modules</h2>
+          <span class="tag">reference</span>
+        </header>
+        <div class="body">
+          <p>These screenshots are local captures from the target app. Their job is to show which current surfaces must be unified by the base.</p>
+          <div class="shots">
+            <figure>
+              <img src="screenshots/base-play-menu.png" alt="Choose your game screenshot">
+              <figcaption>PLAY -> <code>GameCatalogPanel</code>. Current cards should come from the game registry.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/base-flagrun-config.png" alt="Flag Run config screenshot">
+              <figcaption>Flag Run -> <code>GameConfigPanel</code>. Current settings become schema fields.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/base-multiplayer.png" alt="Multiplayer screenshot">
+              <figcaption>MULTI -> <code>RoomPanel</code>. Room state becomes a shared service.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/base-bot-command.png" alt="Bot command screenshot">
+              <figcaption>BOTS -> <code>DirectivePanel</code>. Bot selections become directive drafts.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/base-direct.png" alt="Direct game screenshot">
+              <figcaption>SAY -> <code>DirectivePanel</code>. Typed commands and chips share the same draft path.</figcaption>
+            </figure>
+            <figure>
+              <img src="screenshots/base-inspector-commit.png" alt="Inspector commit screenshot">
+              <figcaption>INSPECTOR -> <code>GraphEditPanel</code> + <code>CommitPipeline</code>.</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

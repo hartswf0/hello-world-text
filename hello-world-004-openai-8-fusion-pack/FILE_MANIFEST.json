@@ -1,0 +1,223 @@
+{
+  "target": {
+    "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai (8).html",
+    "role": "primary implementation target",
+    "load_priority": 1,
+    "read_first": [
+      "HELLO/WORLD ritual",
+      "WORLD_MODE_CONFIG",
+      "HELLO_ENGINE domains",
+      "manual rig builder",
+      "SAY/DIRECT command console",
+      "GAME_MODES registry",
+      "bot and CTF systems",
+      "AI log and rail menu"
+    ],
+    "known_sections": {
+      "rail_menu": "toolbars / tb-section blocks around top third of file",
+      "rig_sheet": "HELLO builder chrome and rig graph",
+      "world_config": "WORLD_MODE_CONFIG and applyWorldMode",
+      "world_forge": "modeFromText, aiDesignWorld, buildWorldStructures, applyForgeWorld",
+      "manual_rig": "myParts, skateboard, partMesh, renderMyRig, syncRigParts",
+      "clone": "btn-duplicate click handler",
+      "say_direct": "cmd-modal, window.__openCmd, runCommand",
+      "game_modes": "GAME_MODES and setGameMode",
+      "sneak_stub": "GAME_MODES item id=sneak, soon=true",
+      "ai_log": "#aicon and sysMenu AI LOG toggle"
+    }
+  },
+  "handoff_files": [
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-gap-prompt.html",
+      "role": "human-readable gap analysis and copyable feature prompt",
+      "load_priority": 2
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/MASTER_PROMPT.md",
+      "role": "paste-first prompt for another LLM",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/FABLE5_TOKEN_EFFICIENT_PROMPT.md",
+      "role": "XML handoff prompt for evidence-bounded, low-token planning",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/SNIPPET_EVIDENCE_INDEX.md",
+      "role": "line-range and screenshot map for task-specific evidence packets",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/BASE_CORE_ATLAS.html",
+      "role": "visual atlas for shared core, feature layers, screenshots, deadends, and expensive differences",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/CORE_RISK_MAP.md",
+      "role": "deadend and culdesac map for expensive integration differences",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/BASE_STANDARDIZATION_BLUEPRINT.md",
+      "role": "standard base architecture for app shell, panels, registry, rooms, commit pipeline, graph service, and directive service",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/BASE_STANDARDIZATION_INDEX.html",
+      "role": "visual index mapping current PLAY/MULTI/BOTS/SAY/COMMIT screens to base modules",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/WORLD_TEXT_LANGUAGE.md",
+      "role": "shared vocabulary of engine primitives, dialects, relations, morphisms, and conflicts",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/WORLD_TEXT_LANGUAGE_ATLAS.html",
+      "role": "visual atlas of the shared world-text grammar and dialect map",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/INFORMATION_ARCHITECTURE.md",
+      "role": "domain contracts and invariants",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/SUBSTRATES_AND_SURFACES.md",
+      "role": "substrate/surface map for integration boundaries",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/INTEGRATION_BACKLOG.md",
+      "role": "story-pointed backlog and chunk order",
+      "load_priority": 0
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/hello-world-004-openai-8-fusion-pack/FEATURE_TEST_INDEX.html",
+      "role": "local feature comparison and manual test index",
+      "load_priority": 0
+    }
+  ],
+  "reference_files": [
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/thunderhead-openai-production/game/hello-world-004-openai.html",
+      "role": "production hello-world reference",
+      "load_priority": 3,
+      "use_for": [
+        "clone handler",
+        "game shell",
+        "bot commander",
+        "CTF and wreck scars",
+        "rail/menu behavior"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/THUNDER_RIGS_FUTURE_FLEET.html",
+      "role": "film/fleet reference",
+      "load_priority": 4,
+      "use_for": [
+        "MediaRecorder captureStream",
+        "take frames",
+        "replay scrubber",
+        "camera cycle",
+        "save WebM",
+        "WorldRecord export",
+        "fleet clones"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/THUNDER_RIGS_GOLF_FILM_OPERATOR.html",
+      "role": "golf and film operator reference",
+      "load_priority": 5,
+      "use_for": [
+        "shot prediction",
+        "ghost trace",
+        "take recorder",
+        "material event stream",
+        "operator camera modes"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/VERDICT_ENGINE_PARIS_MODEL.html",
+      "role": "Paris model game reference",
+      "load_priority": 6,
+      "use_for": [
+        "evidence replay",
+        "deposition",
+        "reconstruction",
+        "challenge",
+        "ruling",
+        "verdict",
+        "export record"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/VERDICT_ENGINE_PARIS_MODEL_STARTUP_FIXED.html",
+      "role": "startup-fixed Paris model fallback",
+      "load_priority": 7,
+      "use_for": [
+        "same as Paris model",
+        "more robust startup path"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/THUNDER_RIGS_CONSEQUENCE_ENGINE.html",
+      "role": "consequence and material response reference",
+      "load_priority": 8,
+      "use_for": [
+        "damage",
+        "dent",
+        "crush",
+        "shatter",
+        "wobble",
+        "permanent marks",
+        "material comparison"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/THUNDER_RIGS_CONSEQUENCE_FILM_STUDIO.html",
+      "role": "collision-to-film studio reference",
+      "load_priority": 9,
+      "use_for": [
+        "film studio flow",
+        "persistent consequence",
+        "directed camera modes",
+        "browser recording",
+        "evidence export"
+      ]
+    },
+    {
+      "path": "/Users/gaia/HELLO WORLD TEXT/operator-studio-14.html",
+      "role": "operator/director reference",
+      "load_priority": 10,
+      "use_for": [
+        "branching",
+        "duplicate/fork idea",
+        "light table",
+        "directorial interface"
+      ]
+    }
+  ],
+  "required_domains": [
+    "BASE_SHELL",
+    "WORLD_TEXT_LANGUAGE",
+    "HELLO_DOMAIN",
+    "WORLD_DOMAIN",
+    "DIRECT_DOMAIN",
+    "GAME_MODE_REGISTRY",
+    "RAIL_MENU",
+    "EVIDENCE_PACKET_PROTOCOL",
+    "FILM_RECORD",
+    "PARIS_CASE"
+  ],
+  "acceptance_tests": [
+    "two world prompts change mechanics, not only palette",
+    "rig graph exports actual parts with ids and transforms",
+    "SAY/DIRECT can generate structured actors/objectives beyond fixed parser examples",
+    "AI log starts hidden and opens only through rail",
+    "clone affects gameplay in at least one mode",
+    "sneak mode can be won or lost",
+    "film mode records, replays, and exports a take",
+    "Paris mode reaches verdict and exports case record"
+  ]
+}

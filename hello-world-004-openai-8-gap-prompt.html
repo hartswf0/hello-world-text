@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello World 004 (8) Missing Features Prompt</title>
+  <style>
+    :root {
+      --ink: #111716;
+      --paper: #f4f6f4;
+      --panel: #ffffff;
+      --rail: #202826;
+      --line: #b8c2be;
+      --soft: #e2e8e5;
+      --cyan: #168f85;
+      --red: #c94141;
+      --gold: #b88919;
+      --violet: #6c58a8;
+      --green: #2c8a4f;
+      --blue: #386fa4;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; }
+    button, textarea {
+      font: inherit;
+      color: inherit;
+      border-radius: 6px;
+    }
+
+    .shell {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      overflow: auto;
+      background: var(--rail);
+      color: #f5f7f6;
+      border-right: 1px solid #111;
+      padding: 14px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 16px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255,255,255,.18);
+      padding-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .target {
+      font-size: 10px;
+      line-height: 1.35;
+      color: #bdc9c5;
+      overflow-wrap: anywhere;
+    }
+
+    .jump {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .jump a, .nav-btn {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.04);
+      color: #f5f7f6;
+      text-decoration: none;
+      padding: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .jump a:hover, .nav-btn:hover {
+      background: #f5f7f6;
+      color: var(--rail);
+    }
+
+    .nav-btn {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    main {
+      min-width: 0;
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(18, 28, 24, .08);
+      overflow: hidden;
+    }
+
+    .panel > header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--soft);
+      padding: 9px 10px;
+      background: #fbfcfb;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .tag.missing { color: var(--red); }
+    .tag.partial { color: var(--gold); }
+    .tag.present { color: var(--green); }
+    .tag.bloat { color: var(--violet); }
+
+    .body {
+      padding: 11px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .diagnosis {
+      display: grid;
+      gap: 9px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .diagnosis b {
+      color: var(--cyan);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      padding: 9px;
+      min-height: 78px;
+      background: #fbfcfb;
+    }
+
+    .stat b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      font-size: 10px;
+      line-height: 1.35;
+      color: #56625e;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .card h3 {
+      margin: 0;
+      padding: 9px;
+      border-bottom: 1px solid var(--soft);
+      font-size: 12px;
+      line-height: 1.15;
+      text-transform: uppercase;
+      box-shadow: inset 4px 0 0 var(--accent, var(--cyan));
+    }
+
+    .card .content {
+      padding: 9px;
+      display: grid;
+      gap: 8px;
+      font-size: 11px;
+      line-height: 1.42;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      border-top: 1px solid var(--soft);
+      padding-top: 7px;
+    }
+
+    .row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .row b {
+      font-size: 9px;
+      line-height: 1.2;
+      text-transform: uppercase;
+      color: #56625e;
+    }
+
+    .row span {
+      min-width: 0;
+    }
+
+    .ledger {
+      display: grid;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 148px 112px minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 8px;
+      padding: 9px;
+      border-top: 1px solid var(--soft);
+      align-items: start;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .ledger-row:first-child {
+      border-top: 0;
+      background: #eef3f1;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #56625e;
+    }
+
+    .ledger-row strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .prompt-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 390px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      background: #101615;
+      color: #f5f7f6;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.55;
+      user-select: text;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      min-height: 36px;
+      padding: 0 11px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .btn.secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .btn:hover {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: #fff;
+    }
+
+    .refs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .ref {
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fbfcfb;
+      overflow-wrap: anywhere;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: #fff;
+      border-radius: 6px;
+      padding: 9px 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease;
+      z-index: 10;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .toast.show { opacity: 1; }
+
+    @media (max-width: 980px) {
+      .shell { grid-template-columns: 1fr; }
+      nav {
+        position: static;
+        height: auto;
+        grid-template-rows: auto;
+      }
+      .jump {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .top, .grid, .refs {
+        grid-template-columns: 1fr;
+      }
+      .ledger-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 540px) {
+      main { padding: 10px; }
+      .stats { grid-template-columns: 1fr; }
+      .jump { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; gap: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav>
+      <div class="brand">
+        <h1>Missing Features Prompt</h1>
+        <div class="target">Target: /Users/gaia/HELLO WORLD TEXT/hello-world-004-openai (8).html</div>
+      </div>
+      <div class="jump">
+        <a href="#diagnosis">Diagnosis <span>01</span></a>
+        <a href="#ledger">Gap Ledger <span>02</span></a>
+        <a href="#bloat">Bloat <span>03</span></a>
+        <a href="#prompt">Prompt <span>04</span></a>
+        <a href="#tests">Tests <span>05</span></a>
+        <a href="./hello-world-004-openai%20(8).html" target="_blank" rel="noopener">Open Target <span>-></span></a>
+      </div>
+      <button class="nav-btn" id="copyNav" type="button">Copy Prompt <span>CMD</span></button>
+    </nav>
+
+    <main>
+      <section class="top" id="diagnosis">
+        <article class="panel">
+          <header>
+            <h2>Initial Interpretation</h2>
+            <span class="tag partial">Partial Systems</span>
+          </header>
+          <div class="body diagnosis">
+            <p><b>&lt;hello-world-004-openai (8)&gt;</b> is not empty. It has a large <b>&lt;apparatus&gt;</b>: HELLO/WORLD ritual, AI forge, world forge, clone, game registry, bots, multiplayer, chat, primitives, scene graph, and rail menus.</p>
+            <p>The main failure is that many features remain <b>&lt;surface affordances&gt;</b>. They exist as buttons, modes, prompts, or generated meshes, but they do not consistently become <b>&lt;game consequences&gt;</b>: scores, stealth detection, film takes, verdict records, clone tactics, or world rules that change what the player can do.</p>
+            <p>The new prompt should ask for a split: <b>HELLO assembles the vehicle body</b>; <b>WORLD assembles a rule-bearing arena</b>. A world is not only geometry. A world must impose mechanics, hazards, objectives, visibility, material response, film evidence, and mode-specific win conditions.</p>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <header>
+            <h2>Quick Counts</h2>
+            <span class="tag present">Observed</span>
+          </header>
+          <div class="body stats">
+            <div class="stat"><b>4</b><span>base world skins: dark, light, water, grass</span></div>
+            <div class="stat"><b>1</b><span>sneak mode registered, but marked soon</span></div>
+            <div class="stat"><b>1</b><span>clone button exists in inspector</span></div>
+            <div class="stat"><b>0</b><span>native film recorder in this target</span></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <article class="card" style="--accent: var(--red)">
+          <h3>Same-Looking Worlds</h3>
+          <div class="content">
+            <div class="row"><b>Cause</b><span>&lt;WORLD&gt; maps many prompts into the same small set of atmosphere presets before adding structures.</span></div>
+            <div class="row"><b>Needed</b><span>World families with rule differences: visibility, material, terrain, enemy sensing, film affordances, and objective types.</span></div>
+          </div>
+        </article>
+        <article class="card" style="--accent: var(--cyan)">
+          <h3>Hello vs World</h3>
+          <div class="content">
+            <div class="row"><b>Hello</b><span>Assemble the playable vehicle: shape, parts, attachment, handling identity, clone source.</span></div>
+            <div class="row"><b>World</b><span>Assemble the consequence field: collision grammar, hiding spaces, routes, cameras, verdict evidence.</span></div>
+          </div>
+        </article>
+        <article class="card" style="--accent: var(--gold)">
+          <h3>Film Missing</h3>
+          <div class="content">
+            <div class="row"><b>Current</b><span>No MediaRecorder take system found in the target. It can play, but not seal a take.</span></div>
+            <div class="row"><b>Needed</b><span>Record, stop, replay, scrub, camera mode, WebM export, and WorldRecord sidecar.</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" id="ledger">
+        <header>
+          <h2>Gap Ledger</h2>
+          <span class="tag missing">What To Ask For</span>
+        </header>
+        <div class="body">
+          <div class="ledger">
+            <div class="ledger-row">
+              <span>Feature</span><span>Status</span><span>Reference</span><span>Prompt Instruction</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Worlds That Affect Play</strong>World as rules, not background.</span>
+              <span><span class="tag partial">Partial</span></span>
+              <span>Target has `WORLD_MODE_CONFIG`, `modeFromText`, `buildWorldStructures`, and world forge hooks.</span>
+              <span>Make each world family change mechanics: traction, visibility, hazards, available objectives, camera treatment, bot behavior, and material consequence.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>HELLO Geometry vs WORLD Grammar</strong>Separate vehicle assembly from arena assembly.</span>
+              <span><span class="tag partial">Confused</span></span>
+              <span>Target registers both `HELLO_ENGINE.domain('rig')` and `HELLO_ENGINE.domain('world')`.</span>
+              <span>Keep HELLO focused on the rig body and affordances. Keep WORLD focused on places, rules, obstacles, hiding affordances, evidence, and replay.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>AI Log In Rail</strong>Hide logs unless requested.</span>
+              <span><span class="tag partial">Partial</span></span>
+              <span>Target has floating `#aicon` and a `sysMenu` with AI LOG/API entries.</span>
+              <span>Move AI LOG into the rail as a SYS child. Default closed. No bottom-floating log badge during play or ritual unless rail opens it.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Clone As Game Mechanic</strong>Not just editor duplicate.</span>
+              <span><span class="tag partial">Present but buried</span></span>
+              <span>Target and production hello-world both include `btn-duplicate` and duplicate handlers.</span>
+              <span>Expose clone in HELLO/play as: decoy, ghost car, rival twin, film double, Paris party model, or fleet member. Clones must affect tactics.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Hide & Sneak</strong>Stealth loop.</span>
+              <span><span class="tag missing">Stub</span></span>
+              <span>Target registers `HIDE & SNEAK` but marks it `soon:true`.</span>
+              <span>Add seekers, line-of-sight cones, noise from boost/fire, hiding volumes from WORLD, detection meter, caught state, and escape objective.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Paris Model Game</strong>Evidence, claims, verdict.</span>
+              <span><span class="tag missing">Missing mode</span></span>
+              <span>`VERDICT_ENGINE_PARIS_MODEL.html` and startup-fixed variant have witness, reconstruction, challenge, ruling, verdict, export.</span>
+              <span>Add PARIS mode as a game loop: record/replay a collision, let two parties reconstruct, stamp claims as witnessed/inferred, challenge, compute verdict, export record.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Film Apparatus</strong>Take, replay, export.</span>
+              <span><span class="tag missing">Missing</span></span>
+              <span>`THUNDER_RIGS_FUTURE_FLEET.html` and `THUNDER_RIGS_GOLF_FILM_OPERATOR.html` use MediaRecorder, take frames, replay, video save, WorldRecord.</span>
+              <span>Add FILM mode with REC/STOP, pre-roll, camera cycle, replay scrubber, WebM save, and JSON sidecar for evidence.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Game Mode Registry</strong>Modes should own setup/tick/UI.</span>
+              <span><span class="tag partial">Partial</span></span>
+              <span>Target has free, golf, flagrun, sneak stub.</span>
+              <span>Promote modes to contracts: setup, teardown, tick, objective, HUD, rail entries, win/lose, replay export hooks.</span>
+            </div>
+            <div class="ledger-row">
+              <span><strong>Consequential World Damage</strong>Wreck scars and material response.</span>
+              <span><span class="tag partial">Partial</span></span>
+              <span>Target has CTF wreck scar comments and collision objects, but not a film-grade consequence loop.</span>
+              <span>Borrow material response from consequence/film prototypes: dent, shatter, rebound, crush, wobble, permanent marks, event stream.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid" id="bloat">
+        <article class="card" style="--accent: var(--violet)">
+          <h3>Bloated Features</h3>
+          <div class="content">
+            <div class="row"><b>AI surfaces</b><span>API manager, text, voice, agent, forge logs, ritual status, and direct command compete for attention.</span></div>
+            <div class="row"><b>Fix</b><span>One rail entry for AI. One hidden log. One active prompt surface per mode.</span></div>
+          </div>
+        </article>
+        <article class="card" style="--accent: var(--blue)">
+          <h3>Editor Weight</h3>
+          <div class="content">
+            <div class="row"><b>Problem</b><span>Scene graph, inspector, transform, animation, code, radial rig tools, and builder primitives overlap.</span></div>
+            <div class="row"><b>Fix</b><span>Mode-gate the editor. Play mode should only show controls that affect the current game loop.</span></div>
+          </div>
+        </article>
+        <article class="card" style="--accent: var(--green)">
+          <h3>Keep</h3>
+          <div class="content">
+            <div class="row"><b>Strong parts</b><span>HELLO/WORLD ritual, world forge, clone base, bots, golf loop, flag run, rail grouping, reference image support.</span></div>
+            <div class="row"><b>Rule</b><span>Keep systems only when they produce visible consequence in play, film, or verdict.</span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" id="prompt">
+        <header>
+          <h2>Reference Prompt</h2>
+          <span class="tag present">Ready To Copy</span>
+        </header>
+        <div class="body prompt-wrap">
+          <div class="actions">
+            <button class="btn" id="copyPrompt" type="button">Copy Prompt</button>
+            <button class="btn secondary" id="selectPrompt" type="button">Select Text</button>
+          </div>
+          <textarea id="promptText" spellcheck="false">You are improving /Users/gaia/HELLO WORLD TEXT/hello-world-004-openai (8).html.
+
+Build from this theory:
+- &lt;HELLO&gt; assembles the playable vehicle: geometry, parts, attachment, handling identity, clone source, and film subject.
+- &lt;WORLD&gt; assembles the playable consequence field: rules, visibility, hazards, material response, routes, objectives, replay evidence, and game-specific win/loss conditions.
+- A &lt;world&gt; is not a skin. It must affect what the player can do and what the game records.
+
+Observed target facts:
+- WORLD currently has four base modes: dark, light, water, grass.
+- WORLD has deterministic scenery, AI world spec, Forge world code, and collidable structures.
+- CLONE exists as btn-duplicate and duplicate handler, but it is an editor action, not a game mechanic.
+- HIDE & SNEAK exists only as a disabled/soon game registry item.
+- AI LOG exists as a floating #aicon and can be toggled from a SYS menu; it should live hidden inside the rail menu.
+- GAME_MODES has free, golf, flagrun, and a sneak stub.
+- There is no native film/take system in this target: no MediaRecorder take, replay scrubber, WebM save, or WorldRecord sidecar.
+- There is no Paris/Verdict game mode in this target.
+
+Reference mechanisms to borrow:
+- Clone apparatus from thunderhead-openai-production/game/hello-world-004-openai.html: btn-duplicate and selected-object clone handler.
+- Film apparatus from THUNDER_RIGS_FUTURE_FLEET.html and THUNDER_RIGS_GOLF_FILM_OPERATOR.html: startTake, stopTake, captureStream/MediaRecorder, replay frames, camera cycle, saveVideo, buildWorldRecord.
+- Paris model from VERDICT_ENGINE_PARIS_MODEL.html and VERDICT_ENGINE_PARIS_MODEL_STARTUP_FIXED.html: witness, reconstruction, challenge, ruling, verdict, exportRecord.
+- Consequence/material response from THUNDER_RIGS_CONSEQUENCE_ENGINE.html and THUNDER_RIGS_CONSEQUENCE_FILM_STUDIO.html: dent, shatter, crush, rebound, wobble, event stream, permanent marks.
+
+Required changes:
+1. Make WORLD families mechanically different.
+   - dark: stealth/hiding advantage, reduced visibility, stronger seeker cones.
+   - light: long visibility, fewer hiding places, better film clarity.
+   - water: low traction, drift, splash/noise, floating hazards.
+   - grass/forest: occlusion, hiding volumes, soft collisions, route ambiguity.
+   - AI-authored worlds must declare both geometry and gameplay tags: hideZone, loudSurface, hazard, cameraMark, evidenceZone, cloneSpawn, verdictMarker.
+
+2. Split HELLO and WORLD responsibilities.
+   - HELLO builds the rig and exposes rig-specific verbs: clone, camouflage, damage skin, handling profile, film subject.
+   - WORLD builds arenas and exposes world-specific verbs: hide, reveal, chase, judge, film, replay, score.
+   - Do not let HELLO produce arbitrary world clutter; do not let WORLD rewrite the vehicle.
+
+3. Move AI LOG into the rail.
+   - No bottom-floating AI log in play or ritual.
+   - SYS rail contains AI LOG and API KEY.
+   - AI LOG starts closed and only opens from the rail.
+   - Progress toasts may appear briefly, but detailed logs are hidden.
+
+4. Promote CLONE from editor duplicate to game apparatus.
+   - Keep the existing duplicate handler for selected objects.
+   - Add CLONE in HELLO/play as a rig clone operation.
+   - Clone types: ghost clone for film replay, decoy clone for sneak, rival clone for Paris opposing reconstruction, fleet clone for multi-vehicle scenes.
+   - Clones must be recorded in replay/export manifests.
+
+5. Implement HIDE & SNEAK as a real game mode.
+   - Add seekers/bots with vision cones.
+   - Add hide zones generated by WORLD tags.
+   - Add noise from boost, fire, collision, and water/metal surfaces.
+   - Add detection meter, caught transition, escape objective, and score.
+   - Clone decoys can distract seekers.
+
+6. Add PARIS mode.
+   - Mode flow: source replay -> Party A reconstruction -> Party B reconstruction -> challenge -> ruling -> verdict -> export.
+   - Claims must be stamped as witnessed, inferred, or fabricated.
+   - Verdict scores video fidelity, temporal fit, physical plausibility, provenance honesty, and challenge success.
+   - Use the existing world/film replay as evidence.
+
+7. Add FILM mode.
+   - REC/STOP with MediaRecorder captureStream where supported.
+   - Capture take frames, controls, events, material state, camera mode, and clone identities.
+   - Replay mode with play/pause, scrubber, camera cycle, save WebM, export JSON WorldRecord.
+   - Film mode should be reachable from the rail and should work with any game mode.
+
+8. Reduce bloat by mode-gating UI.
+   - Play mode shows only current game controls.
+   - Build mode shows HELLO/WORLD.
+   - Film mode shows REC, camera, replay.
+   - Paris mode shows evidence, claims, challenge, verdict.
+   - Advanced editor/scene graph/AI logs remain hidden in rail drawers.
+
+Acceptance tests:
+- Two different world prompts produce different mechanics, not just different colors.
+- Sneak mode can be won or lost without editing anything.
+- Clone affects at least one game mode.
+- Film mode can record, replay, and export a take.
+- Paris mode can reach a verdict and export a case record.
+- AI log never floats open by default.
+- The rail menu is the only place for advanced hidden apparatus.
+- A maintainer can add a new game mode through the registry without editing core drive physics.</textarea>
+        </div>
+      </section>
+
+      <section class="panel" id="tests">
+        <header>
+          <h2>Change Tests</h2>
+          <span class="tag present">Acceptance</span>
+        </header>
+        <div class="body refs">
+          <div class="ref"><b>World Test</b><br>Prompt "foggy forest" and "glass courtroom" must change visibility, routes, collision meaning, and scoring hooks, not only palette.</div>
+          <div class="ref"><b>Clone Test</b><br>Clone must produce a second meaningful entity: decoy, ghost, rival, fleet member, or evidence model.</div>
+          <div class="ref"><b>Sneak Test</b><br>Player can hide, be detected, distract a seeker, escape, and receive a result.</div>
+          <div class="ref"><b>Film Test</b><br>Record a take, stop, replay it, scrub it, change camera, save video, export data.</div>
+          <div class="ref"><b>Paris Test</b><br>Two reconstructions produce claims, challenges, rulings, and a verdict record.</div>
+          <div class="ref"><b>Rail Test</b><br>AI log, API, editor, and diagnostics are hidden rail apparatus, not default on-screen noise.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Copied</div>
+
+  <script>
+    const promptText = document.getElementById("promptText");
+    const toast = document.getElementById("toast");
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1400);
+    }
+    async function copyPrompt() {
+      try {
+        await navigator.clipboard.writeText(promptText.value);
+        showToast("Prompt copied");
+      } catch {
+        promptText.select();
+        document.execCommand("copy");
+        showToast("Prompt selected");
+      }
+    }
+    document.getElementById("copyPrompt").addEventListener("click", copyPrompt);
+    document.getElementById("copyNav").addEventListener("click", copyPrompt);
+    document.getElementById("selectPrompt").addEventListener("click", () => {
+      promptText.focus();
+      promptText.select();
+      showToast("Prompt selected");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fusion Feature Test Index</title>
+  <style>
+    :root {
+      --paper: #eef2f1;
+      --panel: #fbfcfc;
+      --ink: #14201d;
+      --muted: #60706b;
+      --line: #bcc8c4;
+      --soft: #dfe7e4;
+      --cyan: #168f85;
+      --red: #c94848;
+      --gold: #b07b16;
+      --green: #2c8652;
+      --blue: #3b6f9d;
+      --violet: #7259a6;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; }
+    button, select, input {
+      font: inherit;
+      color: inherit;
+      border-radius: 6px;
+    }
+
+    .app {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      overflow: auto;
+      background: #18231f;
+      color: #f4f7f6;
+      padding: 14px;
+      border-right: 1px solid #0c1110;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      margin-top: 6px;
+      font-size: 10px;
+      line-height: 1.35;
+      color: #bcc9c5;
+    }
+
+    .controls {
+      display: grid;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.16);
+    }
+
+    label {
+      display: grid;
+      gap: 4px;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #bcc9c5;
+    }
+
+    select, input {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: #fff;
+      padding: 0 8px;
+    }
+
+    select option {
+      color: #14201d;
+    }
+
+    .links {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .links a, .btn {
+      min-height: 34px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.05);
+      color: #f4f7f6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .links a:hover, .btn:hover {
+      background: #f4f7f6;
+      color: #18231f;
+    }
+
+    main {
+      min-width: 0;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+      gap: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(24, 35, 31, .08);
+    }
+
+    .panel header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft);
+      background: #fff;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .body {
+      padding: 11px;
+      display: grid;
+      gap: 9px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .kpi {
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    .kpi b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.3;
+      text-transform: uppercase;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 10px;
+    }
+
+    .feature {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(24, 35, 31, .08);
+    }
+
+    .feature-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft);
+      box-shadow: inset 5px 0 0 var(--accent, var(--cyan));
+      background: #fff;
+    }
+
+    .feature h3 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .feature h3 span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.3;
+      text-transform: none;
+      font-weight: 500;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border: 1px solid currentColor;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .missing { color: var(--red); }
+    .partial { color: var(--gold); }
+    .present { color: var(--green); }
+    .planned { color: var(--blue); }
+
+    .feature-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .compare {
+      display: grid;
+      gap: 7px;
+      align-content: start;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 8px;
+      padding-top: 7px;
+      border-top: 1px solid var(--soft);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .row b {
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .testbox {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      border: 1px solid var(--soft);
+      background: #fff;
+      border-radius: 7px;
+      padding: 9px;
+    }
+
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .check input {
+      width: 16px;
+      min-height: 16px;
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    .refs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .refs a {
+      min-height: 26px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 4px 7px;
+      background: #f8faf9;
+      text-decoration: none;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .refs a:hover {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 1040px) {
+      .app { grid-template-columns: 1fr; }
+      aside {
+        position: static;
+        height: auto;
+      }
+      .hero, .feature-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 10px; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .feature-head { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; gap: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div>
+        <h1>Feature Test Index</h1>
+        <div class="sub">Compare the target against reference prototypes, then break the fusion into testable chunks.</div>
+      </div>
+
+      <div class="controls">
+        <label>Status
+          <select id="statusFilter">
+            <option value="all">All statuses</option>
+            <option value="missing">Missing</option>
+            <option value="partial">Partial</option>
+            <option value="present">Present</option>
+            <option value="planned">Planned</option>
+          </select>
+        </label>
+        <label>Substrate
+          <select id="substrateFilter">
+            <option value="all">All substrates</option>
+          </select>
+        </label>
+        <label>Search
+          <input id="search" type="search" placeholder="world, film, Paris, clone">
+        </label>
+      </div>
+
+      <div class="links">
+        <a href="../hello-world-004-openai%20(8).html" target="_blank" rel="noopener">Open Target <span>-></span></a>
+        <a href="./INTEGRATION_BACKLOG.md" target="_blank" rel="noopener">Backlog <span>MD</span></a>
+        <a href="./SUBSTRATES_AND_SURFACES.md" target="_blank" rel="noopener">Substrates <span>MD</span></a>
+        <a href="./MASTER_PROMPT.md" target="_blank" rel="noopener">Prompt <span>MD</span></a>
+      </div>
+
+      <button class="btn" id="resetChecks" type="button">Reset Checks <span>X</span></button>
+    </aside>
+
+    <main>
+      <section class="hero">
+        <article class="panel">
+          <header>
+            <h2>How To Use</h2>
+            <span class="pill planned">Chunk By Chunk</span>
+          </header>
+          <div class="body">
+            <p>Open the target and one reference side by side. For each feature, run the manual test, mark what passes, then implement only the next missing substrate. Do not merge a surface until its substrate contract exists.</p>
+            <p>The goal is not feature volume. The goal is making every visible control change durable state that another mode, film take, or Paris case can consume.</p>
+          </div>
+        </article>
+        <aside class="panel">
+          <header>
+            <h2>Coverage</h2>
+            <span class="pill present" id="coverageLabel">0/0</span>
+          </header>
+          <div class="body kpis">
+            <div class="kpi"><b id="totalCount">0</b><span>features</span></div>
+            <div class="kpi"><b id="missingCount">0</b><span>missing</span></div>
+            <div class="kpi"><b id="pointsCount">0</b><span>story points</span></div>
+            <div class="kpi"><b id="checkedCount">0</b><span>checks done</span></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="matrix" id="matrix"></section>
+    </main>
+  </div>
+
+  <script>
+    const refs = {
+      target: { label: "Target", href: "../hello-world-004-openai%20(8).html" },
+      gap: { label: "Gap", href: "../hello-world-004-openai-8-gap-prompt.html" },
+      fablePrompt: { label: "Fable Prompt", href: "./FABLE5_TOKEN_EFFICIENT_PROMPT.md" },
+      snippetIndex: { label: "Snippet Index", href: "./SNIPPET_EVIDENCE_INDEX.md" },
+      baseBlueprint: { label: "Base Blueprint", href: "./BASE_STANDARDIZATION_BLUEPRINT.md" },
+      baseIndex: { label: "Base Index", href: "./BASE_STANDARDIZATION_INDEX.html" },
+      language: { label: "Language", href: "./WORLD_TEXT_LANGUAGE.md" },
+      languageAtlas: { label: "Language Atlas", href: "./WORLD_TEXT_LANGUAGE_ATLAS.html" },
+      prod: { label: "Production", href: "../thunderhead-openai-production/game/hello-world-004-openai.html" },
+      fleet: { label: "Future Fleet", href: "../THUNDER_RIGS_FUTURE_FLEET.html" },
+      golfFilm: { label: "Golf Film", href: "../THUNDER_RIGS_GOLF_FILM_OPERATOR.html" },
+      paris: { label: "Paris", href: "../VERDICT_ENGINE_PARIS_MODEL.html" },
+      parisFixed: { label: "Paris Fixed", href: "../VERDICT_ENGINE_PARIS_MODEL_STARTUP_FIXED.html" },
+      consequence: { label: "Consequence", href: "../THUNDER_RIGS_CONSEQUENCE_ENGINE.html" },
+      filmStudio: { label: "Film Studio", href: "../THUNDER_RIGS_CONSEQUENCE_FILM_STUDIO.html" },
+      operator: { label: "Operator", href: "../operator-studio-14.html" }
+    };
+
+    const features = [
+      {
+        id: "base-panel-frame",
+        name: "Standard PanelFrame And AppShell",
+        substrate: "BaseShell",
+        status: "planned",
+        points: 5,
+        accent: "var(--cyan)",
+        target: "Target has several useful modal shapes, but each panel owns its own frame, close behavior, and action grammar.",
+        compare: "Use Choose Game, Flag Run config, Multiplayer, Bot Command, Direct, Scene Graph, and Inspector panels.",
+        test: "Describe each current panel as a PanelSpec with title, section, status, actions, body, and close behavior.",
+        refs: ["target", "baseBlueprint", "baseIndex"],
+        checks: ["PanelSpec shape", "Shared close/cancel", "Shared action grammar", "Rail section ownership"]
+      },
+      {
+        id: "registry-play-flow",
+        name: "Registry-Driven PLAY Flow",
+        substrate: "GameRegistry",
+        status: "partial",
+        points: 13,
+        accent: "var(--violet)",
+        target: "Target has GAME_MODES and a choose-game menu, but game config and lifecycle are still special-case.",
+        compare: "Use the current Choose Game and Flag Run config panels as the first migration targets.",
+        test: "Free Drive, Thunder Golf, Flag Run, and Hide & Sneak all appear as GamePlugin records; Flag Run config renders from schema.",
+        refs: ["target", "baseBlueprint", "baseIndex"],
+        checks: ["GamePlugin records", "PLAY uses registry", "Config schema renders", "Start calls registry"]
+      },
+      {
+        id: "room-session",
+        name: "RoomSession As Shared Multiplayer Core",
+        substrate: "RoomSession",
+        status: "partial",
+        points: 8,
+        accent: "var(--gold)",
+        target: "Target has room code, host/join, chat, room AI, and polling, but room events are not a shared base contract.",
+        compare: "Use current Multiplayer panel and roomSend/pollRoom behavior.",
+        test: "Room join, game start, bot order, directive apply, and draft commit can all be expressed as typed RoomEvents.",
+        refs: ["target", "baseBlueprint", "baseIndex"],
+        checks: ["RoomSession object", "Typed events", "Roster/authority", "Game/bot/draft sync"]
+      },
+      {
+        id: "commit-pipeline",
+        name: "Standard CommitPipeline",
+        substrate: "CommitPipeline",
+        status: "partial",
+        points: 13,
+        accent: "var(--red)",
+        target: "Target has COMMIT for world drafts and clone/delete in inspector, but draft/commit semantics are not universal.",
+        compare: "Use WG draft commit, Inspector clone/delete, bot deploy/order, and direct command apply.",
+        test: "World, rig, bot/directive, and graph edits all create Drafts that preview, validate, commit, cancel, record, and room-sync.",
+        refs: ["target", "baseBlueprint", "baseIndex"],
+        checks: ["Draft schema", "Preview/validate", "Commit records event", "Cancel leaves state unchanged"]
+      },
+      {
+        id: "scene-graph-service",
+        name: "SceneGraphService",
+        substrate: "SceneGraphService",
+        status: "partial",
+        points: 8,
+        accent: "var(--blue)",
+        target: "Target has scene graph and rig graph UI, but not a unified graph service for rig/world/directive/entity/room/event.",
+        compare: "Use current scene-graph, rig sheet graph, inspector, and export behavior.",
+        test: "Graph panel can switch between rig/world/entity categories and export selected graph data.",
+        refs: ["target", "baseBlueprint", "baseIndex"],
+        checks: ["Graph categories", "Node selection", "Graph export", "Patch creates draft"]
+      },
+      {
+        id: "directive-service",
+        name: "DirectiveService For SAY And Bots",
+        substrate: "DirectiveService",
+        status: "partial",
+        points: 8,
+        accent: "var(--green)",
+        target: "Target has Direct The Game, command bar, Bot Command, and team AI commander, but they are not one directive path.",
+        compare: "Use cmd-modal/runCommand and bot-modal deploy/order as the first unification targets.",
+        test: "Typed SAY, command chips, bot panel selections, and AI output all produce compatible DirectiveDrafts.",
+        refs: ["target", "baseBlueprint", "baseIndex"],
+        checks: ["Parser fallback", "Bot draft", "AI draft", "Preview/commit/cancel"]
+      },
+      {
+        id: "world-text-language",
+        name: "World Text Language Contract",
+        substrate: "WorldTextLanguage",
+        status: "planned",
+        points: 8,
+        accent: "var(--violet)",
+        target: "Target has HELLO, WORLD, DIRECT, PLAY, MULTI, BOTS, GRAPH, and COMMIT dialects, but no common language record.",
+        compare: "Use the language spec and atlas to map each current surface to entities, relations, morphisms, draft policy, and event mapping.",
+        test: "For six current surfaces, produce a WorldTextRecord or typed subset that names dialect, intent, target, payload, commit policy, and event mapping.",
+        refs: ["target", "language", "languageAtlas", "baseIndex"],
+        checks: ["Dialect named", "Entities/relations named", "Morphisms named", "Record/draft/event mapped"]
+      },
+      {
+        id: "evidence-packet-protocol",
+        name: "Token-Efficient Evidence Packet Protocol",
+        substrate: "EvidencePacketProtocol",
+        status: "planned",
+        points: 5,
+        accent: "var(--gold)",
+        target: "Large target and reference files burn context when loaded whole, so scoped work needs snippet and screenshot evidence packets.",
+        compare: "Use the Fable prompt and snippet index before any scoped target edit.",
+        test: "Given a task like standardize PLAY, generate an evidence request with exact line ranges and screenshots before any code plan.",
+        refs: ["fablePrompt", "snippetIndex", "target"],
+        checks: ["Task classified", "Line ranges named", "Screenshots named", "No full-file request"]
+      },
+      {
+        id: "rig-graph",
+        name: "Real Rig Text Scene Graph",
+        substrate: "RigGraph",
+        status: "partial",
+        points: 8,
+        accent: "var(--cyan)",
+        target: "myParts and rig sheet exist, but stable ids/exportable graph need to become authoritative.",
+        compare: "Use target rig sheet and manual builder. Compare with production clone/loadout behavior.",
+        test: "Build a rig with five parts, select two parts, copy/export graph, verify ids/transforms/materials survive rebuild.",
+        refs: ["target", "prod"],
+        checks: ["Graph visible", "Stable ids", "Copy/export", "Selection by id"]
+      },
+      {
+        id: "world-rules",
+        name: "Worlds That Affect Play",
+        substrate: "WorldGraph",
+        status: "partial",
+        points: 8,
+        accent: "var(--gold)",
+        target: "Target has world modes, scenery, world forge, and collidable structures, but mechanics are not strongly consumed.",
+        compare: "Compare with consequence and film studio material response, then make world family rules visible.",
+        test: "Prompt dark forest and water city; verify visibility, traction, noise, zones, and objectives differ.",
+        refs: ["target", "consequence", "filmStudio"],
+        checks: ["Rule values differ", "Zones visible in rail", "Game mode reads rules", "Event records rule use"]
+      },
+      {
+        id: "direct-ai",
+        name: "SAY/DIRECT As Generative AI",
+        substrate: "DirectiveGraph",
+        status: "partial",
+        points: 8,
+        accent: "var(--blue)",
+        target: "Target has parser-based cmd-modal and runCommand for bots/goals/targets.",
+        compare: "Use existing bot command authority and HELLO_ENGINE domain pattern as the shape.",
+        test: "Command: make three red seekers guarding the temple and one ally decoy. Verify structured actors, roles, teams, and objectives.",
+        refs: ["target", "prod"],
+        checks: ["Parser fallback returns DirectiveGraph", "AI returns valid JSON", "Preview before apply", "Actors/objectives apply"]
+      },
+      {
+        id: "rail-log",
+        name: "AI Log Hidden In Rail",
+        substrate: "RailApparatus",
+        status: "partial",
+        points: 3,
+        accent: "var(--violet)",
+        target: "Target has #aicon and sysMenu toggle, but default floating log surface still needs discipline.",
+        compare: "Use target rail sections; no external reference required.",
+        test: "Load target. AI log is hidden. Open rail SYSTEM > AI LOG. Close it. Enter play. It stays hidden.",
+        refs: ["target"],
+        checks: ["Starts hidden", "Rail opens it", "No floating badge in play", "Logs still copyable"]
+      },
+      {
+        id: "clone-mechanic",
+        name: "Clone As Game Mechanic",
+        substrate: "RigGraph",
+        status: "partial",
+        points: 8,
+        accent: "var(--green)",
+        target: "Target has btn-duplicate clone handler, but clone is mostly editor duplicate.",
+        compare: "Production file has same clone base. Future Fleet shows multi-rig/fleet use.",
+        test: "Create decoy or ghost clone; verify it changes sneak/film behavior and appears in export.",
+        refs: ["target", "prod", "fleet"],
+        checks: ["Clone type selected", "Affects gameplay", "Event recorded", "Export includes clone"]
+      },
+      {
+        id: "sneak",
+        name: "Hide And Sneak Mode",
+        substrate: "GameModeRegistry",
+        status: "missing",
+        points: 13,
+        accent: "var(--red)",
+        target: "Target registers HIDE & SNEAK as soon:true only.",
+        compare: "Use target bots/vision/noise/world zones; this is a new vertical slice.",
+        test: "Start sneak. Hide in a world zone. Trigger noise. Distract seeker with clone. Escape or get caught.",
+        refs: ["target", "prod"],
+        checks: ["Mode starts", "Seekers patrol", "Hide zones work", "Win/loss exists"]
+      },
+      {
+        id: "film",
+        name: "Film Mode",
+        substrate: "FilmRecord",
+        status: "missing",
+        points: 13,
+        accent: "var(--gold)",
+        target: "Target has no native MediaRecorder take/replay apparatus.",
+        compare: "Future Fleet and Golf Film Operator have take, replay, camera, video, data export.",
+        test: "Record a take, stop, replay, scrub, change camera, save video, export JSON sidecar.",
+        refs: ["target", "fleet", "golfFilm"],
+        checks: ["REC/STOP", "Replay", "Scrubber/camera", "Video/data export"]
+      },
+      {
+        id: "paris",
+        name: "Paris Verdict Mode",
+        substrate: "ParisCase",
+        status: "missing",
+        points: 13,
+        accent: "var(--violet)",
+        target: "Target has no Paris/verdict mode in GAME_MODES.",
+        compare: "Paris model references provide evidence, reconstruction, challenge, ruling, verdict, export.",
+        test: "Use a take as source evidence, build two reconstructions, file challenge, compute verdict, export case.",
+        refs: ["target", "paris", "parisFixed"],
+        checks: ["Evidence replay", "Claims", "Challenge/ruling", "Verdict/export"]
+      },
+      {
+        id: "event-stream",
+        name: "Shared Event Stream",
+        substrate: "EventStream",
+        status: "planned",
+        points: 8,
+        accent: "var(--blue)",
+        target: "Events exist in places, but need one canonical record consumed by film and Paris.",
+        compare: "Future Fleet WorldRecord and Golf Film Operator event stream are direct references.",
+        test: "Trigger clone, bot directive, target hit, world rule activation. Verify single event stream records all.",
+        refs: ["fleet", "golfFilm"],
+        checks: ["recordGameEvent exists", "Events include mode/world", "Film consumes events", "Paris consumes events"]
+      },
+      {
+        id: "mode-registry",
+        name: "Game Mode Registry Contract",
+        substrate: "GameModeRegistry",
+        status: "partial",
+        points: 8,
+        accent: "var(--green)",
+        target: "Target has GAME_MODES and setGameMode, but modes do not all own setup/tick/HUD/export contracts.",
+        compare: "Use existing free/golf/flagrun as migration base.",
+        test: "Register a dummy mode without editing drive physics. It setup/tick/teardown safely.",
+        refs: ["target"],
+        checks: ["setup", "tick", "teardown", "HUD/export hooks"]
+      }
+    ];
+
+    const stateKey = "hello-world-004-openai-8-feature-checks";
+    let checks = readChecks();
+    const matrix = document.getElementById("matrix");
+    const statusFilter = document.getElementById("statusFilter");
+    const substrateFilter = document.getElementById("substrateFilter");
+    const search = document.getElementById("search");
+
+    init();
+
+    function init() {
+      const substrates = [...new Set(features.map(f => f.substrate))].sort();
+      substrateFilter.innerHTML += substrates.map(s => `<option value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join("");
+      [statusFilter, substrateFilter, search].forEach(el => el.addEventListener("input", render));
+      document.getElementById("resetChecks").addEventListener("click", () => {
+        checks = {};
+        localStorage.removeItem(stateKey);
+        render();
+      });
+      render();
+    }
+
+    function render() {
+      const term = search.value.trim().toLowerCase();
+      const visible = features.filter(f => {
+        const hay = [f.id, f.name, f.substrate, f.status, f.target, f.compare, f.test].join(" ").toLowerCase();
+        return (statusFilter.value === "all" || f.status === statusFilter.value) &&
+          (substrateFilter.value === "all" || f.substrate === substrateFilter.value) &&
+          (!term || hay.includes(term));
+      });
+      matrix.innerHTML = visible.length ? visible.map(featureTemplate).join("") : '<div class="empty">No features match the current filter</div>';
+      bindChecks();
+      updateStats(visible);
+    }
+
+    function featureTemplate(f) {
+      const done = (checks[f.id] || []).length;
+      const total = f.checks.length;
+      return `
+        <article class="feature" style="--accent:${f.accent}">
+          <div class="feature-head">
+            <h3>${escapeHtml(f.name)}<span>${escapeHtml(f.substrate)} substrate · ${f.points} points</span></h3>
+            <span class="pill ${escapeAttr(f.status)}">${escapeHtml(f.status)}</span>
+            <span class="pill planned">${done}/${total}</span>
+          </div>
+          <div class="feature-body">
+            <div class="compare">
+              <div class="row"><b>Target</b><span>${escapeHtml(f.target)}</span></div>
+              <div class="row"><b>Compare</b><span>${escapeHtml(f.compare)}</span></div>
+              <div class="row"><b>Manual Test</b><span>${escapeHtml(f.test)}</span></div>
+              <div class="row"><b>References</b><span class="refs">${f.refs.map(refLink).join("")}</span></div>
+            </div>
+            <div class="testbox">
+              ${f.checks.map((label, index) => checkTemplate(f, label, index)).join("")}
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function refLink(key) {
+      const r = refs[key];
+      if (!r) return "";
+      return `<a href="${escapeAttr(r.href)}" target="_blank" rel="noopener">${escapeHtml(r.label)}</a>`;
+    }
+
+    function checkTemplate(feature, label, index) {
+      const selected = (checks[feature.id] || []).includes(index);
+      return `
+        <label class="check">
+          <input type="checkbox" data-feature="${escapeAttr(feature.id)}" data-index="${index}" ${selected ? "checked" : ""}>
+          <span>${escapeHtml(label)}</span>
+        </label>
+      `;
+    }
+
+    function bindChecks() {
+      matrix.querySelectorAll("input[type=checkbox]").forEach(box => {
+        box.addEventListener("change", () => {
+          const id = box.dataset.feature;
+          const index = Number(box.dataset.index);
+          const list = new Set(checks[id] || []);
+          if (box.checked) list.add(index);
+          else list.delete(index);
+          checks[id] = [...list].sort((a, b) => a - b);
+          persistChecks();
+          render();
+        });
+      });
+    }
+
+    function updateStats(visible) {
+      const allChecks = features.reduce((n, f) => n + f.checks.length, 0);
+      const doneChecks = Object.values(checks).reduce((n, arr) => n + arr.length, 0);
+      document.getElementById("totalCount").textContent = String(visible.length);
+      document.getElementById("missingCount").textContent = String(visible.filter(f => f.status === "missing").length);
+      document.getElementById("pointsCount").textContent = String(visible.reduce((n, f) => n + f.points, 0));
+      document.getElementById("checkedCount").textContent = String(doneChecks);
+      document.getElementById("coverageLabel").textContent = `${doneChecks}/${allChecks}`;
+    }
+
+    function readChecks() {
+      try { return JSON.parse(localStorage.getItem(stateKey) || "{}") || {}; }
+      catch { return {}; }
+    }
+
+    function persistChecks() {
+      localStorage.setItem(stateKey, JSON.stringify(checks));
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[ch]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+  </script>
+</body>
+</html>

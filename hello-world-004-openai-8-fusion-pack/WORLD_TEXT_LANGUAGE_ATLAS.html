@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Text Language Atlas</title>
+  <style>
+    :root {
+      --bg: #eef2f1;
+      --paper: #fbfcfc;
+      --ink: #14201d;
+      --muted: #5d6f69;
+      --line: #b9c7c2;
+      --soft: #dde7e3;
+      --dark: #17221f;
+      --teal: #168f85;
+      --blue: #3b6f9d;
+      --gold: #a97512;
+      --red: #b94545;
+      --violet: #715aa1;
+      --green: #2d8053;
+      --orange: #c06420;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; }
+    code {
+      background: #eef2f1;
+      border: 1px solid var(--soft);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+
+    .app {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100dvh;
+      overflow: auto;
+      background: var(--dark);
+      color: #f5f8f7;
+      padding: 14px;
+      border-right: 1px solid #07100d;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    aside code {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.16);
+      color: #f5f8f7;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 18px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      font-size: 12px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      color: #c5d0cc;
+      font-size: 11px;
+      line-height: 1.45;
+      margin-top: 7px;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.15);
+    }
+
+    nav a, .side-note {
+      display: block;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 6px;
+      padding: 8px;
+      background: rgba(255,255,255,.05);
+      text-decoration: none;
+      font-size: 10px;
+      line-height: 1.3;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .side-note {
+      color: #c5d0cc;
+      font-weight: 700;
+      text-transform: none;
+    }
+
+    main {
+      min-width: 0;
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(20,32,29,.08);
+    }
+
+    .panel > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px;
+      border-bottom: 1px solid var(--soft);
+      background: #fff;
+    }
+
+    .body {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border: 1px solid var(--soft);
+      border-radius: 999px;
+      padding: 0 7px;
+      background: #f6f8f7;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .flow {
+      min-height: 300px;
+      border: 1px solid var(--soft);
+      border-radius: 8px;
+      background: #fff;
+      width: 100%;
+    }
+
+    .box {
+      fill: #fff;
+      stroke: #9eaaa6;
+      stroke-width: 1;
+      rx: 7;
+    }
+
+    .core {
+      fill: #edf9f6;
+      stroke: var(--teal);
+      stroke-width: 1.6;
+    }
+
+    .dialect {
+      fill: #f4f0ff;
+      stroke: var(--violet);
+      stroke-width: 1.25;
+    }
+
+    .risk {
+      fill: #fff5ef;
+      stroke: var(--orange);
+      stroke-width: 1.4;
+    }
+
+    .text {
+      font: 800 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      fill: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .small {
+      font: 700 8px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      fill: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .arrow {
+      fill: none;
+      stroke: #66746f;
+      stroke-width: 1.25;
+      marker-end: url(#arrow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dialect-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: inset 5px 0 0 var(--accent);
+    }
+
+    .dialect-card header {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid var(--soft);
+    }
+
+    .dialect-card .body {
+      padding: 10px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    .kv b {
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    .row b {
+      font-size: 10px;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .row span, .row p {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .morphism-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .morphism {
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .morphism b {
+      color: var(--teal);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .morphism span {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+
+    .primitive-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .primitive-list div {
+      border: 1px solid var(--soft);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    .primitive-list b {
+      display: block;
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .primitive-list span {
+      display: block;
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1040px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .hero, .grid { grid-template-columns: 1fr; }
+      .morphism-grid, .primitive-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <path d="M0,0 L7,3.5 L0,7 Z" fill="#66746f"></path>
+      </marker>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <aside>
+      <div>
+        <h1>World Text Language Atlas</h1>
+        <p class="sub">The shared vocabulary for HELLO, WORLD, DIRECT, PLAY, MULTI, GRAPH, COMMIT, FILM, PARIS, and SYSTEM.</p>
+      </div>
+      <nav aria-label="World text language navigation">
+        <a href="#core">Core Pipeline</a>
+        <a href="#primitives">Primitives</a>
+        <a href="#dialects">Dialects</a>
+        <a href="#morphisms">Morphisms</a>
+        <a href="#conflicts">Conflicts</a>
+        <a href="#record">WorldTextRecord</a>
+        <a href="./WORLD_TEXT_LANGUAGE.md">Language Spec</a>
+      </nav>
+      <div class="side-note">Every UI action, command, AI result, room message, and graph edit should translate into <code>&lt;WorldTextRecord&gt;</code> or a typed subset.</div>
+    </aside>
+
+    <main>
+      <section class="hero" id="core">
+        <article class="panel">
+          <header>
+            <h2>Core Language Pipeline</h2>
+            <span class="tag">one grammar</span>
+          </header>
+          <div class="body">
+            <svg class="flow" viewBox="0 0 760 310" role="img" aria-label="World text language pipeline">
+              <rect class="dialect" x="24" y="28" width="108" height="38"></rect><text class="text" x="48" y="52">HELLO</text>
+              <rect class="dialect" x="150" y="28" width="108" height="38"></rect><text class="text" x="178" y="52">WORLD</text>
+              <rect class="dialect" x="276" y="28" width="108" height="38"></rect><text class="text" x="306" y="52">DIRECT</text>
+              <rect class="dialect" x="402" y="28" width="108" height="38"></rect><text class="text" x="432" y="52">PLAY</text>
+              <rect class="dialect" x="528" y="28" width="108" height="38"></rect><text class="text" x="558" y="52">MULTI</text>
+
+              <path class="arrow" d="M78 70 V102 H360"></path>
+              <path class="arrow" d="M204 70 V102 H360"></path>
+              <path class="arrow" d="M330 70 V102 H360"></path>
+              <path class="arrow" d="M456 70 V102 H400"></path>
+              <path class="arrow" d="M582 70 V102 H400"></path>
+
+              <rect class="core" x="268" y="104" width="214" height="46"></rect><text class="text" x="302" y="132">WorldTextRecord</text><text class="small" x="302" y="145">intent + target + patch</text>
+              <path class="arrow" d="M375 152 V185"></path>
+              <rect class="core" x="284" y="188" width="182" height="46"></rect><text class="text" x="330" y="216">Draft</text><text class="small" x="330" y="229">preview + validate</text>
+              <path class="arrow" d="M375 236 V268"></path>
+              <rect class="core" x="118" y="268" width="130" height="34"></rect><text class="text" x="148" y="290">Graph</text>
+              <rect class="core" x="312" y="268" width="130" height="34"></rect><text class="text" x="335" y="290">Events</text>
+              <rect class="core" x="506" y="268" width="130" height="34"></rect><text class="text" x="532" y="290">Room</text>
+              <path class="arrow" d="M284 218 H184 V268"></path>
+              <path class="arrow" d="M375 236 V268"></path>
+              <path class="arrow" d="M466 218 H570 V268"></path>
+
+              <rect class="risk" x="24" y="182" width="128" height="42"></rect><text class="small" x="44" y="207">GRAPH/DISPLAY</text>
+              <rect class="risk" x="608" y="182" width="128" height="42"></rect><text class="small" x="632" y="207">FILM/PARIS</text>
+            </svg>
+            <p><code>&lt;WorldTextRecord&gt;</code> is the common translation target. User text, panel fields, command chips, AI output, room messages, and graph edits should all be able to produce it or a typed subset.</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <header>
+            <h2>Core Relations</h2>
+            <span class="tag">edges</span>
+          </header>
+          <div class="body table">
+            <div class="row"><b>part-of</b><span>RigPart -> Rig</span><p>Turns geometry into a rig graph.</p></div>
+            <div class="row"><b>located-in</b><span>Entity -> Zone</span><p>Lets worlds affect play through space.</p></div>
+            <div class="row"><b>controlled-by</b><span>Actor -> Player/AI</span><p>Unifies bots, players, clones, witnesses.</p></div>
+            <div class="row"><b>targets</b><span>Actor -> Objective</span><p>Connects DIRECT and game modes.</p></div>
+            <div class="row"><b>mirrored-in</b><span>Commit -> RoomEvent</span><p>Makes multiplayer a projection of committed state.</p></div>
+            <div class="row"><b>evidenced-by</b><span>Claim -> Event/Film</span><p>Connects Film and Paris to real play history.</p></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" id="primitives">
+        <header>
+          <h2>Engine Primitives</h2>
+          <span class="tag">nouns</span>
+        </header>
+        <div class="body primitive-list">
+          <div><b>Spatial</b><span>point, vector, transform, anchor, radius, bounds, path, zone, lane, gate, spawn</span></div>
+          <div><b>Material</b><span>color, emissive, traction, roughness, hardness, shatter mode, noise, visibility</span></div>
+          <div><b>Gameplay</b><span>team, actor, role, behavior, objective, score, timer, visibility, detection, damage</span></div>
+          <div><b>Authoring</b><span>prompt, preset, panel field, command chip, graph selection, AI response, draft, patch</span></div>
+          <div><b>Network</b><span>room id, peer id, roster, authority, sequence, snapshot, room event, AI host</span></div>
+          <div><b>Evidence</b><span>event, frame, camera mark, claim, witness, reconstruction, challenge, ruling, verdict</span></div>
+        </div>
+      </section>
+
+      <section class="panel" id="dialects">
+        <header>
+          <h2>Subtle Dialects</h2>
+          <span class="tag">local language -> canonical record</span>
+        </header>
+        <div class="body grid">
+          <article class="dialect-card" style="--accent:var(--teal)">
+            <header><h3>HELLO</h3><span class="tag">rig</span></header>
+            <div class="body">
+              <div class="kv"><b>Nouns</b><span>body, wheel, spoiler, wing, beam, panel, paint, silhouette</span></div>
+              <div class="kv"><b>Verbs</b><span>add, attach, move, rotate, scale, paint, clone, save</span></div>
+              <div class="kv"><b>Target</b><span><code>&lt;RigGraph patch&gt;</code> staged as <code>&lt;RigDraft&gt;</code></span></div>
+            </div>
+          </article>
+
+          <article class="dialect-card" style="--accent:var(--green)">
+            <header><h3>WORLD</h3><span class="tag">arena</span></header>
+            <div class="body">
+              <div class="kv"><b>Nouns</b><span>biome, family, surface, landmark, hazard, hide zone, objective anchor</span></div>
+              <div class="kv"><b>Verbs</b><span>make, forge, scatter, grow, tint, place, zone, commit</span></div>
+              <div class="kv"><b>Target</b><span><code>&lt;WorldGraph patch&gt;</code> staged as <code>&lt;WorldDraft&gt;</code></span></div>
+            </div>
+          </article>
+
+          <article class="dialect-card" style="--accent:var(--blue)">
+            <header><h3>DIRECT / BOTS</h3><span class="tag">apparatus</span></header>
+            <div class="body">
+              <div class="kv"><b>Nouns</b><span>bot, ally, enemy, seeker, guard, target, goal, patrol, mission</span></div>
+              <div class="kv"><b>Verbs</b><span>spawn, clear, guard, chase, defend, order, deploy, purge</span></div>
+              <div class="kv"><b>Target</b><span><code>&lt;DirectiveGraph patch&gt;</code> staged as <code>&lt;DirectiveDraft&gt;</code></span></div>
+            </div>
+          </article>
+
+          <article class="dialect-card" style="--accent:var(--violet)">
+            <header><h3>PLAY</h3><span class="tag">game loop</span></header>
+            <div class="body">
+              <div class="kv"><b>Nouns</b><span>game, mode, teams, cap limit, build phase, score, win/loss, HUD</span></div>
+              <div class="kv"><b>Verbs</b><span>choose, configure, start, pause, reset, score, win, lose</span></div>
+              <div class="kv"><b>Target</b><span><code>&lt;GamePlugin&gt;</code> + <code>&lt;GameConfig&gt;</code></span></div>
+            </div>
+          </article>
+
+          <article class="dialect-card" style="--accent:var(--orange)">
+            <header><h3>MULTI</h3><span class="tag">room</span></header>
+            <div class="body">
+              <div class="kv"><b>Nouns</b><span>room, host, guest, peer, roster, invite, room AI, authority, snapshot</span></div>
+              <div class="kv"><b>Verbs</b><span>host, join, leave, send, receive, poll, sync, snapshot</span></div>
+              <div class="kv"><b>Target</b><span><code>&lt;RoomSession&gt;</code> + <code>&lt;RoomEvent&gt;</code></span></div>
+            </div>
+          </article>
+
+          <article class="dialect-card" style="--accent:var(--gold)">
+            <header><h3>COMMIT / GRAPH</h3><span class="tag">transaction</span></header>
+            <div class="body">
+              <div class="kv"><b>Nouns</b><span>node, edge, selection, draft, preview, patch, validation, undo</span></div>
+              <div class="kv"><b>Verbs</b><span>inspect, select, patch, stage, validate, commit, cancel, export</span></div>
+              <div class="kv"><b>Target</b><span><code>&lt;GraphPatchDraft&gt;</code> then <code>&lt;Commit&gt;</code></span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="morphisms">
+        <header>
+          <h2>Core Morphisms</h2>
+          <span class="tag">verbs</span>
+        </header>
+        <div class="body morphism-grid">
+          <div class="morphism"><b>[describe]</b><span>text/UI/AI -> structured statement</span></div>
+          <div class="morphism"><b>[select]</b><span>surface row -> graph node</span></div>
+          <div class="morphism"><b>[instantiate]</b><span>spec -> entity record</span></div>
+          <div class="morphism"><b>[bind]</b><span>entity -> relation -> entity</span></div>
+          <div class="morphism"><b>[stage]</b><span>patch -> draft</span></div>
+          <div class="morphism"><b>[validate]</b><span>draft -> safe/unsafe result</span></div>
+          <div class="morphism"><b>[commit]</b><span>draft -> graph/event/room</span></div>
+          <div class="morphism"><b>[render]</b><span>graph -> mesh/panel/HUD</span></div>
+          <div class="morphism"><b>[sync]</b><span>commit -> room event</span></div>
+          <div class="morphism"><b>[record]</b><span>state change -> event</span></div>
+          <div class="morphism"><b>[score]</b><span>event -> game progress</span></div>
+          <div class="morphism"><b>[export]</b><span>record -> JSON/handoff</span></div>
+        </div>
+      </section>
+
+      <section class="panel" id="conflicts">
+        <header>
+          <h2>Dialect Conflicts</h2>
+          <span class="tag">where integration breaks</span>
+        </header>
+        <div class="body table">
+          <div class="row"><b>geometry vs graph</b><span>Meshes exist but meaning is lost.</span><p>Every mesh-producing action must create graph records.</p></div>
+          <div class="row"><b>decor vs rules</b><span>Worlds look different but play the same.</span><p>Every family carries rule and zone payload.</p></div>
+          <div class="row"><b>SAY vs BOTS</b><span>Two command languages for actors.</span><p>Both produce <code>&lt;DirectiveDraft&gt;</code>.</p></div>
+          <div class="row"><b>menu vs registry</b><span>Games become special cases.</span><p>Every mode is a <code>&lt;GamePlugin&gt;</code>.</p></div>
+          <div class="row"><b>room vs event</b><span>Multiplayer duplicates feature logic.</span><p>Room sync mirrors committed events.</p></div>
+          <div class="row"><b>save vs commit</b><span>Buttons imply inconsistent persistence.</span><p>Commit applies; save serializes; deploy instantiates.</p></div>
+        </div>
+      </section>
+
+      <section class="panel" id="record">
+        <header>
+          <h2>Canonical Record</h2>
+          <span class="tag">contract</span>
+        </header>
+        <div class="body">
+          <p>Every dialect should be able to produce a <code>&lt;WorldTextRecord&gt;</code> or a typed subset.</p>
+          <div class="table">
+            <div class="row"><b>intent</b><span>create, update, delete, start, stop, query, record, export, adjudicate</span><p>What the statement wants.</p></div>
+            <div class="row"><b>target</b><span>rig, world, directive, game, room, graph, film, case, rail</span><p>Which substrate is affected.</p></div>
+            <div class="row"><b>payload</b><span>entities, relations, rules, zones, objectives, patch</span><p>The structured meaning.</p></div>
+            <div class="row"><b>commit</b><span>immediate, draft, preview, required, local, room, host</span><p>How it may mutate live state.</p></div>
+            <div class="row"><b>events</b><span>event ids, affected ids, mode id, room id</span><p>How history and sync see it.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
