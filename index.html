@@ -2936,7 +2936,10 @@
     };
 
     const storeKey = "hello-world-prototype-index.v1";
-    const savedActivePath = localStorage.getItem("hello-world-prototype-index.active");
+    const activeStoreKey = "hello-world-prototype-index.active";
+    const savedActivePath = safeStorageGet(activeStoreKey);
+    let storageWarningShown = false;
+    let storageConsoleWarned = false;
     let reviews = readReviews();
     let activePath = savedActivePath || files[0];
     let ratingFilterValue = "all";
@@ -3252,7 +3255,7 @@
     function select(path, shouldRender = true) {
       const p = prototypes.find(x => x.path === path) || prototypes[0];
       activePath = p.path;
-      localStorage.setItem("hello-world-prototype-index.active", activePath);
+      safeStorageSet(activeStoreKey, activePath);
       const review = reviews[activePath] || {};
       const previewPath = previewPathFor(activePath);
       els.preview.src = previewPath;
@@ -3370,12 +3373,34 @@
     }
 
     function persist() {
-      localStorage.setItem(storeKey, JSON.stringify(reviews));
+      safeStorageSet(storeKey, JSON.stringify(reviews));
     }
 
     function readReviews() {
-      try { return JSON.parse(localStorage.getItem(storeKey) || "{}") || {}; }
+      try { return JSON.parse(safeStorageGet(storeKey) || "{}") || {}; }
       catch { return {}; }
+    }
+
+    function safeStorageGet(key) {
+      try { return localStorage.getItem(key) || ""; }
+      catch { return ""; }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        if (!storageConsoleWarned) {
+          storageConsoleWarned = true;
+          console.warn("Index storage is unavailable; continuing without saved state.", error);
+        }
+        if (!storageWarningShown && els && els.toast) {
+          storageWarningShown = true;
+          toast("Storage full; page still works");
+        }
+        return false;
+      }
     }
 
     function videoProfile(tier, evidence, priority) {
