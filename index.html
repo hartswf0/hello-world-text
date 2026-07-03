@@ -2273,6 +2273,246 @@
         min-height: 31px;
       }
     }
+
+    /* Professional catalogue pass: quiet, operational, and documentation-friendly. */
+    :root {
+      --white: #f8f8f5;
+      --black: #202420;
+      --paper: #eeeeea;
+      --surface: #fbfbf8;
+      --surface-2: #f2f2ee;
+      --line: #c8ccc4;
+      --line-soft: #e0e2dc;
+      --muted-ink: #60675f;
+      --accent: #136b61;
+      --shadow: none;
+      --shadow-tight: none;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--black);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .app {
+      grid-template-columns: minmax(260px, 24vw) minmax(0, 1fr);
+      gap: 0;
+      padding: 0;
+      background: var(--paper);
+    }
+
+    aside,
+    main {
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: var(--surface);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+    }
+
+    .filters {
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      padding: 10px;
+    }
+
+    .family-page {
+      border: 0;
+      border-left: 3px solid var(--page-color);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0 0 0 10px;
+    }
+
+    .family-page b {
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+
+    .family-page span,
+    .family-difference span {
+      color: var(--muted-ink);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: none;
+    }
+
+    .family-page .family-best,
+    .family-difference {
+      border-top: 1px solid var(--line-soft);
+    }
+
+    .family-page-actions a,
+    .family-head a,
+    .row-action,
+    .frame-action {
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--surface);
+      color: var(--black);
+    }
+
+    .family-page-actions a:hover,
+    .family-head a:hover,
+    .row-action:hover,
+    .frame-action:hover {
+      background: #e8ece8;
+      color: var(--black);
+    }
+
+    .list {
+      padding: 8px;
+      background: var(--surface-2);
+    }
+
+    .family {
+      margin: 0 0 12px;
+    }
+
+    .family-head {
+      min-height: 26px;
+      padding: 0 0 6px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      color: var(--black);
+      font-size: 10px;
+      letter-spacing: .05em;
+    }
+
+    .family-head a {
+      padding: 2px 6px;
+      font-size: 8px;
+    }
+
+    .item-row {
+      gap: 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .item-row + .item-row {
+      margin-top: 0;
+    }
+
+    .item {
+      min-height: 45px;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: inset 3px 0 0 color-mix(in srgb, var(--item-color, var(--family-color)) 76%, #9aa39d 24%);
+      padding: 8px 8px 8px 10px;
+    }
+
+    .item:hover,
+    .item.active {
+      background: #e9eee9;
+      border-color: transparent;
+    }
+
+    .item-title {
+      font-size: 11px;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .item-path {
+      color: var(--muted-ink);
+      font-size: 9px;
+      font-weight: 500;
+    }
+
+    .item-actions {
+      grid-template-columns: repeat(3, 28px);
+      gap: 0;
+      align-self: stretch;
+    }
+
+    .row-action {
+      min-width: 28px;
+      min-height: 28px;
+      border-width: 0 0 0 1px;
+      font-size: 12px;
+    }
+
+    .row-action.star.active,
+    .frame-action.star.active {
+      background: #ede3b2;
+      border-color: #c2b165;
+    }
+
+    .row-action.cancel.active,
+    .frame-action.cancel.active {
+      background: #ead0cc;
+      border-color: #bd8a82;
+    }
+
+    .frame-wrap {
+      padding: 0;
+      background: #111;
+    }
+
+    iframe {
+      border-radius: 0;
+      box-shadow: none;
+      background: var(--white);
+    }
+
+    .frame-actions {
+      top: 10px;
+      right: 10px;
+      opacity: .92;
+    }
+
+    .frame-action {
+      min-width: 30px;
+      min-height: 30px;
+      background: rgba(248, 248, 245, .94);
+      font-size: 12px;
+    }
+
+    .dot,
+    .badge,
+    .video-badge {
+      display: none;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        gap: 0;
+        padding: 0;
+      }
+
+      main {
+        height: 78dvh;
+        min-height: 520px;
+      }
+
+      aside {
+        margin: 0;
+        border: 0;
+        border-top: 1px solid var(--line);
+        border-radius: 0;
+      }
+
+      .item-actions {
+        grid-template-columns: repeat(3, 34px);
+      }
+
+      .row-action,
+      .frame-action {
+        min-width: 34px;
+        min-height: 34px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2728,7 +2968,7 @@
       els.tags.addEventListener("input", saveCurrentReview);
       els.notes.addEventListener("input", saveCurrentReview);
       els.reloadBtn.addEventListener("click", () => {
-        els.preview.src = cacheBust(activePath);
+        els.preview.src = cacheBust(previewPathFor(activePath));
         toast("Reloaded preview");
       });
       els.copyBtn.addEventListener("click", copyEmbed);
@@ -2930,7 +3170,7 @@
       const actions = document.createElement("span");
       actions.className = "item-actions";
       actions.innerHTML = `
-        <a class="row-action open" href="${escapeAttr(p.path)}" target="_blank" rel="noopener" title="Open ${escapeAttr(p.title)} in a new window" aria-label="Open ${escapeAttr(p.title)} in a new window">↗</a>
+        <a class="row-action open" href="${escapeAttr(previewPathFor(p.path))}" target="_blank" rel="noopener" title="Open ${escapeAttr(p.title)} in a new window" aria-label="Open ${escapeAttr(p.title)} in a new window">↗</a>
         <button class="row-action star${review.rating === "good" ? " active" : ""}" type="button" title="Star ${escapeAttr(p.title)}" aria-label="Star ${escapeAttr(p.title)}">★</button>
         <button class="row-action cancel${review.rating === "bad" ? " active" : ""}" type="button" title="Cancel ${escapeAttr(p.title)}" aria-label="Cancel ${escapeAttr(p.title)}">X</button>
       `;
@@ -2945,11 +3185,12 @@
       activePath = p.path;
       localStorage.setItem("hello-world-prototype-index.active", activePath);
       const review = reviews[activePath] || {};
-      els.preview.src = activePath;
+      const previewPath = previewPathFor(activePath);
+      els.preview.src = previewPath;
       els.activeTitle.textContent = p.title;
       els.activePath.textContent = p.path;
-      els.openLink.href = p.path;
-      els.openWindowBtn.href = p.path;
+      els.openLink.href = previewPath;
+      els.openWindowBtn.href = previewPath;
       els.tags.value = review.tags || "";
       els.notes.value = review.notes || "";
       document.documentElement.style.setProperty("--family-color", p.familyColor);
@@ -2960,7 +3201,7 @@
       els.metaVideo.textContent = `${p.video.badge} ${p.video.label} (${p.video.score}/5)`;
       els.metaEvidence.textContent = p.video.evidence;
       els.metaSource.textContent = p.folder;
-      els.metaEmbed.textContent = `<iframe src="${p.path}"></iframe>`;
+      els.metaEmbed.textContent = `<iframe src="${previewPath}"></iframe>`;
       els.rates.forEach(btn => btn.classList.toggle("active", (review.rating || "untested") === btn.dataset.rate));
       els.starActiveBtn.classList.toggle("active", (review.rating || "untested") === "good");
       els.cancelActiveBtn.classList.toggle("active", (review.rating || "untested") === "bad");
@@ -3043,7 +3284,7 @@
     }
 
     async function copyEmbed() {
-      const html = `<iframe src="${activePath}" title="${(prototypes.find(p => p.path === activePath) || {}).title || "Prototype"}"></iframe>`;
+      const html = `<iframe src="${previewPathFor(activePath)}" title="${(prototypes.find(p => p.path === activePath) || {}).title || "Prototype"}"></iframe>`;
       try {
         await navigator.clipboard.writeText(html);
         toast("Copied iframe embed");
@@ -3123,6 +3364,15 @@
         p === "hello-world-004-openai-8-gap-prompt.html" ||
         p.includes("hello-world-004-openai-8-fusion-pack/") ||
         (/\.(md|txt|ya?ml|json)$/i.test(p) && !p.includes("license"));
+    }
+
+    function isDocumentSource(path) {
+      return /\.(md|txt|ya?ml|json)$/i.test(path) && !/license/i.test(path);
+    }
+
+    function previewPathFor(path) {
+      if (isDocumentSource(path)) return `DOC_VIEWER.html?src=${encodeURIComponent(path)}`;
+      return path;
     }
 
     function getLineageKey(path) {

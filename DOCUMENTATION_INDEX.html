@@ -126,6 +126,103 @@
       background: rgba(255,255,255,.03);
       font-size: 12px;
     }
+
+    /* Academic catalogue override: plain, durable, and source-oriented. */
+    :root {
+      color-scheme: light;
+      --bg: #f1f1ed;
+      --panel: #fbfbf8;
+      --line: #d2d6ce;
+      --text: #202420;
+      --muted: #667068;
+      --mint: #136b61;
+      --coral: #8a342f;
+      --gold: #6d5a1b;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1120px;
+      padding: 36px 24px 60px;
+    }
+    header {
+      gap: 12px;
+      margin-bottom: 30px;
+      border-bottom-color: #aeb7ad;
+      padding-bottom: 22px;
+    }
+    h1 {
+      color: var(--text);
+      font: 650 clamp(34px, 5vw, 64px)/1 ui-serif, Georgia, "Times New Roman", serif;
+    }
+    h2 {
+      margin: 34px 0 12px;
+      color: var(--text);
+      font-size: 13px;
+      letter-spacing: .12em;
+    }
+    .lede {
+      max-width: 840px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 10px;
+      border: 0;
+      background: transparent;
+    }
+    a.card {
+      min-height: 126px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--panel);
+      color: var(--text);
+      padding: 16px;
+    }
+    a.card:hover {
+      border-color: transparent;
+      box-shadow: inset 0 0 0 2px var(--mint);
+      background: #f4f7f3;
+    }
+    .card b {
+      color: var(--text);
+      font-size: 14px;
+      letter-spacing: .03em;
+    }
+    .card span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .path {
+      color: #4d5650;
+      font-size: 11px;
+    }
+    .shot-grid {
+      gap: 10px;
+      border: 0;
+      background: transparent;
+    }
+    figure {
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--panel);
+    }
+    figcaption {
+      color: var(--muted);
+    }
+    .rule {
+      gap: 6px;
+    }
+    .pill {
+      border-color: var(--line);
+      border-radius: 0;
+      background: var(--panel);
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -185,5 +282,13 @@
       <figure><img src="hello-world-004-openai-8-fusion-pack/screenshots/feature-test-index.png" alt="Feature test index screenshot"><figcaption>Feature test index</figcaption></figure>
     </section>
   </main>
+  <script>
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href');
+      if (/\.(md|txt|ya?ml|json)$/i.test(href) && !/license/i.test(href)) {
+        link.href = 'DOC_VIEWER.html?src=' + encodeURIComponent(href);
+      }
+    });
+  </script>
 </body>
 </html>

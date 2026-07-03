@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Viewer</title>
+  <style>
+    :root {
+      --paper: #f7f8f6;
+      --ink: #202624;
+      --muted: #65706c;
+      --line: #d7ded9;
+      --rule: #aeb9b3;
+      --code: #eef2ef;
+      --accent: #136b61;
+      --warn: #8a342f;
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.58 ui-serif, Georgia, "Times New Roman", serif;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 42px 34px 64px;
+    }
+
+    header {
+      margin-bottom: 30px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .kicker {
+      margin: 0 0 9px;
+      color: var(--accent);
+      font: 700 12px/1.2 ui-sans-serif, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    h1, h2, h3, h4, p, pre, blockquote, ul, ol, table {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font: 650 clamp(30px, 4vw, 48px)/1.05 ui-serif, Georgia, "Times New Roman", serif;
+      letter-spacing: 0;
+    }
+
+    .path {
+      color: var(--muted);
+      font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+
+    article {
+      display: grid;
+      gap: 0;
+    }
+
+    h2 {
+      margin: 32px 0 10px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font: 700 24px/1.18 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 8px;
+      font: 700 18px/1.25 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    h4 {
+      margin: 18px 0 6px;
+      color: var(--muted);
+      font: 700 13px/1.25 ui-sans-serif, system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    p {
+      margin-bottom: 13px;
+      max-width: 76ch;
+    }
+
+    ul, ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+      max-width: 78ch;
+    }
+
+    li + li {
+      margin-top: 5px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    code {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--code);
+      padding: 1px 4px;
+      font: .88em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    pre {
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #f0f3f1;
+      padding: 14px 16px;
+      overflow: auto;
+      font: 13px/1.48 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: pre;
+    }
+
+    pre code {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 0;
+      font: inherit;
+    }
+
+    blockquote {
+      margin: 0 0 18px;
+      border-left: 3px solid var(--rule);
+      padding: 4px 0 4px 16px;
+      color: #39413e;
+      max-width: 76ch;
+    }
+
+    table {
+      width: 100%;
+      margin-bottom: 20px;
+      border-collapse: collapse;
+      font: 14px/1.45 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #edf1ee;
+      font-weight: 750;
+    }
+
+    hr {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid var(--rule);
+      margin: 28px 0;
+    }
+
+    .missing {
+      border: 1px solid #e2b1aa;
+      border-radius: 6px;
+      background: #fff4f2;
+      color: var(--warn);
+      padding: 16px;
+      font: 14px/1.45 ui-sans-serif, system-ui, sans-serif;
+    }
+
+    @media (max-width: 720px) {
+      body { font-size: 15px; }
+      .shell { padding: 28px 18px 44px; }
+      h1 { font-size: 30px; }
+      h2 { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <p class="kicker">Documentation</p>
+      <h1 id="title">Document Viewer</h1>
+      <div id="path" class="path"></div>
+    </header>
+    <article id="content"></article>
+  </main>
+
+  <script src="DOCUMENTATION_LIBRARY.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src') || '';
+    const library = window.DOCUMENTATION_LIBRARY && window.DOCUMENTATION_LIBRARY.docs || {};
+    const doc = library[src];
+    const titleEl = document.getElementById('title');
+    const pathEl = document.getElementById('path');
+    const contentEl = document.getElementById('content');
+
+    if (!doc) {
+      titleEl.textContent = 'Document unavailable';
+      pathEl.textContent = src || 'No source path provided';
+      contentEl.innerHTML = '<div class="missing">This document is not present in DOCUMENTATION_LIBRARY.js. Rebuild it with tools/build-documentation-library.mjs.</div>';
+    } else {
+      titleEl.textContent = doc.title;
+      pathEl.textContent = doc.path;
+      document.title = doc.title;
+      contentEl.innerHTML = renderDocument(doc);
+    }
+
+    function renderDocument(doc) {
+      if (doc.type === 'json') return `<pre><code>${escapeHtml(formatJson(doc.text))}</code></pre>`;
+      if (doc.type === 'yaml' || doc.type === 'yml') return `<pre><code>${escapeHtml(doc.text)}</code></pre>`;
+      if (doc.type === 'txt') return renderMarkdown('# ' + doc.title + '\n\n' + doc.text, doc.title);
+      return renderMarkdown(doc.text, doc.title);
+    }
+
+    function renderMarkdown(input, documentTitle) {
+      const lines = String(input || '').replace(/\r\n/g, '\n').split('\n');
+      const out = [];
+      let paragraph = [];
+      let list = null;
+      let table = [];
+      let inCode = false;
+      let code = [];
+      let skippedDuplicateTitle = false;
+
+      const flushParagraph = () => {
+        if (!paragraph.length) return;
+        out.push(`<p>${inline(paragraph.join(' '))}</p>`);
+        paragraph = [];
+      };
+      const flushList = () => {
+        if (!list) return;
+        out.push(`<${list.type}>${list.items.map(item => `<li>${inline(item)}</li>`).join('')}</${list.type}>`);
+        list = null;
+      };
+      const flushTable = () => {
+        if (table.length < 2) { table = []; return; }
+        const header = splitTableRow(table[0]);
+        const body = table.slice(2).map(splitTableRow);
+        out.push(`<table><thead><tr>${header.map(c => `<th>${inline(c)}</th>`).join('')}</tr></thead><tbody>${body.map(row => `<tr>${row.map(c => `<td>${inline(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`);
+        table = [];
+      };
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('```')) {
+          flushParagraph(); flushList(); flushTable();
+          if (inCode) {
+            out.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+            code = [];
+            inCode = false;
+          } else {
+            inCode = true;
+          }
+          continue;
+        }
+        if (inCode) { code.push(line); continue; }
+        if (!trimmed) {
+          flushParagraph(); flushList(); flushTable();
+          continue;
+        }
+        if (/^\|.+\|$/.test(trimmed)) {
+          flushParagraph(); flushList();
+          table.push(trimmed);
+          continue;
+        }
+        flushTable();
+        const heading = trimmed.match(/^(#{1,4})\s+(.+)$/);
+        if (heading) {
+          flushParagraph(); flushList();
+          const level = heading[1].length;
+          if (!skippedDuplicateTitle && level === 1 && normalize(heading[2]) === normalize(documentTitle)) {
+            skippedDuplicateTitle = true;
+            continue;
+          }
+          out.push(`<h${level}>${inline(heading[2])}</h${level}>`);
+          continue;
+        }
+        if (/^---+$/.test(trimmed)) {
+          flushParagraph(); flushList();
+          out.push('<hr>');
+          continue;
+        }
+        const quote = trimmed.match(/^>\s?(.*)$/);
+        if (quote) {
+          flushParagraph(); flushList();
+          out.push(`<blockquote>${inline(quote[1])}</blockquote>`);
+          continue;
+        }
+        const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+        const ordered = trimmed.match(/^\d+\.\s+(.+)$/);
+        if (bullet || ordered) {
+          flushParagraph();
+          const type = bullet ? 'ul' : 'ol';
+          if (!list || list.type !== type) flushList();
+          if (!list) list = { type, items: [] };
+          list.items.push((bullet || ordered)[1]);
+          continue;
+        }
+        paragraph.push(trimmed);
+      }
+      flushParagraph(); flushList(); flushTable();
+      if (inCode) out.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+      return out.join('\n');
+    }
+
+    function inline(value) {
+      return escapeHtml(value)
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    }
+
+    function splitTableRow(row) {
+      return row.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim());
+    }
+
+    function formatJson(text) {
+      try { return JSON.stringify(JSON.parse(text), null, 2); }
+      catch { return text; }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+    }
+
+    function normalize(value) {
+      return String(value || '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+  </script>
+</body>
+</html>
