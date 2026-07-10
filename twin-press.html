@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WORLD-TO-TWIN PRESS — Monte Carlo Fiction to operator-twin v2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+:root{
+  --bg:#050505; --ink:#e8e8e8; --dim:#8a8a8a; --line:#2a2a2a;
+  --teal:#19e6c8; --amber:#ffd23f; --red:#ff2e2e; --blue:#3b82f6;
+}
+*{box-sizing:border-box; border-radius:0 !important;}
+html,body{margin:0; padding:0; background:var(--bg); color:var(--ink);
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:13px; line-height:1.45;}
+header{border-bottom:1px solid var(--line); padding:14px 16px;}
+header h1{margin:0; font-size:15px; font-weight:600; letter-spacing:.08em;}
+header h1 .t{color:var(--teal);}
+header p{margin:4px 0 0; color:var(--dim); font-size:11px; max-width:70ch;}
+#controls{display:flex; flex-wrap:wrap; gap:14px; padding:12px 16px; border-bottom:1px solid var(--line); align-items:flex-end;}
+.ctl{display:flex; flex-direction:column; gap:4px;}
+.ctl label{font-size:10px; color:var(--dim); letter-spacing:.1em;}
+.seg{display:flex;}
+.seg button{background:#000; color:var(--dim); border:1px solid var(--line); padding:5px 10px; font:inherit; font-size:11px; cursor:pointer;}
+.seg button+button{border-left:none;}
+.seg button.on{color:var(--teal); border-color:var(--teal); position:relative; z-index:1;}
+input[type=number]{background:#000; color:var(--ink); border:1px solid var(--line); font:inherit; padding:5px 8px; width:90px;}
+.btn{background:#000; border:1px solid var(--teal); color:var(--teal); font:inherit; font-size:11px;
+  letter-spacing:.08em; padding:7px 14px; cursor:pointer; text-transform:uppercase;}
+.btn:hover{background:var(--teal); color:#000;}
+.btn.amber{border-color:var(--amber); color:var(--amber);} .btn.amber:hover{background:var(--amber); color:#000;}
+.btn.blue{border-color:var(--blue); color:var(--blue);} .btn.blue:hover{background:var(--blue); color:#000;}
+.btn:disabled{border-color:var(--line); color:var(--line); cursor:default; background:#000;}
+#metrics{display:flex; flex-wrap:wrap; gap:10px; padding:10px 16px; border-bottom:1px solid var(--line); min-height:20px;}
+.chip{border:1px solid var(--line); padding:5px 10px; font-size:11px;}
+.chip b{color:var(--teal); font-weight:600;}
+.chip.warn{border-color:var(--amber); color:var(--amber);}
+#grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; padding:14px 16px;}
+.card{border:1px solid var(--line); padding:12px; display:flex; flex-direction:column; gap:8px;}
+.card .wid{font-size:12px; font-weight:600; letter-spacing:.06em;}
+.card .wid .seed{color:var(--dim); font-weight:400; font-size:10px;}
+.bars{display:flex; gap:8px; flex-wrap:wrap;}
+.bar{display:flex; align-items:center; gap:4px; font-size:9px; color:var(--dim);}
+.bar i{display:block; height:6px; background:var(--teal);}
+.bar.low i{width:10px; background:var(--line);}
+.bar.high i{width:26px;}
+.chain{font-size:10px; line-height:1.6; color:var(--dim); border-left:2px solid var(--line); padding-left:8px;}
+.chain .st-documented{color:var(--ink);} .chain .st-inferred{color:#9a9a9a;}
+.chain .st-speculative{color:var(--blue);} .chain .st-counterfactual{color:var(--amber);}
+.chain .br{color:var(--red);}
+.endc{font-size:10px; letter-spacing:.06em;}
+.endc b{color:var(--amber); font-weight:600;}
+.cstat{font-size:10px; color:var(--dim);}
+.cstat .ok{color:var(--teal);} .cstat .bad{color:var(--red);}
+.crow{display:flex; gap:8px; flex-wrap:wrap;}
+#player{position:fixed; inset:0; background:rgba(5,5,5,.96); display:none; flex-direction:column;
+  align-items:center; justify-content:flex-start; padding:20px 14px; overflow:auto; z-index:10;}
+#player.open{display:flex;}
+#pbox{width:100%; max-width:680px; border:1px solid var(--line); background:#000; padding:14px; display:flex; flex-direction:column; gap:10px;}
+#ptitle{font-size:12px; letter-spacing:.08em;} #ptitle .t{color:var(--teal);}
+#screen{width:100%; image-rendering:pixelated; border:1px solid var(--line); background:#000; aspect-ratio:4/3;}
+#subs{min-height:52px; border-top:1px solid var(--line); padding-top:8px; font-size:11px;}
+#subs .stext{color:var(--amber); letter-spacing:.12em; font-size:10px;}
+#subs .vo{color:var(--ink); margin-top:3px;}
+#subs .rel{color:var(--dim); font-size:10px; margin-top:3px;}
+#pctl{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+#scrub{flex:1; min-width:140px; accent-color:var(--teal); background:transparent;}
+#fread{font-size:10px; color:var(--dim); min-width:150px;}
+footer{padding:12px 16px; color:var(--dim); font-size:10px; border-top:1px solid var(--line); max-width:90ch;}
+@media (max-width:480px){ #grid{grid-template-columns:1fr;} }
+:focus-visible{outline:1px solid var(--teal); outline-offset:2px;}
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="t">WORLD&rarr;TWIN</span> PRESS &mdash; MONTE CARLO FICTION &rarr; OPERATOR-TWIN v2</h1>
+  <p>Samples counterfactual histories of immersive media from a weighted milestone graph, then compiles each
+  world into a valid twin.json &mdash; one BEFLIX shot per milestone, Crystal-Image branch shots, class-keyed
+  ending shots, per-beat voiceover. Deterministic: same seed, same film.</p>
+</header>
+
+<div id="controls">
+  <div class="ctl"><label>SENSORY</label><div class="seg" data-axis="sensory"><button data-v="low">LOW</button><button data-v="high" class="on">HIGH</button></div></div>
+  <div class="ctl"><label>INTERACTION</label><div class="seg" data-axis="interaction"><button data-v="low">LOW</button><button data-v="high" class="on">HIGH</button></div></div>
+  <div class="ctl"><label>INSTITUTIONAL</label><div class="seg" data-axis="institutional"><button data-v="low">LOW</button><button data-v="high" class="on">HIGH</button></div></div>
+  <div class="ctl"><label>SCALE</label><div class="seg" data-axis="scale"><button data-v="low" class="on">LOW</button><button data-v="high">HIGH</button></div></div>
+  <div class="ctl"><label>WORLDS</label><input type="number" id="nWorlds" value="20" min="1" max="64"></div>
+  <div class="ctl"><label>BASE SEED</label><input type="number" id="baseSeed" value="88231"></div>
+  <button class="btn" id="genBtn">GENERATE ENSEMBLE</button>
+  <button class="btn blue" id="compileAllBtn" disabled>COMPILE ALL FILMS</button>
+</div>
+
+<div id="metrics"><span class="chip" style="color:var(--dim); border:none;">No ensemble yet. Set a theme profile and generate.</span></div>
+<div id="grid"></div>
+
+<div id="player" aria-modal="true" role="dialog">
+  <div id="pbox">
+    <div id="ptitle"></div>
+    <canvas id="screen" width="128" height="96"></canvas>
+    <div id="pctl">
+      <button class="btn" id="playBtn">PLAY</button>
+      <input type="range" id="scrub" min="1" max="1" value="1">
+      <span id="fread"></span>
+      <button class="btn amber" id="closeBtn">CLOSE</button>
+    </div>
+    <div id="subs"><div class="stext"></div><div class="vo"></div><div class="rel"></div></div>
+  </div>
+</div>
+
+<footer>WORLD&rarr;TWIN theory, Module 7 (Twin Compiler). Law A: trace conservation &mdash; the compiler adds form,
+never events. Law B: lexicon conservation &mdash; a shared milestone renders identically in every film, so the
+funnel is visible as montage. Shade discipline: documented 6&ndash;7, inferred 4&ndash;5, speculative 3 dotted,
+counterfactual drawn in negative. Screen renders shade 7 bright.</footer>
+
+<script>
+/*CORE-START*/
+"use strict";
+/* ============================================================
+   POWER-OF-10 CEILINGS (named loop bounds)
+   ============================================================ */
+const LIM = {
+  MAX_STEPS: 24,          // milestones per sampled chain
+  MAX_WORLDS: 64,         // ensemble size
+  MAX_FRAMES: 4096,       // frames per twin
+  MAX_SHOT_FRAMES: 256,   // frames per shot
+  MAX_ALTS: 4,            // corridors drawn in a branch shot
+  MAX_CMDS: 640,          // commands per frame
+  MAX_LINKS: 16,          // lattice links per frame
+  MAX_SNOW: 16,           // snow particles
+  MAX_CROWD: 32           // crowd dots
+};
+const FPS = 8, W = 128, H = 96;
+
+/* ============================================================
+   SEEDED PRNG — mulberry32 (world seed spends ALL randomness;
+   the compiler consumes none)
+   ============================================================ */
+function mulberry32(seed){
+  let a = seed | 0;
+  return function(){
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ============================================================
+   MILESTONE GRAPH — the possibility field
+   status: documented | inferred | speculative | counterfactual
+   ============================================================ */
+const MILESTONES = {
+  "3d-golden":       {title:"3D FILM GOLDEN ERA",           date:1952, status:"documented",
+    fn:"Perception-Image_PAST", sfx:"projector-ignition",
+    vo:"An audience wearing paper glasses learns that the screen can reach outward."},
+  "telesphere":      {title:"HEILIG TELESPHERE MASK",       date:1960, status:"documented",
+    fn:"Affection-Image", sfx:"strap-click",
+    vo:"Heilig straps the cinema directly onto a single human face."},
+  "sensorama":       {title:"SENSORAMA",                    date:1962, status:"documented",
+    fn:"Affection-Image", sfx:"arcade-murmur",
+    vo:"A machine that touched every sense at once, and asked nothing back."},
+  "ultimate-display":{title:"THE ULTIMATE DISPLAY",         date:1965, status:"documented",
+    fn:"Opsign", sfx:"chalk-on-board",
+    vo:"Sutherland names the endpoint: a room that is itself the display."},
+  "damocles":        {title:"SWORD OF DAMOCLES",            date:1968, status:"documented",
+    fn:"Action-Image", sfx:"chain-creak",
+    vo:"The first headset hangs from the ceiling, too heavy for a head."},
+  "public-grid":     {title:"PUBLIC SENSORIUM GRID",        date:1972, status:"counterfactual",
+    fn:"Crystal-Image_FUTURE", sfx:"plaza-voices", terminal:true, ending:"CIVIC SENSORIUM",
+    vo:"In this history, the sensorium is built as civic infrastructure."},
+  "nasa-view":       {title:"NASA VIEW PROGRAM",            date:1985, status:"documented",
+    fn:"Perception-Image", sfx:"telemetry-tick",
+    vo:"The state funds telepresence; immersion becomes an instrument of agencies."},
+  "vpl":             {title:"VPL RESEARCH",                 date:1987, status:"documented",
+    fn:"Action-Image", sfx:"glove-fabric",
+    vo:"Two gloved hands meet in a shared synthetic room."},
+  "arcade-era":      {title:"VR ARCADE DOMINANCE",          date:1991, status:"counterfactual",
+    fn:"Crystal-Image_PRESENT", sfx:"coin-drop", terminal:true, ending:"SOCIAL ARCADE PERSISTENCE",
+    vo:"Immersion stays social, coin fed, and loud, cabinet by cabinet."},
+  "vr-winter":       {title:"THE VR WINTER",                date:1996, status:"inferred",
+    fn:"Sonsign", sfx:"wind-over-snow",
+    vo:"The market exhales. Headsets go quiet in storage for a decade."},
+  "oculus":          {title:"OCULUS RIFT KICKSTARTER",      date:2012, status:"documented",
+    fn:"Action-Image", sfx:"pledge-tick",
+    vo:"A crowd funds the revival, one small pledge at a time."},
+  "consumer-vr":     {title:"CONSUMER VR LAUNCH",           date:2016, status:"documented",
+    fn:"Perception-Image", sfx:"shrinkwrap-tear",
+    vo:"Immersion arrives in living rooms, boxed, tethered, and priced."},
+  "open-standard":   {title:"OPEN EMBODIMENT STANDARD",     date:2019, status:"speculative",
+    fn:"Crystal-Image_FUTURE", sfx:"handshake-tone", terminal:true, ending:"OPEN EMBODIMENT COMMONS",
+    vo:"A protocol, not a product: embodiment becomes a commons."},
+  "vision-pro":      {title:"APPLE VISION PRO",             date:2024, status:"documented",
+    fn:"Recollection-Image", sfx:"seal-hiss", terminal:true, ending:"PLATFORM-CONTROLLED ENCLOSURE",
+    vo:"The room seals. The platform decides what the senses receive."}
+};
+
+/* transitions: base weight w, theme modifiers keyed "<axis>_<level>".
+   All destinations are later-dated than their source (ordering invariant). */
+const TRANSITIONS = {
+  "3d-golden": [
+    {to:"telesphere", w:0.45, mods:{sensory_high:1.5}},
+    {to:"sensorama",  w:0.55, mods:{sensory_high:1.7}}],
+  "telesphere": [
+    {to:"sensorama",        w:0.60, mods:{sensory_high:1.3}},
+    {to:"ultimate-display", w:0.40, mods:{institutional_high:1.5}}],
+  "sensorama": [
+    {to:"ultimate-display", w:0.70, mods:{institutional_high:1.5}},
+    {to:"arcade-era",       w:0.30, mods:{scale_high:1.7, interaction_high:1.3}}],
+  "ultimate-display": [
+    {to:"damocles",    w:0.70, mods:{sensory_high:1.2}},
+    {to:"public-grid", w:0.30, mods:{institutional_high:1.6, scale_high:1.5}}],
+  "damocles": [
+    {to:"nasa-view", w:0.45, mods:{institutional_high:2.0}},
+    {to:"vpl",       w:0.35, mods:{interaction_high:1.6}},
+    {to:"vr-winter", w:0.20, mods:{sensory_low:1.4}}],
+  "nasa-view": [
+    {to:"vpl",           w:0.55, mods:{interaction_high:1.4}},
+    {to:"open-standard", w:0.20, mods:{institutional_high:1.4}},
+    {to:"vr-winter",     w:0.25, mods:{scale_low:1.3}}],
+  "vpl": [
+    {to:"vr-winter",     w:0.40, mods:{scale_low:1.3}},
+    {to:"oculus",        w:0.25, mods:{scale_high:1.4}},
+    {to:"arcade-era",    w:0.15, mods:{scale_high:1.6}},
+    {to:"open-standard", w:0.20, mods:{interaction_high:1.5}}],
+  "vr-winter": [
+    {to:"oculus",        w:0.85, mods:{scale_high:1.2}},
+    {to:"open-standard", w:0.15, mods:{institutional_high:1.5}}],
+  "oculus": [
+    {to:"consumer-vr",   w:0.85, mods:{scale_high:1.3}},
+    {to:"open-standard", w:0.15, mods:{interaction_high:1.6}}],
+  "consumer-vr": [
+    {to:"vision-pro",    w:0.85, mods:{sensory_high:1.2, scale_high:1.2}},
+    {to:"open-standard", w:0.15, mods:{institutional_high:1.4}}]
+};
+
+/* ============================================================
+   SIMULATION ENGINE — one reproducible world per seed
+   ============================================================ */
+function sampleWorld(seed, profile, index){
+  const rnd = mulberry32(seed);
+  let cur = "3d-golden";
+  const chain = [cur], trace = [], branches = [];
+  for(let step = 0; step < LIM.MAX_STEPS; step++){
+    const m = MILESTONES[cur];
+    if(m.terminal) break;
+    const edges = TRANSITIONS[cur] || [];
+    if(!edges.length) break;
+    const weighted = edges.map(e => {
+      let wgt = e.w; const applied = [];
+      for(const key in (e.mods || {})){
+        const [axis, level] = key.split("_");
+        if(profile[axis] === level){ wgt *= e.mods[key]; applied.push({axis, level, x:e.mods[key]}); }
+      }
+      return {to:e.to, base:e.w, wgt, applied};
+    });
+    const total = weighted.reduce((s,e)=>s+e.wgt, 0);
+    const probs = weighted.map(e => ({...e, p: e.wgt/total}));
+    const r = rnd();
+    let acc = 0, chosen = probs[probs.length-1];
+    for(const cand of probs){ acc += cand.p; if(r <= acc){ chosen = cand; break; } }
+    const entry = {from:cur, eligible:probs.map(p=>({to:p.to, base:p.base, p:+p.p.toFixed(3), applied:p.applied})),
+                   sample:+r.toFixed(3), chosen:chosen.to, prob:+chosen.p.toFixed(3)};
+    trace.push(entry);
+    if(probs.length > 1) branches.push(entry);
+    chain.push(chosen.to);
+    cur = chosen.to;
+  }
+  const term = MILESTONES[cur];
+  return {
+    id: "vr-immersion-" + String(index).padStart(4,"0"),
+    seed, profile: {...profile}, chain, trace, branches,
+    endingMilestone: cur,
+    ending: (term.terminal && term.ending) ? term.ending : "UNRESOLVED FIELD",
+    twin: null, validation: null
+  };
+}
+
+function analyzeEnsemble(worlds){
+  const N = worlds.length;
+  const chains = worlds.map(w => w.chain.join(">"));
+  const uniqueChains = new Set(chains).size;
+  const endCount = {};
+  worlds.forEach(w => endCount[w.ending] = (endCount[w.ending]||0)+1);
+  const uniqueEndings = Object.keys(endCount).length;
+  const repeated = worlds.filter(w => endCount[w.ending] > 1).length;
+  return {
+    worlds: N,
+    uniqueChainRate: uniqueChains / N,
+    uniqueEndings,
+    repeatedEndingRate: repeated / N,
+    endingDistribution: endCount
+  };
+}
+
+/* ============================================================
+   BEFLIX HELPERS
+   ============================================================ */
+const CLR = v => "CLR " + (v|0);
+const PNT = (x,y,w,h,v) => "PNT " + [Math.round(x),Math.round(y),Math.round(w),Math.round(h),(v|0)].join(" ");
+const LIN = (x1,y1,x2,y2,v) => "LIN " + [Math.round(x1),Math.round(y1),Math.round(x2),Math.round(y2),(v|0)].join(" ");
+const clampShade = v => Math.max(0, Math.min(7, Math.round(v)));
+
+function shadesFor(status){
+  if(status === "counterfactual") return {bg:7, fg:0, mid:1, haze:2, neg:true};
+  if(status === "speculative")    return {bg:0, fg:3, mid:3, haze:1, dotted:true};
+  if(status === "inferred")       return {bg:0, fg:5, mid:4, haze:2};
+  return {bg:0, fg:6, hi:7, mid:4, haze:2};
+}
+
+/* 3x5 dot-matrix font (rows top to bottom, 3 bits per row) */
+const FONT = {
+  A:"010101111101101", B:"110101110101110", C:"011100100100011", D:"110101101101110",
+  E:"111100111100111", F:"111100111100100", G:"011100101101011", H:"101101111101101",
+  I:"111010010010111", J:"011001001101010", K:"101101110101101", L:"100100100100111",
+  M:"101111111101101", N:"110101101101101", O:"010101101101010", P:"110101110100100",
+  Q:"010101101011001", R:"110101110101101", S:"011100010001110", T:"111010010010010",
+  U:"101101101101011", V:"101101101010010", W:"101101111111101", X:"101101010101101",
+  Y:"101101010010010", Z:"111001010100111",
+  "0":"111101101101111","1":"010110010010111","2":"110001010100111","3":"111001011001111",
+  "4":"101101111001001","5":"111100110001110","6":"011100110101010","7":"111001010010010",
+  "8":"111101111101111","9":"111101111001110","-":"000000111000000",".":"000000000000010",
+  " ":"000000000000000"
+};
+function drawText(cmds, text, cx, y, v, s){
+  s = s || 1;
+  const chars = String(text).toUpperCase().split("");
+  const width = chars.length * 4 * s - s;
+  let x = Math.round(cx - width/2);
+  for(const ch of chars){
+    const g = FONT[ch] || FONT[" "];
+    for(let i = 0; i < 15; i++){
+      if(g[i] === "1") cmds.push(PNT(x + (i%3)*s, y + Math.floor(i/3)*s, s, s, v));
+    }
+    x += 4*s;
+  }
+}
+function dottedRect(cmds, x, y, w, h, v){
+  for(let yy = 0; yy < h; yy += 2)
+    for(let xx = 0; xx < w; xx += 2)
+      cmds.push(PNT(x+xx, y+yy, 1, 1, v));
+}
+/* registration dot: guarantees adjacent motion frames differ (film sprocket mark) */
+function reg(cmds, k, neg){ cmds.push(PNT(k % W, H-1, 1, 1, neg ? 0 : 2)); }
+
+/* ============================================================
+   VISUAL LEXICON — one recipe per milestone (Law B: identical
+   silhouette + mark in every film). draw(t, k) -> commands.
+   ============================================================ */
+const LEXICON = {
+  "3d-golden": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(PNT(34,10,60,32,1));                                   // screen field
+    c.push(LIN(34,10,94,10,sh.mid), LIN(34,42,94,42,sh.mid));     // screen frame
+    c.push(PNT(36 + (k*2)%54, 14, 4, 24, sh.fg));                 // bright bar crossing the screen
+    for(let r = 0; r < 3; r++) for(let i = 0; i < 11; i++){       // audience rows
+      const x = 12 + i*10, y = 58 + r*10;
+      c.push(PNT(x, y, 4, 4, sh.mid));
+      c.push(PNT(x, y+1, 4, 1, sh.hi));                            // the paper-glasses mark
+    }
+    reg(c,k); return c; },
+
+  "telesphere": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(PNT(70,38,14,18,sh.mid), PNT(72,32,10,8,sh.mid));      // head + crown
+    c.push(PNT(70,56,14,22,sh.haze));                              // shoulders
+    const mx = 26 + t*36;                                          // mask approaches the face
+    c.push(PNT(mx,40,12,12,sh.fg), PNT(mx+10,44,4,4,sh.hi));      // mask + eyepiece mark
+    c.push(LIN(mx+12,42,84,36,sh.haze), LIN(mx+12,50,84,56,sh.haze)); // straps
+    reg(c,k); return c; },
+
+  "sensorama": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(PNT(72,26,22,48,sh.mid));                               // cabinet
+    c.push(PNT(66,36,8,12,sh.fg));                                 // viewing hood — the mark
+    c.push(LIN(72,26,94,26,sh.hi));
+    const hx = 46 + t*12;                                          // rider leans in
+    c.push(PNT(hx,40,7,7,sh.fg));                                  // head
+    c.push(PNT(hx-3,48,10,14,sh.mid));                             // torso
+    c.push(LIN(hx-3,62,hx-8,74,sh.mid), LIN(hx+7,62,hx+4,74,sh.mid)); // seated legs
+    c.push(LIN(30,74,110,74,sh.haze));                             // floor
+    reg(c,k); return c; },
+
+  "ultimate-display": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(LIN(24,16,104,16,sh.fg), LIN(24,80,104,80,sh.fg));      // the room-as-frame
+    c.push(LIN(24,16,24,80,sh.fg), LIN(104,16,104,80,sh.fg));
+    const sweep = 26 + t*76;                                       // interior emptied by a sweep
+    c.push(PNT(26,18,Math.max(1,sweep-26),60,1));
+    c.push(PNT(sweep,18,2,60,sh.hi));
+    c.push(PNT(63,47,2,2,sh.hi));                                  // the remaining point of attention
+    reg(c,k); return c; },
+
+  "damocles": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(LIN(0,8,127,8,sh.fg));                                  // ceiling — the mark
+    const hy = 14 + t*30;                                          // headset descends
+    c.push(LIN(64,8,64,hy,sh.mid));                                // strut
+    c.push(PNT(56,hy,16,7,sh.hi));                                 // headset
+    c.push(PNT(58,52,12,10,sh.mid), PNT(56,62,16,16,sh.haze));     // head + body waiting below
+    c.push(LIN(20,84,108,84,sh.haze));
+    reg(c,k); return c; },
+
+  "nasa-view": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(LIN(8,6,120,6,sh.mid), LIN(8,88,120,88,sh.mid));        // institutional border — the mark
+    c.push(LIN(8,6,8,88,sh.mid), LIN(120,6,120,88,sh.mid));
+    for(let i = 1; i < 4; i++){ c.push(LIN(8, 6+i*20, 120, 6+i*20, 1)); }
+    for(let i = 1; i < 6; i++){ c.push(LIN(8+i*19, 6, 8+i*19, 88, 1)); }
+    const step = Math.round(t*40);                                 // gloved hand rasters the grid
+    const gx = 14 + (step*9) % 100, gy = 14 + Math.floor((step*9)/100)*20;
+    c.push(PNT(gx,gy,8,6,sh.hi), PNT(gx+8,gy+2,3,2,sh.fg));
+    c.push(PNT(90,70,4,4,sh.mid), PNT(30,30,4,4,sh.mid));          // telemetry objects
+    reg(c,k); return c; },
+
+  "vpl": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    const lift = Math.round(Math.sin(t*Math.PI)*10);
+    c.push(PNT(28,34,8,8,sh.mid), PNT(26,44,12,18,sh.haze));       // left figure
+    c.push(PNT(92,34,8,8,sh.mid), PNT(90,44,12,18,sh.haze));       // right figure
+    c.push(LIN(38,50,58,50-lift,sh.fg), LIN(90,50,70,50-lift,sh.fg)); // reaching arms
+    c.push(PNT(56,47-lift,5,5,sh.hi), PNT(67,47-lift,5,5,sh.hi));  // the datagloves — the mark
+    c.push(LIN(16,72,112,72,1));
+    reg(c,k); return c; },
+
+  "vr-winter": (t,k) => { const sh = shadesFor("inferred"); const c = [CLR(sh.bg)];
+    c.push(LIN(0,66,127,66,sh.haze));                              // horizon
+    c.push(PNT(30,52,14,14,1), PNT(80,50,16,16,1));                // dark cabinets in storage
+    const fv = clampShade(4 - t*3);                                // a figure fading
+    c.push(PNT(58,46,8,8,fv), PNT(56,54,12,12,Math.max(1,fv-1)));
+    for(let i = 0; i < LIM.MAX_SNOW; i++){                         // snow — the mark
+      c.push(PNT((i*37 + k*2) % W, (i*23 + k*3) % 66, 1, 1, 2));
+    }
+    reg(c,k); return c; },
+
+  "oculus": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(LIN(14,80,114,80,sh.mid));                              // baseline
+    for(let i = 0; i < 8; i++){                                    // ascending pledge bars — the mark
+      const hgt = Math.round(Math.min(1, t*1.3) * (8 + i*6));
+      c.push(PNT(18 + i*12, 80 - hgt, 8, Math.max(1,hgt), sh.fg));
+    }
+    const crowd = Math.min(LIM.MAX_CROWD, Math.round(t*LIM.MAX_CROWD));
+    for(let i = 0; i < crowd; i++){                                // the crowd assembling
+      c.push(PNT((i*41) % 100 + 14, 10 + (i*17) % 24, 2, 2, sh.mid));
+    }
+    reg(c,k); return c; },
+
+  "consumer-vr": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(LIN(0,78,127,78,sh.haze));                              // floor
+    c.push(PNT(44,60,40,16,sh.haze));                              // sofa
+    c.push(PNT(58,42,10,10,sh.mid), PNT(58,42,10,4,sh.hi));        // seated figure, headset on — the mark
+    c.push(PNT(56,52,14,10,sh.mid));
+    const wall = Math.round(t*30);                                 // the walls arrive
+    c.push(LIN(wall,10,wall,78,sh.fg), LIN(127-wall,10,127-wall,78,sh.fg));
+    c.push(LIN(96,58,110,58,1), LIN(96,58,96,76,1));               // tether
+    reg(c,k); return c; },
+
+  "vision-pro": (t,k) => { const sh = shadesFor("documented"); const c = [CLR(sh.bg)];
+    c.push(PNT(60,38,8,8,sh.fg), PNT(58,47,12,16,sh.mid));         // the single user
+    const th = 1 + Math.round(t*10);                               // frame thickens until it seals — the mark
+    c.push(PNT(20,12,88,th,sh.hi), PNT(20,84-th,88,th,sh.hi));
+    c.push(PNT(20,12,th,72,sh.hi), PNT(108-th,12,th,72,sh.hi));
+    reg(c,k); return c; },
+
+  "public-grid": (t,k) => { const sh = shadesFor("counterfactual"); const c = [CLR(sh.bg)];
+    const N = 7;
+    for(let i = 0; i < N; i++){                                    // plaza of figures (negative field)
+      const x = 18 + i*15, y = 60 + Math.round(Math.sin((i + k*0.2))*3);
+      c.push(PNT(x,y,5,5,sh.fg), PNT(x,y+6,5,8,sh.mid));
+    }
+    const links = Math.min(LIM.MAX_LINKS, Math.round(t*12));       // civic links growing — the mark
+    for(let i = 0; i < links; i++){
+      c.push(LIN(20 + (i%6)*15, 58, 20 + ((i%6)+1)*15, 44 - (i%3)*6, sh.mid));
+    }
+    reg(c,k,true); return c; },
+
+  "open-standard": (t,k) => { const sh = shadesFor("speculative"); const c = [CLR(sh.bg)];
+    for(let i = 0; i < 12; i++){                                   // dotted lattice nodes — the mark
+      dottedRect(c, 12 + (i%4)*32, 16 + Math.floor(i/4)*26, 5, 5, sh.fg);
+    }
+    const links = Math.min(LIM.MAX_LINKS, Math.round(t*LIM.MAX_LINKS));
+    for(let i = 0; i < links; i++){                                // links extend, finally past the border
+      const x1 = 14 + (i%4)*32, y1 = 18 + (Math.floor(i/4)%3)*26;
+      const x2 = x1 + 32 + (i > 9 ? 20 : 0), y2 = y1 + (i%2 ? 26 : 0);
+      c.push(LIN(x1,y1,x2,y2,sh.fg));
+    }
+    reg(c,k); return c; },
+
+  "arcade-era": (t,k) => { const sh = shadesFor("counterfactual"); const c = [CLR(sh.bg)];
+    for(let i = 0; i < 4; i++){                                    // cabinet row (negative field) — the mark
+      const x = 12 + i*28;
+      c.push(PNT(x,34,18,30,sh.mid));
+      c.push(PNT(x+2,38,14,8,(k+i)%2 === 0 ? sh.fg : sh.mid));     // marquee flicker
+      c.push(PNT(x+4,66,4,4,sh.fg), PNT(x+11,66,4,4,sh.fg));       // paired players
+      c.push(PNT(x+3,70,6,8,sh.mid), PNT(x+10,70,6,8,sh.mid));
+    }
+    reg(c,k,true); return c; }
+};
+
+/* opening shot (not a milestone) */
+function drawOpening(t,k){
+  const c = [CLR(0)];
+  c.push(LIN(0,62,127,62,2));
+  c.push(LIN(0,70,127,68,1));
+  c.push(PNT(63,45,2,2,clampShade(1 + t*5)));   // one point of attention, brightening
+  reg(c,k); return c;
+}
+
+/* branch shot: corridors — chosen center brightens, rejected dim, extinguished at end */
+function makeBranchDraw(alts, chosenIdx){
+  const n = Math.min(alts.length, LIM.MAX_ALTS);
+  return (t,k,bf) => {
+    const c = [CLR(0)];
+    const vx = 64, vy = 18;
+    for(let i = 0; i < n; i++){
+      const isChosen = (i === chosenIdx);
+      const baseX = 16 + i * (96/Math.max(1,n-1));
+      const lastFrames = (bf - k) <= 2;
+      if(!isChosen && lastFrames) continue;                         // rejected futures extinguish
+      const v = isChosen ? clampShade(4 + t*3) : (i%2 ? 1 : 2);
+      c.push(LIN(baseX-8, 88, vx-3, vy, v));
+      c.push(LIN(baseX+8, 88, vx+3, vy, v));
+      c.push(PNT(baseX-5, 84, 10, 2, v));
+    }
+    c.push(PNT(62, 14, 4, 4, clampShade(3 + t*4)));                 // the vanishing point
+    reg(c,k); return c;
+  };
+}
+
+/* ending shots keyed by ENDING CLASS (invariant 6.7: convergence is visible) */
+const ENDING_DRAWS = {
+  "PLATFORM-CONTROLLED ENCLOSURE": (t,k) => {
+    const c = [CLR(0)];
+    c.push(PNT(60,40,8,8,6), PNT(58,49,12,14,4));
+    const th = 2 + Math.round(t*14);
+    c.push(PNT(16,10,96,th,7), PNT(16,86-th,96,th,7));
+    c.push(PNT(16,10,th,76,7), PNT(112-th,10,th,76,7));
+    if(t > 0.85) c.push(PNT(63,44,2,2,(k%2)?7:5));                  // a breathing dot inside the seal
+    reg(c,k); return c; },
+  "CIVIC SENSORIUM": (t,k) => {
+    const c = LEXICON["public-grid"](Math.min(1, 0.8 + t*0.2), k);
+    return c; },
+  "OPEN EMBODIMENT COMMONS": (t,k) => {
+    const c = LEXICON["open-standard"](1, k);
+    c.push(LIN(110, 20, 140, 12, 3), LIN(112, 60, 150, 70, 3));     // the lattice leaves the frame
+    c.push(LIN(14, 16, -20, 6, 3));
+    return c; },
+  "SOCIAL ARCADE PERSISTENCE": (t,k) => LEXICON["arcade-era"](1,k),
+  "UNRESOLVED FIELD": (t,k) => {
+    const c = [CLR(0)];
+    for(let i = 0; i < 20; i++) c.push(PNT((i*53+k*7)%W, (i*31+k*5)%90, 1, 1, 2));
+    reg(c,k); return c; }
+};
+const ENDING_VO = {
+  "PLATFORM-CONTROLLED ENCLOSURE": "Many paths end here. The frame thickens until it seals.",
+  "CIVIC SENSORIUM": "The grid holds. Presence remains a public utility.",
+  "OPEN EMBODIMENT COMMONS": "The lattice outgrows its border. No one owns the room.",
+  "SOCIAL ARCADE PERSISTENCE": "The cabinets keep humming. Immersion stays a place you visit.",
+  "UNRESOLVED FIELD": "The sample ended before the field resolved."
+};
+
+/* ============================================================
+   AUDIO CASTER
+   ============================================================ */
+function chapterFor(date){
+  if(date < 1970) return "ACT I - THE APPARATUS";
+  if(date < 2000) return "ACT II - THE INSTITUTION";
+  return "ACT III - THE PLATFORM";
+}
+function roomToneFor(date, status){
+  if(status === "counterfactual") return "inverted-air";
+  if(date < 1970) return "hall-murmur";
+  if(date < 2000) return "lab-hum";
+  return "server-hum";
+}
+function branchVO(entry){
+  const n = entry.eligible.length;
+  const words = ["zero","one","two","three","four"];
+  const chosen = entry.eligible.find(e => e.to === entry.chosen);
+  let modNote = "No modifier moved the field.";
+  if(chosen && chosen.applied.length){
+    const a = chosen.applied[0];
+    modNote = a.axis.charAt(0).toUpperCase() + a.axis.slice(1) +
+      " weight multiplied the chosen path by " + a.x + ".";
+  }
+  const w = (words[n] || n);
+  return w.charAt(0).toUpperCase() + w.slice(1) + " futures were eligible. " + modNote +
+         " The sample fell at point " + String(entry.sample).slice(2) + ".";
+}
+
+/* ============================================================
+   SHOT PLANNER — world traces -> ordered shot plan (Law A)
+   ============================================================ */
+function planShots(world){
+  const shots = [];
+  const themeLabel = ["sensory","interaction","institutional","scale"]
+    .map(a => a.slice(0,3).toUpperCase() + " " + world.profile[a].toUpperCase()).join("  ");
+
+  shots.push({                                                      // S0 title card
+    src:"title", kind:"card", fn:"Opsign", sec:2, chapter:"PROLOGUE", room:"THE-PRESS",
+    relation:"open: the world card", screen_text:world.id.toUpperCase(),
+    vo:"One sampled history of immersion.", sfx:"projector-ignition", tone:"hall-murmur",
+    draw:(t,k) => {
+      const c = [CLR(0)];
+      drawText(c, world.id, 64, 30, 7, 1);
+      const axes = ["sensory","interaction","institutional","scale"];
+      for(let i = 0; i < 4; i++){
+        const hi = world.profile[axes[i]] === "high";
+        drawText(c, axes[i].slice(0,3), 30, 48 + i*9, 3, 1);
+        c.push(PNT(46, 49 + i*9, hi ? 40 : 12, 3, hi ? 6 : 2));
+      }
+      return c;
+    }});
+
+  shots.push({                                                      // S1 opening state
+    src:"opening", kind:"motion", fn:"Perception-Image_PAST", sec:4,
+    chapter:"ACT I - THE APPARATUS", room:"THE-FLAT-FIELD",
+    relation:"open: the field before immersion", screen_text:"BEFORE IMMERSION",
+    vo:"Before immersion, a flat field, and one point of attention.",
+    sfx:"room-tone-rise", tone:"hall-murmur", draw:drawOpening});
+
+  for(let i = 0; i < world.chain.length; i++){
+    const mid = world.chain[i], m = MILESTONES[mid];
+    const traceIn = world.trace.find(e => e.chosen === mid);
+    if(traceIn && traceIn.eligible.length > 1){                     // branch shot before the chosen milestone
+      const chosenIdx = traceIn.eligible.findIndex(e => e.to === traceIn.chosen);
+      shots.push({
+        src:"branch:"+traceIn.from, kind:"motion", fn:"Crystal-Image", sec:8,
+        chapter:chapterFor(m.date), room:"THE-BRANCH",
+        relation:"branch: " + traceIn.eligible.length + " futures eligible after " + MILESTONES[traceIn.from].title,
+        screen_text:traceIn.eligible.length + " FUTURES ELIGIBLE",
+        vo:branchVO(traceIn), sfx:"held-breath", tone:"lab-hum",
+        draw:makeBranchDraw(traceIn.eligible, chosenIdx), needsBF:true});
+    }
+    const prob = traceIn ? traceIn.prob : 1;
+    const sec = Math.max(5, Math.min(11, Math.round(5 + 6*(1 - prob)))); // improbable events earn screen time
+    shots.push({
+      src:mid, kind:"motion", fn:m.fn, sec,
+      chapter:chapterFor(m.date), room:mid.toUpperCase(),
+      relation:"milestone: " + m.title + " (" + m.date + ", " + m.status + ")",
+      screen_text:m.title, vo:m.vo, sfx:m.sfx, tone:roomToneFor(m.date, m.status),
+      draw:LEXICON[mid]});
+  }
+
+  shots.push({                                                      // ending shot, keyed by class
+    src:"ending", kind:"motion", fn:"Crystal-Image_FUTURE", sec:8,
+    chapter:"EPILOGUE", room:"THE-ENDING-CLASS",
+    relation:"ending: " + world.ending, screen_text:world.ending,
+    vo:ENDING_VO[world.ending] || ENDING_VO["UNRESOLVED FIELD"],
+    sfx:"the-seal-hiss", tone:"server-hum",
+    draw:ENDING_DRAWS[world.ending] || ENDING_DRAWS["UNRESOLVED FIELD"]});
+
+  shots.push({                                                      // ending card
+    src:"ending-card", kind:"card", fn:"Recollection-Image", sec:2,
+    chapter:"EPILOGUE", room:"THE-LEDGER",
+    relation:"close: the ledger", screen_text:world.ending,
+    vo:"The ledger closes.", sfx:"single-tick", tone:"server-hum",
+    draw:(t,k) => {
+      const c = [CLR(0)];
+      const parts = world.ending.split(" ");
+      const lines = []; let line = "";
+      for(const p of parts){
+        if((line + " " + p).trim().length > 18){ lines.push(line.trim()); line = p; }
+        else line = (line + " " + p);
+      }
+      if(line.trim()) lines.push(line.trim());
+      lines.forEach((ln, i) => drawText(c, ln, 64, 36 + i*8, 7, 1));
+      drawText(c, "SEED " + world.seed, 64, 66, 3, 1);
+      return c;
+    }});
+  return shots;
+}
+
+/* ============================================================
+   FRAME EMITTER + ASSEMBLER — shot plan -> twin.json
+   ============================================================ */
+function compileTwin(world){
+  const prefix = "vri";
+  const shots = planShots(world);
+  const nodes = [], edl = [];
+  let counter = 0, prev = null;
+  const canonical = [];
+
+  for(let s = 0; s < shots.length; s++){
+    const shot = shots[s];
+    const bf = Math.min(LIM.MAX_SHOT_FRAMES, Math.max(1, Math.round(shot.sec * FPS)));
+    shot.beat_frames = bf;
+    canonical.push("s" + String(s).padStart(2,"0") + "-" + shot.src);
+    for(let k = 0; k < bf; k++){
+      if(nodes.length >= LIM.MAX_FRAMES) break;
+      const t = bf > 1 ? k/(bf-1) : 0;
+      const cmds = shot.kind === "card"
+        ? shot.draw(0, 0)                                           // held cards: identical frames
+        : (shot.needsBF ? shot.draw(t, k, bf) : shot.draw(t, k)).slice(0, LIM.MAX_CMDS);
+      counter++;
+      const id = prefix + String(counter).padStart(10, "0");
+      const node = {id, parent: prev ? prev.id : null, author:"OPER", kids:[], commands:cmds};
+      if(prev) prev.kids = [id];
+      nodes.push(node);
+      const entry = {
+        frame:nodes.length, id, parent:node.parent, author:"OPER", author_label:"YOU",
+        relation:shot.relation, children:[], commands:cmds,
+        image_function:shot.fn, kind:shot.kind, beat_frames:bf
+      };
+      if(k === 0){
+        entry.screen_text = shot.screen_text;
+        entry.duration_seconds = shot.sec;
+        entry.chapter = shot.chapter;
+        entry.room = shot.room;
+        entry.sound = shot.sfx;
+        entry.audio = {
+          voiceover:{text:shot.vo, voice:"calm-baritone", rate:0.95, pitch:0.0, start_s:0.0, lang:"en"},
+          sfx:[{cue:shot.sfx, at_s:0.0, gain_db:-6}],
+          room_tone:shot.tone, silence:false
+        };
+      }
+      edl.push(entry);
+      prev = node;
+    }
+  }
+  for(let i = 0; i < nodes.length; i++) edl[i].children = nodes[i].kids.slice();
+
+  const parts = [nodes[0].id + "~" + nodes.length];
+  for(const n of nodes) parts.push(n.id + "|" + (n.parent || "") + "|" + n.author + ">" + n.commands.join("\n"));
+  const tree = parts.join("\u000C");
+
+  const runtime = nodes.length / FPS;
+  const mm = Math.floor(runtime/60), ss = Math.round(runtime%60);
+  const fns = ["Perception-Image","Action-Image","Affection-Image","Opsign","Sonsign","Crystal-Image","Recollection-Image"];
+  const matrix = layer => fns.map((fn,i) => {
+    const mid = world.chain[i % world.chain.length];
+    return [fn + "_" + layer, "The " + layer.toLowerCase() + " of " + MILESTONES[mid].title.toLowerCase() + ", rendered as " + fn.toLowerCase() + "."];
+  });
+
+  const twin = {
+    format:"operator-twin", v:2, saved:new Date().toISOString().replace(/\.\d+Z$/,"Z"),
+    width:W, height:H, fps:FPS, me:"OPER",
+    root:nodes[0].id, active:nodes[nodes.length-1].id, collaborator:"THE-ENSEMBLE",
+    frames:nodes.length,
+    activePath:nodes.map(n => n.id),
+    tree, nodes, edl,
+    motion_cut:{
+      title: world.id.toUpperCase() + " - A SAMPLED HISTORY OF IMMERSION",
+      principle:"One BEFLIX shot per sampled milestone; branch points rendered as Crystal-Images with rejected futures dim; ending drawn as a class so convergence is visible across the ensemble.",
+      runtime_seconds:+runtime.toFixed(1),
+      runtime_hms:String(mm).padStart(2,"0") + ":" + String(ss).padStart(2,"0"),
+      twin_fps:FPS,
+      motion_frame_count:edl.filter(e => e.kind === "motion").length,
+      card_count:shots.filter(s => s.kind === "card").length,
+      quote_count:0,
+      canonical_path:canonical
+    },
+    soundtrack:{
+      voice_cast:{narrator:"calm-baritone"},
+      motifs:{sensory:"breath-close", interaction:"paired-taps", institutional:"institutional-hum",
+              scale:"crowd-swell", "the-funnel":"the-seal-hiss"},
+      sound_map:{opening:"single projector ignition", recurring:"the registration tick at frame edge",
+                 silence:"the held breath inside every branch shot",
+                 final:(ENDING_VO[world.ending] ? world.ending.toLowerCase() + " tone" : "static field")},
+      mix:{voice_db:0, music_db:-12, sfx_db:-8, duck_music_under_voice_db:-6}
+    },
+    immersion:{
+      title:"A Sampled History of Immersion",
+      logline:"One trajectory through the immersive-media possibility field, from paper glasses to its terminal class.",
+      thesis:"History is not only what happened; each thing that could have happened is a film, and the shelf of films is the argument.",
+      world_id:world.id, seed:world.seed, theme_profile:world.profile,
+      ending_class:world.ending, chain:world.chain,
+      branch_points:world.branches.length,
+      structure:"title card / opening state / milestone shots with interleaved branch shots / class-keyed ending shot / ending card",
+      source:"Monte Carlo sample from the immersive-media milestone graph (WORLD-TO-TWIN Module 7)",
+      final_image:(ENDING_VO[world.ending] || "").split(".")[0],
+      probability_trace:world.trace,
+      matrix_21:{PAST:matrix("PAST"), PRESENT:matrix("PRESENT"), FUTURE:matrix("FUTURE")}
+    }
+  };
+  return twin;
+}
+
+/* ============================================================
+   TWIN VALIDATOR — spec §1 invariants + theory §6
+   ============================================================ */
+function validateTwin(twin){
+  const checks = [];
+  const ok = (name, pass, detail) => checks.push({name, pass:!!pass, detail:detail || ""});
+
+  ok("format/v/grid/fps", twin.format === "operator-twin" && twin.v === 2 &&
+     twin.width === 128 && twin.height === 96 && twin.fps === 8);
+  ok("frames == nodes == edl == activePath",
+     twin.frames === twin.nodes.length && twin.frames === twin.edl.length &&
+     twin.frames === twin.activePath.length,
+     twin.frames + "/" + twin.nodes.length + "/" + twin.edl.length + "/" + twin.activePath.length);
+  ok("root/active ids", twin.root === twin.nodes[0].id && twin.active === twin.nodes[twin.nodes.length-1].id);
+  ok("activePath mirrors nodes", twin.activePath.every((id,i) => id === twin.nodes[i].id));
+
+  let thread = true;
+  for(let i = 0; i < twin.nodes.length; i++){
+    const n = twin.nodes[i];
+    if(i === 0){ if(n.parent !== null) thread = false; }
+    else if(n.parent !== twin.nodes[i-1].id) thread = false;
+    if(i < twin.nodes.length-1){ if(n.kids.length !== 1 || n.kids[0] !== twin.nodes[i+1].id) thread = false; }
+    else if(n.kids.length !== 0) thread = false;
+    const e = twin.edl[i];
+    if(e.id !== n.id || e.parent !== n.parent || JSON.stringify(e.children) !== JSON.stringify(n.kids)) thread = false;
+  }
+  ok("parent/kids threading + EDL mirror", thread);
+
+  let grammar = true, badCmd = "";
+  outer:
+  for(const n of twin.nodes){
+    for(const c of n.commands){
+      const tok = c.split(" ");
+      const ints = tok.slice(1).every(x => /^-?\d+$/.test(x));
+      const shade = parseInt(tok[tok.length-1], 10);
+      if(tok[0] === "CLR"){ if(tok.length !== 2 || !ints || shade < 0 || shade > 7){ grammar = false; badCmd = c; break outer; } }
+      else if(tok[0] === "PNT" || tok[0] === "LIN"){ if(tok.length !== 6 || !ints || shade < 0 || shade > 7){ grammar = false; badCmd = c; break outer; } }
+      else { grammar = false; badCmd = c; break outer; }
+    }
+  }
+  ok("command grammar (CLR/PNT/LIN only)", grammar, badCmd);
+
+  const segs = twin.tree.split("\u000C");
+  ok("tree segment count == 1 + nodes", segs.length === 1 + twin.nodes.length,
+     segs.length + " vs " + (1 + twin.nodes.length));
+  let round = segs[0] === twin.root + "~" + twin.nodes.length;
+  for(let i = 1; i < segs.length && round; i++){
+    const n = twin.nodes[i-1];
+    const gt = segs[i].indexOf(">");
+    const head = segs[i].slice(0, gt).split("|");
+    const cmds = segs[i].slice(gt+1);
+    if(head[0] !== n.id || head[1] !== (n.parent || "") || head[2] !== n.author ||
+       cmds !== n.commands.join("\n")) round = false;
+  }
+  ok("tree round-trips exactly", round);
+
+  const FNS = ["Perception-Image","Action-Image","Affection-Image","Opsign","Sonsign","Crystal-Image","Recollection-Image"];
+  ok("image_function in the seven types",
+     twin.edl.every(e => FNS.some(f => e.image_function === f || e.image_function.indexOf(f + "_") === 0)));
+
+  let beatOK = true, voOK = true;
+  let i = 0;
+  while(i < twin.edl.length){
+    const e = twin.edl[i];
+    if(!e.screen_text || !e.audio || !e.audio.voiceover || !e.audio.voiceover.text){ beatOK = false; }
+    else {
+      const wordsN = e.audio.voiceover.text.split(/\s+/).length;
+      if(wordsN > e.duration_seconds * 2.6) voOK = false;
+    }
+    i += e.beat_frames;
+  }
+  ok("beat heads carry screen_text + voiceover", beatOK);
+  ok("voiceover speakable within duration", voOK);
+
+  let differ = true;
+  for(let j = 1; j < twin.edl.length; j++){
+    const e = twin.edl[j];
+    if(e.kind === "motion" && twin.edl[j-1].kind === "motion" &&
+       e.relation === twin.edl[j-1].relation &&
+       e.commands.join("|") === twin.edl[j-1].commands.join("|")) { differ = false; break; }
+  }
+  ok("adjacent motion frames differ", differ);
+  ok("meta blocks present", !!(twin.motion_cut && twin.soundtrack && twin.immersion &&
+     Object.keys(twin.soundtrack.sound_map).length > 0));
+
+  return {pass:checks.every(c => c.pass), checks};
+}
+/*CORE-END*/
+
+/* ============================================================
+   UI — ensemble press
+   ============================================================ */
+const $ = s => document.querySelector(s);
+let profile = {sensory:"high", interaction:"high", institutional:"high", scale:"low"};
+let worlds = [];
+
+document.querySelectorAll(".seg").forEach(seg => {
+  seg.addEventListener("click", ev => {
+    const b = ev.target.closest("button"); if(!b) return;
+    seg.querySelectorAll("button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    profile[seg.dataset.axis] = b.dataset.v;
+  });
+});
+
+$("#genBtn").addEventListener("click", () => {
+  const N = Math.min(LIM.MAX_WORLDS, Math.max(1, parseInt($("#nWorlds").value,10) || 20));
+  const base = parseInt($("#baseSeed").value,10) || 88231;
+  worlds = [];
+  for(let i = 0; i < N; i++) worlds.push(sampleWorld(base + i*7919, profile, i+1));
+  renderMetrics(analyzeEnsemble(worlds));
+  renderGrid();
+  $("#compileAllBtn").disabled = false;
+});
+
+$("#compileAllBtn").addEventListener("click", () => {
+  worlds.forEach((w,i) => compileWorld(i));
+});
+
+function renderMetrics(m){
+  const box = $("#metrics"); box.innerHTML = "";
+  const chip = (html, warn) => {
+    const s = document.createElement("span");
+    s.className = "chip" + (warn ? " warn" : ""); s.innerHTML = html; box.appendChild(s);
+  };
+  chip("<b>" + m.worlds + "</b> WORLDS GENERATED");
+  chip("<b>" + Math.round(m.uniqueChainRate*100) + "%</b> UNIQUE MILESTONE CHAINS");
+  chip("<b>" + m.uniqueEndings + "</b> UNIQUE ENDINGS");
+  chip("<b>" + Math.round(m.repeatedEndingRate*100) + "%</b> REPEATED-ENDING RATE",
+       m.repeatedEndingRate > 0.7);
+  if(m.repeatedEndingRate > 0.7)
+    chip("HIGH REPEATED-ENDING RATE - THE FUNNEL WILL BE VISIBLE AS MONTAGE", true);
+  Object.entries(m.endingDistribution).forEach(([k,v]) => chip(v + " &times; " + k));
+}
+
+function renderGrid(){
+  const grid = $("#grid"); grid.innerHTML = "";
+  worlds.forEach((w, idx) => {
+    const card = document.createElement("div");
+    card.className = "card"; card.id = "card-" + idx;
+    const bars = ["sensory","interaction","institutional","scale"].map(a =>
+      '<span class="bar ' + w.profile[a] + '">' + a.slice(0,3).toUpperCase() + "<i></i></span>").join("");
+    const branchFroms = new Set(w.branches.map(b => b.chosen));
+    const chainHTML = w.chain.map(mid => {
+      const m = MILESTONES[mid];
+      const br = branchFroms.has(mid) ? ' <span class="br">&larr;branch</span>' : "";
+      return '<span class="st-' + m.status + '">' + m.date + " " + m.title + "</span>" + br;
+    }).join("<br>");
+    card.innerHTML =
+      '<div class="wid">' + w.id.toUpperCase() + ' <span class="seed">seed ' + w.seed + "</span></div>" +
+      '<div class="bars">' + bars + "</div>" +
+      '<div class="chain">' + chainHTML + "</div>" +
+      '<div class="endc">ENDING CLASS: <b>' + w.ending + "</b> &middot; " + w.branches.length + " branch points</div>" +
+      '<div class="cstat" id="stat-' + idx + '">not compiled</div>' +
+      '<div class="crow">' +
+        '<button class="btn" data-act="compile" data-i="' + idx + '">COMPILE FILM</button>' +
+        '<button class="btn blue" data-act="preview" data-i="' + idx + '" disabled>PREVIEW</button>' +
+        '<button class="btn amber" data-act="download" data-i="' + idx + '" disabled>TWIN.JSON</button>' +
+      "</div>";
+    grid.appendChild(card);
+  });
+  grid.onclick = ev => {
+    const b = ev.target.closest("button[data-act]"); if(!b) return;
+    const i = +b.dataset.i;
+    if(b.dataset.act === "compile") compileWorld(i);
+    if(b.dataset.act === "preview") openPlayer(i);
+    if(b.dataset.act === "download") downloadTwin(i);
+  };
+}
+
+function compileWorld(i){
+  const w = worlds[i];
+  if(!w.twin){
+    w.twin = compileTwin(w);
+    w.validation = validateTwin(w.twin);
+  }
+  const v = w.validation;
+  const passed = v.checks.filter(c => c.pass).length;
+  const stat = $("#stat-" + i);
+  stat.innerHTML = w.twin.frames + " frames &middot; " + w.twin.motion_cut.runtime_hms +
+    " &middot; validation <span class='" + (v.pass ? "ok'>" + passed + "/" + v.checks.length + " PASS" :
+    "bad'>" + v.checks.filter(c => !c.pass).map(c => c.name).join(", ") + " FAIL") + "</span>";
+  const card = $("#card-" + i);
+  card.querySelector('[data-act="preview"]').disabled = false;
+  card.querySelector('[data-act="download"]').disabled = false;
+}
+
+function downloadTwin(i){
+  const w = worlds[i]; if(!w.twin) compileWorld(i);
+  const blob = new Blob([JSON.stringify(w.twin)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = w.id + ".twin.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ============================================================
+   BEFLIX PLAYER — executes CLR/PNT/LIN onto a 128x96 grid.
+   Screen inversion: shade 7 renders bright.
+   ============================================================ */
+const gridBuf = new Uint8Array(W*H);
+function execCommands(cmds){
+  for(const c of cmds){
+    const t = c.split(" ").map(Number);
+    if(c[0] === "C"){ gridBuf.fill(t[1]); continue; }
+    if(c[0] === "P"){
+      const [,x,y,w2,h2,v] = t;
+      for(let yy = Math.max(0,y); yy < Math.min(H, y+h2); yy++)
+        for(let xx = Math.max(0,x); xx < Math.min(W, x+w2); xx++)
+          gridBuf[yy*W+xx] = v;
+      continue;
+    }
+    if(c[0] === "L"){
+      let [,x1,y1,x2,y2] = t; const v = t[5];
+      const dx = Math.abs(x2-x1), sx = x1 < x2 ? 1 : -1;
+      const dy = -Math.abs(y2-y1), sy = y1 < y2 ? 1 : -1;
+      let err = dx + dy;
+      for(let guard = 0; guard < 512; guard++){
+        if(x1 >= 0 && x1 < W && y1 >= 0 && y1 < H) gridBuf[y1*W+x1] = v;
+        if(x1 === x2 && y1 === y2) break;
+        const e2 = 2*err;
+        if(e2 >= dy){ err += dy; x1 += sx; }
+        if(e2 <= dx){ err += dx; y1 += sy; }
+      }
+    }
+  }
+}
+const ctx = $("#screen").getContext("2d");
+const img = ctx.createImageData(W,H);
+function paintFrame(twin, f){
+  execCommands(twin.nodes[f-1].commands);
+  for(let i = 0; i < gridBuf.length; i++){
+    const lum = Math.round(gridBuf[i]/7*235) + (gridBuf[i] ? 20 : 5);
+    img.data[i*4] = lum; img.data[i*4+1] = lum; img.data[i*4+2] = lum; img.data[i*4+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  let head = null;
+  for(let j = f-1; j >= 0; j--){ if(twin.edl[j].screen_text !== undefined){ head = twin.edl[j]; break; } }
+  $("#subs .stext").textContent = head ? head.screen_text : "";
+  $("#subs .vo").textContent = head && head.audio ? head.audio.voiceover.text : "";
+  $("#subs .rel").textContent = twin.edl[f-1].relation + "  |  " + twin.edl[f-1].image_function +
+    (head && head.chapter ? "  |  " + head.chapter : "");
+  $("#fread").textContent = "FRAME " + f + " / " + twin.frames + "  fps " + FPS;
+  $("#scrub").value = f;
+}
+
+let playTwin = null, playFrame = 1, playing = false, timer = null;
+function openPlayer(i){
+  const w = worlds[i]; if(!w.twin) compileWorld(i);
+  playTwin = w.twin; playFrame = 1;
+  $("#ptitle").innerHTML = '<span class="t">' + w.twin.motion_cut.title + "</span> &middot; " +
+    w.twin.motion_cut.runtime_hms + " &middot; ending: " + w.ending;
+  $("#scrub").max = w.twin.frames;
+  $("#player").classList.add("open");
+  paintFrame(playTwin, 1);
+  setPlaying(true);
+}
+function setPlaying(on){
+  playing = on;
+  $("#playBtn").textContent = on ? "PAUSE" : "PLAY";
+  if(timer) clearInterval(timer);
+  if(on){
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    timer = setInterval(() => {
+      playFrame = playFrame >= playTwin.frames ? 1 : playFrame + 1;
+      paintFrame(playTwin, playFrame);
+    }, reduce ? 500 : 1000/FPS);
+  }
+}
+$("#playBtn").addEventListener("click", () => setPlaying(!playing));
+$("#scrub").addEventListener("input", ev => { setPlaying(false); playFrame = +ev.target.value; paintFrame(playTwin, playFrame); });
+$("#closeBtn").addEventListener("click", () => { setPlaying(false); $("#player").classList.remove("open"); });
+document.addEventListener("keydown", ev => { if(ev.key === "Escape" && $("#player").classList.contains("open")){ setPlaying(false); $("#player").classList.remove("open"); } });
+</script>
+</body>
+</html>
