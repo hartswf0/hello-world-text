@@ -1,0 +1,2733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GENESIC FIELD — twelve machines, one text × Bajohr's causal distance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   WHITE OPERATIONAL STYLE — absolute white ground, black ink.
+   Depth = hard-stop hatch gradients (no blur, no soft gray).
+   Active state = inversion. Declared accents, ink-adjusted for
+   the white ground; bright fills reserved for solid surfaces.
+   ============================================================ */
+:root{
+  --bg:#ffffff; --fg:#000000; --dim:#000000; --faint:#000000; --line:#000000; --panel:#ffffff;
+  --red:#e01212; --amber:#a87900; --teal:#0b8a77; --blue:#2557d6;
+  --red-f:#ff2e2e; --amber-f:#ffd23f; --teal-f:#19e6c8; --blue-f:#3b82f6;
+  --acc:var(--fg);
+  --hatch: repeating-linear-gradient(45deg, var(--fg) 0 2px, var(--bg) 2px 7px);
+  --hatch-sparse: repeating-linear-gradient(45deg, var(--fg) 0 1px, var(--bg) 1px 9px);
+}
+*{margin:0;padding:0;box-sizing:border-box;border-radius:0!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:14px; line-height:1.55;
+  padding-bottom:64px;
+}
+::selection{background:var(--fg); color:var(--bg)}
+button{
+  font-family:inherit; font-size:12px; letter-spacing:.06em;
+  background:var(--bg); color:var(--fg); border:2px solid var(--fg);
+  padding:8px 12px; cursor:pointer; text-transform:uppercase; font-weight:700;
+}
+button:hover{background:var(--fg); color:var(--bg)}
+button:focus-visible, .chip:focus-visible, .lnk:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:3px solid var(--fg); outline-offset:2px;
+}
+button[disabled]{border-style:dashed; cursor:default; font-weight:400}
+button[disabled]:hover{background:var(--bg); color:var(--fg)}
+select, textarea{
+  font-family:inherit; font-size:12px; background:var(--bg); color:var(--fg);
+  border:2px solid var(--fg); padding:8px 10px; letter-spacing:.04em;
+}
+select{text-transform:uppercase; font-weight:700}
+textarea{width:100%; min-height:70px; letter-spacing:0; font-size:13px; font-weight:400}
+.wrap{max-width:720px; margin:0 auto; padding:0 16px}
+
+/* ---------- header ---------- */
+header{padding:28px 0 18px; border-bottom:10px solid; border-image:var(--hatch) 10}
+.eyebrow{font-size:10px; letter-spacing:.28em; text-transform:uppercase; font-weight:700}
+h1{font-size:clamp(20px,5.4vw,30px); font-weight:700; letter-spacing:.02em; text-transform:uppercase; margin:8px 0 6px}
+h1 .sl{-webkit-text-stroke:1px var(--fg); color:var(--bg)}
+.sub{font-size:12px; max-width:58ch}
+.sub b{font-weight:700; border-bottom:2px solid var(--fg)}
+.marks{display:flex; gap:6px; margin-top:12px}
+.marks i{display:block; width:10px; height:10px}
+.marks i:nth-child(1){background:var(--red-f)}
+.marks i:nth-child(2){background:var(--amber-f)}
+.marks i:nth-child(3){background:var(--teal-f)}
+.marks i:nth-child(4){background:var(--blue-f)}
+.marks i:nth-child(5){border:2px solid var(--fg)}
+
+.base{border:2px solid var(--fg); background:var(--bg); padding:12px 14px; margin:16px 0 0}
+.base .eyebrow{margin-bottom:6px}
+.base p{font-size:12.5px; font-style:italic}
+.base p b{font-weight:700; font-style:normal}
+
+/* ---------- chip nav ---------- */
+nav{position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:2px solid var(--fg)}
+.rail{
+  display:flex; gap:0; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  scrollbar-width:none; max-width:720px; margin:0 auto; padding:0 8px;
+}
+.rail::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto; font-family:inherit; font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--fg); background:none; border:none; font-weight:400;
+  border-bottom:4px solid transparent; padding:14px 12px 10px; cursor:pointer;
+}
+.chip:hover{background:none; text-decoration:underline; text-underline-offset:4px}
+.chip.on{font-weight:700; border-bottom-color:var(--acc-c,var(--fg)); text-decoration:none}
+
+/* ---------- panels ---------- */
+section{display:none; padding-top:22px}
+section.on{display:block}
+.panel-eyebrow{font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--acc); font-weight:700; display:flex; align-items:center; gap:8px}
+.panel-eyebrow::before{content:""; width:10px; height:10px; background:var(--acc)}
+h2{font-size:18px; text-transform:uppercase; letter-spacing:.04em; margin:8px 0 4px}
+.def{font-size:12.5px; max-width:60ch; margin-bottom:16px}
+.def em{font-style:normal; font-weight:700; border-bottom:2px solid var(--acc)}
+
+.demo{border:2px solid var(--fg); background:var(--bg); padding:14px; margin-bottom:14px}
+.demo .dlabel{font-size:10px; letter-spacing:.22em; color:var(--acc); font-weight:700; text-transform:uppercase; margin-bottom:10px}
+.readout{
+  display:flex; flex-wrap:wrap; gap:6px 16px; font-size:11px; letter-spacing:.08em;
+  text-transform:uppercase; border-top:1px solid var(--fg);
+  margin-top:12px; padding-top:10px;
+}
+.readout b{color:var(--acc); font-weight:700}
+.ctrls{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:center}
+.note{font-size:11px; margin-top:10px; max-width:58ch}
+.note b{font-weight:700}
+
+/* ---------- distance dial ---------- */
+.dialrow{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px}
+.dialrow .dl{font-size:9px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; margin-right:2px}
+.dialrow button{font-size:10px; padding:5px 9px; border-width:1px; font-weight:400}
+.dialrow button.on{border-width:2px; border-color:var(--acc); color:var(--bg); background:var(--acc); font-weight:700}
+.dialrow button.on:hover{background:var(--acc); color:var(--bg)}
+.dialrow .para{font-size:9px; letter-spacing:.18em; text-transform:uppercase; margin-left:auto; font-weight:700}
+.chain{display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px}
+.chain .st{border:1px solid var(--fg); padding:3px 6px; background:var(--bg)}
+.chain .st.hu{border-width:2px; font-weight:700}
+.chain .st.fin{border-color:var(--acc); color:var(--acc); border-width:2px; font-weight:700}
+.chain .st.op{border-style:dashed; background:var(--hatch-sparse)}
+.chain .ar{font-weight:700}
+.dnote{font-size:11px; margin:0 0 12px; border-left:3px solid var(--acc); padding-left:8px; max-width:58ch}
+.dnote b{font-weight:700}
+
+/* text surfaces */
+.stage{font-size:14px; line-height:1.7; min-height:3.4em}
+.stage .s{display:block; padding:3px 0}
+.dimtext{font-style:italic}
+
+/* cybertext */
+#cx-stage .s{border-left:2px solid var(--fg); padding-left:10px; margin:4px 0}
+#cx-stage .s.new{border-left:6px solid var(--acc); padding-left:6px}
+#cx-stage .s.hid{color:var(--acc); font-weight:700}
+.crank{font-size:14px; padding:14px 18px; border-width:3px}
+
+/* poetics */
+.tgl{border-width:1px; font-weight:400}
+.tgl.on{border-width:2px; border-color:var(--acc); color:var(--acc); font-weight:700}
+#po-stage .s{cursor:default; padding:3px 6px}
+#po-stage.cfg .s{cursor:pointer; border:1px dashed var(--fg); margin:3px 0}
+#po-stage.cfg .s:hover{border-style:solid; border-width:2px; padding:2px 5px}
+#po-stage .s.pick{border:2px solid var(--acc); color:var(--acc); padding:2px 5px; font-weight:700}
+#po-stage .s .ord{font-weight:400; margin-right:8px; font-size:11px}
+
+/* memex */
+.rec{border:1px solid var(--fg); padding:8px 10px; margin:6px 0; cursor:pointer; font-size:13px}
+.rec:hover{border-width:2px; padding:7px 9px}
+.rec .rid{font-size:10px; letter-spacing:.14em; display:block; margin-bottom:2px; font-weight:700}
+.rec.pick{border:2px solid var(--acc); padding:7px 9px}
+.rec.pick .rid{color:var(--acc)}
+.rec.lit{background:var(--fg); color:var(--bg)}
+.rec.lit .rid{color:var(--bg)}
+.trail-item{font-size:12px; padding:2px 0}
+.trail-item b{color:var(--acc); font-weight:700}
+
+/* hypertext */
+.lnk{
+  background:none; border:none; padding:0; font:inherit; font-weight:700;
+  color:var(--acc); text-decoration:underline; text-underline-offset:3px;
+  cursor:pointer; text-transform:none; letter-spacing:0; font-size:inherit;
+}
+.lnk:hover{background:var(--acc); color:var(--bg); text-decoration:none}
+.lnk.inert{color:var(--fg); text-decoration:line-through; cursor:default; font-weight:700}
+.lnk.inert:hover{background:none; color:var(--fg)}
+.crumbs{font-size:11px; letter-spacing:.1em; margin-top:12px; border-top:1px solid var(--fg); padding-top:10px; word-break:break-all}
+.crumbs b{color:var(--acc); font-weight:700}
+.rewire{margin-top:10px; border-top:1px dashed var(--fg); padding-top:10px; display:flex; flex-direction:column; gap:6px}
+.rewire label{font-size:10px; letter-spacing:.14em; text-transform:uppercase; display:flex; gap:10px; align-items:center; font-weight:700}
+.rewire select{font-size:10px; padding:4px 6px; border-width:1px}
+
+/* distant reading */
+.bars{display:flex; flex-direction:column; gap:5px}
+.bar{display:grid; grid-template-columns:86px 1fr 34px; gap:8px; align-items:center; cursor:pointer; background:none; border:none; padding:0; text-transform:none; letter-spacing:0; font-weight:400}
+.bar:hover{background:none}
+.bar:hover .bw{font-weight:700}
+.bar .bw{font-size:11px; text-align:right; overflow:hidden; text-overflow:ellipsis; font-family:inherit}
+.bar .bt{height:12px; background:var(--hatch-sparse); border:1px solid var(--fg); position:relative}
+.bar .bt i{position:absolute; left:-1px; top:-1px; bottom:-1px; background:var(--acc); display:block}
+.bar .bn{font-size:11px; text-align:left; font-family:inherit}
+.bar.sel .bw,.bar.sel .bn{color:var(--acc); font-weight:700}
+.corpus-mini{font-size:9.5px; line-height:1.5; margin-top:12px; border-top:1px solid var(--fg); padding-top:10px; max-height:9em; overflow:auto}
+.corpus-mini.big{font-size:13px; max-height:none}
+.corpus-mini mark{background:var(--acc); color:var(--bg)}
+.corpus-mini .doc{letter-spacing:.14em; font-weight:700}
+.cluster{border:1px dashed var(--fg); padding:8px 10px; margin:8px 0}
+.cluster .ch{font-size:10px; letter-spacing:.16em; color:var(--acc); text-transform:uppercase; margin-bottom:4px; font-weight:700}
+.cluster .ci{font-size:11px; padding:1px 0}
+.claim{border:3px solid var(--acc); padding:12px; font-size:13px; margin:8px 0}
+.claim .ch{font-size:10px; letter-spacing:.16em; color:var(--acc); text-transform:uppercase; margin-bottom:6px; font-weight:700}
+
+/* distant writing */
+.cand{border:1px dashed var(--fg); padding:10px; margin:8px 0; font-size:13px}
+.cand .ch{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px}
+.cand .cid{font-size:10px; letter-spacing:.16em; font-weight:700}
+.cand button{font-size:10px; padding:4px 8px}
+.circ-item{font-size:12px; padding:6px 0; border-top:1px solid var(--fg)}
+.circ-item .prov{font-size:10px; letter-spacing:.1em; display:block; margin-top:2px}
+.circ-item .prov b{color:var(--acc); font-weight:700}
+
+/* distant text */
+.field{display:flex; flex-wrap:wrap; gap:3px}
+.tok{font-size:9.5px; padding:2px 4px; background:var(--bg); border:1px solid var(--fg)}
+.field.prov .tok.d0{background:var(--teal-f); border-color:var(--teal-f)}
+.field.prov .tok.d1{background:var(--blue-f); border-color:var(--blue-f); color:var(--bg)}
+.field.prov .tok.d2{background:var(--amber-f); border-color:var(--amber-f)}
+.legend{display:none; flex-wrap:wrap; gap:6px 16px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; margin-top:10px; font-weight:700}
+.legend.show{display:flex}
+.legend i{display:inline-block; width:8px; height:8px; margin-right:6px; border:1px solid var(--fg)}
+
+/* genes + genome */
+details{border:2px solid var(--fg); margin-bottom:14px}
+summary{font-size:10px; letter-spacing:.22em; text-transform:uppercase; padding:10px 14px; cursor:pointer; list-style:none; font-weight:700}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ "; color:var(--acc)}
+details[open] summary::before{content:"3  "}
+.genes{padding:0 14px 12px}
+.genes .g{border-top:1px solid var(--fg); padding:8px 0; font-size:12px}
+.genes .gk{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); display:block; margin-bottom:2px; font-weight:700}
+.genome{background:var(--bg); border:2px solid var(--fg); padding:12px 14px; overflow-x:auto; margin-bottom:14px}
+.genome pre{font-size:11.5px; line-height:1.7}
+.genome pre b{font-weight:700}
+.genome .glabel{font-size:10px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:8px; font-weight:700}
+
+/* gene comparator */
+.gsel{display:flex; flex-wrap:wrap; gap:6px; margin:14px 0}
+.gsel button{font-size:10px; padding:6px 9px; border-width:1px; font-weight:400}
+.gsel button.on{border-width:2px; background:var(--fg); color:var(--bg); font-weight:700}
+.gq{font-size:12.5px; margin-bottom:14px; border-left:3px solid var(--fg); padding-left:10px}
+.grow{border-top:1px solid var(--fg); padding:10px 0}
+.grow .gname{font-size:10px; letter-spacing:.16em; text-transform:uppercase; display:flex; align-items:center; gap:8px; margin-bottom:4px; font-weight:700}
+.grow .gname::before{content:""; width:8px; height:8px; background:var(--gc,var(--fg)); flex:0 0 auto}
+.grow .gval{font-size:12.5px}
+
+/* bajohr ladder */
+.ladder{border:2px solid var(--fg); margin-bottom:14px}
+.rung{padding:12px 14px; border-top:6px solid; border-image:var(--hatch-sparse) 6}
+.rung:first-child{border-top:none}
+.rung .rh{display:flex; justify-content:space-between; gap:10px; margin-bottom:6px}
+.rung .rd{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase}
+.rung .rp{font-size:9px; letter-spacing:.18em; text-transform:uppercase; align-self:center; font-weight:700}
+
+footer{margin-top:36px; border-top:10px solid; border-image:var(--hatch) 10; padding-top:14px; font-size:10px; letter-spacing:.14em; text-transform:uppercase}
+
+
+/* ---------- field additions (v3 machines) ---------- */
+.kwtag{display:inline-block;border:1px solid var(--fg);font-size:9px;letter-spacing:.14em;padding:1px 5px;margin-right:8px;text-transform:uppercase;font-weight:700;vertical-align:middle}
+.insmark{border-bottom:3px solid var(--acc);font-weight:700}
+.delmark{text-decoration:line-through}
+.stage.plain .delmark{display:none}
+.stage.plain .insmark{border-bottom:none;font-weight:400}
+.stage .s.pick{border:2px solid var(--acc);padding:2px 5px}
+.mut{color:var(--acc);font-weight:700}
+.rc-word{padding:0 1px}
+.rc-click .rc-word{cursor:pointer}
+.rc-click .rc-word:hover{background:var(--fg);color:var(--bg)}
+.loopback{font-size:10px;letter-spacing:.12em;border:1px dashed var(--fg);padding:5px 8px;text-transform:uppercase;display:inline-block;margin-top:10px;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--fg);margin:8px 0}
+.lag{border:1px dashed var(--fg);padding:8px 10px;font-size:12px;margin-top:8px}
+.dense{word-break:break-word}
+.offer{border:1px dashed var(--fg);padding:8px 10px;margin:6px 0;font-size:11px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.offer .seq{letter-spacing:.06em}
+
+
+/* ---------- v4: fixed specimen, wrapped nav, less furniture ---------- */
+#topfix{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:2px solid var(--fg)}
+#topfix nav{position:static;border:none}
+.rail{flex-wrap:wrap;padding:2px 8px}
+.chip{font-size:10px;padding:8px 8px 6px;border-bottom-width:3px}
+#spec{border-top:1px solid var(--fg)}
+.specrow{display:flex;gap:10px;align-items:flex-start;padding-top:6px;padding-bottom:6px}
+#spec p{font-size:10px;line-height:1.5;font-style:italic;margin:0}
+#spec p b{font-style:normal;font-weight:700}
+#spec button{font-size:9px;padding:3px 6px;border-width:1px;flex:0 0 auto;font-weight:700}
+#spec.hid p span{display:none}
+.start{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:12px;border:1px solid var(--fg);display:inline-block;padding:5px 8px}
+section{padding-top:18px}
+h2{font-size:15px;margin:6px 0 4px}
+.def{font-size:12px;border-left:3px solid var(--acc);padding-left:8px;max-width:60ch;margin-bottom:12px}
+.genome{border:none;margin:0;padding:10px 14px}
+.genome pre{white-space:pre-wrap}
+
+@media (prefers-reduced-motion: no-preference){
+  #cx-stage .s.new{animation:reveal .3s steps(2) 1}
+  @keyframes reveal{0%{opacity:0}100%{opacity:1}}
+}
+@media (min-width:600px){
+  body{font-size:15px}
+  .demo{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">CONSEQUENCE WORKS / GENESIC FIELD — COMPARATIVE INSTRUMENT · V3</div>
+    <h1>Genesic field<span class="sl"> /</span> twelve machines</h1>
+    <p class="sub">A highly charged substrate where texts are constantly generated, corrupted, and resurrected. One six-sentence specimen — <b>THE CROSSING</b>, the riverrun set — placed under twelve theoretical regimes, each crossed with <b>Bajohr's four degrees of causal authorship</b>. Turn any dial: watch who performs the constitutive operation.</p>
+    <p class="start">1 PICK A MACHINE · 2 SET DISTANCE D1–D4 · 3 WORK THE CONTROLS — THE READOUT COUNTS WHAT YOU DID</p>
+  </div>
+</header>
+
+<div id="topfix">
+  <nav aria-label="Machines"><div class="rail" id="rail"></div></nav>
+  <div id="spec">
+    <div class="wrap specrow">
+      <button id="spectgl" aria-label="Hide or show the shared specimen">HIDE</button>
+      <p><b>THE CROSSING</b> · <span id="base-passage"></span></p>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main"></main>
+
+<footer class="wrap">
+  GENESIC FIELD · CONSEQUENCE WORKS — SOURCES: VICO, THE NEW SCIENCE 1725 · POLTI 1916 · BUSH 1945 · SHANNON 1948 · NELSON 1965 · AARSETH 1997 · MORETTI 2000–13 · O'NEILL 2005/2013 · LIU 2010 · ESKELINEN 2012 · VAN HULLE, GENETIC JOYCE STUDIES · BAJOHR, FOUR DEGREES OF CAUSAL AUTHORSHIP — SPECIMEN: THE CROSSING (ORIGINAL, THIS PROJECT) — SINGLE FILE, NO DEPENDENCIES
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   SHARED PASSAGE
+   ============================================================ */
+var BASE = [
+  "The signal crossed the river before the reader did.",
+  "On the far bank, a machine kept records of every crossing.",
+  "Some crossings were made by hand; others were sampled from earlier crossings.",
+  "The archive grew until no single reader could hold it.",
+  "What remained legible was not the text but the pattern of its traversals.",
+  "Somewhere in the record, the first crossing was still retrievable."
+];
+
+document.getElementById("base-passage").innerHTML =
+  BASE.map(function(s,i){ return (i===0 ? "<b>"+s+"</b>" : s); }).join(" ");
+
+/* corpus shared by D-READING, D-WRITING (markov), D-TEXT */
+var DOCS = [
+  {id:"DOC 01 — FIRST EDITION", text: BASE.join(" ")},
+  {id:"DOC 02 — RIVER VARIANT", text:
+    "The signal crossed the water before the reader did. On the near bank, a machine kept records of every crossing. Most crossings were made by hand; a few were sampled from earlier crossings. The archive grew until no reader could hold it. What remained legible was the pattern of crossings, not the text. Somewhere in the archive, the first crossing was retrievable."},
+  {id:"DOC 03 — MACHINE VARIANT", text:
+    "The reader crossed the river after the signal did. On the far bank, the machine kept a record of the reader. Every crossing was sampled; no crossing was made by hand. The record grew until the machine could not hold the pattern. What remained was the archive of traversals. The first crossing was no longer retrievable."}
+];
+
+/* ============================================================
+   BIGRAM WEIGHT MODEL — the connectionist stand-in for D3/D4
+   ============================================================ */
+var MARKOV = (function(){
+  var map = {};
+  DOCS.forEach(function(d){
+    var w = d.text.toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(Boolean);
+    for(var i=0;i<w.length-1;i++){
+      if(!map[w[i]]) map[w[i]] = [];
+      map[w[i]].push(w[i+1]);
+    }
+  });
+  function sentence(start, maxLen){
+    var cur = (map[start] ? start : "the");
+    var out = [cur];
+    for(var i=0;i<(maxLen||14);i++){
+      var nexts = map[cur];
+      if(!nexts || !nexts.length) break;
+      cur = nexts[Math.floor(Math.random()*nexts.length)];
+      out.push(cur);
+    }
+    var s = out.join(" ");
+    return s.charAt(0).toUpperCase() + s.slice(1) + ".";
+  }
+  return {sentence: sentence};
+})();
+
+/* ============================================================
+   PANEL SCAFFOLD
+   ============================================================ */
+var PANELS = [
+  {id:"cx", chip:"CYBERTEXT", acc:"--red"},
+  {id:"po", chip:"POETICS",   acc:"--red"},
+  {id:"mx", chip:"MEMEX",     acc:"--blue"},
+  {id:"ht", chip:"HYPERTEXT", acc:"--blue"},
+  {id:"dr", chip:"D-READING", acc:"--teal"},
+  {id:"dw", chip:"D-WRITING", acc:"--amber"},
+  {id:"dt", chip:"D-TEXT",    acc:"--teal"},
+  {id:"tr", chip:"TRANSLATION", acc:"--teal"},
+  {id:"ge", chip:"GENESIS",    acc:"--red"},
+  {id:"cb", chip:"COMBINATORY", acc:"--blue"},
+  {id:"rc", chip:"RECURSION",  acc:"--blue"},
+  {id:"st", chip:"STOCHASTIC", acc:"--amber"},
+  {id:"gn", chip:"GENES",     acc:"--fg"}
+];
+
+var rail = document.getElementById("rail");
+var main = document.getElementById("main");
+
+PANELS.forEach(function(p){
+  var c = document.createElement("button");
+  c.className = "chip";
+  c.textContent = p.chip;
+  c.style.setProperty("--acc-c", "var("+p.acc+")");
+  c.setAttribute("data-target", p.id);
+  c.addEventListener("click", function(){ showPanel(p.id); });
+  rail.appendChild(c);
+
+  var s = document.createElement("section");
+  s.id = "panel-" + p.id;
+  s.style.setProperty("--acc", "var("+p.acc+")");
+  main.appendChild(s);
+});
+
+function showPanel(id){
+  PANELS.forEach(function(p){
+    document.getElementById("panel-"+p.id).classList.toggle("on", p.id===id);
+  });
+  rail.querySelectorAll(".chip").forEach(function(c){
+    c.classList.toggle("on", c.getAttribute("data-target")===id);
+  });
+  if(window.scrollTo) try{ window.scrollTo({top:0}); }catch(e){}
+}
+
+/* helpers */
+function el(tag, cls, html){
+  var e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html !== undefined) e.innerHTML = html;
+  return e;
+}
+function geneBlock(genes){
+  var d = el("details");
+  d.appendChild(el("summary", null, "GENE READOUT — G1 TO G10"));
+  var wrap = el("div","genes");
+  var KEYS = ["G1 · TEXTUAL OBJECT","G2 · HUMAN ROLE","G3 · CONSTITUTIVE OPERATION","G4 · ORGANIZATION","G5 · SEQUENCE PRODUCTION","G6 · AGENCY DISTRIBUTION","G7 · SCALE","G8 · TEMPORALITY","G9 · INVARIANT","G10 · CRITICAL DANGER"];
+  genes.forEach(function(v,i){
+    var g = el("div","g");
+    g.appendChild(el("span","gk",KEYS[i]));
+    g.appendChild(document.createTextNode(v));
+    wrap.appendChild(g);
+  });
+  d.appendChild(wrap);
+  return d;
+}
+function genomeBlock(label, lines){
+  var d = el("details");
+  d.appendChild(el("summary", null, label));
+  var g = el("div","genome");
+  g.appendChild(el("pre", null, lines.join("\n")));
+  d.appendChild(g);
+  return d;
+}
+
+/* ============================================================
+   DISTANCE DIAL — shared machinery for the Bajohr axis
+   cfg = { chains:[ [stages]x4 ], notes:[x4], onSet(d), start }
+   stage: plain string; "HUMAN" gets .hu, last gets .fin,
+   strings wrapped in parens render as .op (opaque/sealed)
+   ============================================================ */
+var PARADIGM = ["TRADITIONAL","SEQUENTIAL","CONNECTIONIST","CONNECTIONIST + PLATFORM"];
+
+function makeDial(host, cfg){
+  var row = el("div","dialrow");
+  row.appendChild(el("span","dl","DISTANCE"));
+  var btns = [];
+  for(var i=1;i<=4;i++){
+    (function(d){
+      var b = el("button",null,"D"+d);
+      b.addEventListener("click", function(){ set(d); });
+      row.appendChild(b);
+      btns.push(b);
+    })(i);
+  }
+  var chain = el("div","chain");
+  var note = el("p","dnote");
+  host.appendChild(row);
+  host.appendChild(chain);
+  host.appendChild(note);
+
+  var cur = 0;
+  function set(d){
+    if(d === cur) return;
+    cur = d;
+    btns.forEach(function(b,i){ b.classList.toggle("on", i === d-1); });
+    chain.innerHTML = "";
+    var stages = cfg.chains[d-1];
+    stages.forEach(function(st, i){
+      if(i > 0) chain.appendChild(el("span","ar","→"));
+      var opaque = /^\(/.test(st);
+      var label = st.replace(/^\(|\)$/g,"");
+      var cls = "st" + (st === "HUMAN" ? " hu" : "") + (i === stages.length-1 ? " fin" : "") + (opaque ? " op" : "");
+      chain.appendChild(el("span", cls, label));
+    });
+    note.innerHTML = cfg.notes[d-1];
+    cfg.onSet(d);
+  }
+  set(cfg.start || 1);
+  return {set:set, get:function(){ return cur; }};
+}
+
+/* ============================================================
+   PANEL 1 — CYBERTEXT (Aarseth) × distance
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-cx");
+  root.appendChild(el("div","panel-eyebrow","ESPEN AARSETH — CYBERTEXT: PERSPECTIVES ON ERGODIC LITERATURE (1997)"));
+  root.appendChild(el("h2","", "The text is a machine"));
+  root.appendChild(el("p","def","USE — set a distance, then press <em>CRANK</em> until the traversal completes. The readout counts your work; RESET re-arms the machine."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var stage = el("div","stage"); stage.id = "cx-stage";
+  demo.appendChild(stage);
+  var ctrls = el("div","ctrls");
+  var crank = el("button","crank","CRANK");
+  var reset = el("button",null,"RESET");
+  ctrls.appendChild(crank); ctrls.appendChild(reset);
+  demo.appendChild(ctrls);
+  var readout = el("div","readout");
+  demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A textual machine composed of signs, rules, and material mechanisms.",
+    "An operator who must perform nontrivial work.",
+    "Traverse, select, configure, act.",
+    "A texton-system containing possible scriptons.",
+    "Operator action generates the experienced sequence.",
+    "Distributed among operator, medium, and textual mechanism.",
+    "Individual work or textual system.",
+    "The realized text appears during traversal.",
+    "Reading requires nontrivial intervention, not merely interpretation.",
+    "Treating every clickable or electronic text as automatically ergodic."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;textual machine&gt;</b>",
+    "  → [offers possible configurations]",
+    "  → <b>&lt;operator&gt;</b> [performs nontrivial work]",
+    "  → <b>&lt;mechanism&gt;</b> [selects or reveals] &lt;scripton sequence&gt;",
+    "  → &lt;traversal history&gt; [becomes] <b>&lt;experienced text&gt;</b>"
+  ]));
+
+  var HIDDEN = [
+    "A crossing that is never performed remains a texton only.",
+    "The mechanism withheld this sentence until sufficient work was done.",
+    "No two traversals of this machine produce the same text."
+  ];
+  var ALL = BASE.concat(HIDDEN);
+  var d = 2, cranks = 0, shown = [], done = false, busy = false;
+
+  function pool(){ return (d === 1) ? BASE : ALL; }
+
+  function updateReadout(){
+    readout.innerHTML =
+      "<span>TEXTONS <b>"+(d === 4 ? "WITHHELD" : pool().length)+"</b></span>"+
+      "<span>SCRIPTONS <b>"+shown.length+"</b></span>"+
+      "<span>EFFORT <b>"+cranks+" CRANKS</b></span>"+
+      "<span>MECHANISM <b>"+["YOUR HAND","RULE SET","WEIGHT MODEL","SEALED"][d-1]+"</b></span>";
+  }
+
+  function place(next){
+    if(shown.length === 0) stage.innerHTML = "";
+    stage.querySelectorAll(".s").forEach(function(n){ n.classList.remove("new"); });
+    stage.appendChild(el("span","s"+(HIDDEN.indexOf(next)>-1?" hid":"")+" new", next));
+    shown.push(next);
+    if(shown.length === pool().length){
+      done = true; crank.disabled = true;
+      crank.textContent = "TRAVERSAL COMPLETE";
+    }
+    updateReadout();
+  }
+
+  function pickNext(){
+    var remaining = pool().filter(function(t){ return shown.indexOf(t) === -1; });
+    if(!remaining.length) return null;
+    if(d === 1){
+      return remaining[0]; /* your hand: in order, nothing withheld */
+    }
+    if(d === 2){
+      /* deterministic rule: every third crank of sufficient effort surfaces a hidden texton */
+      if(cranks % 3 === 0 && shown.length >= 2){
+        var hid = remaining.filter(function(t){ return HIDDEN.indexOf(t) > -1; });
+        if(hid.length) return hid[cranks % hid.length];
+      }
+      var basePool = remaining.filter(function(t){ return HIDDEN.indexOf(t) === -1; });
+      return basePool.length ? basePool[0] : remaining[0];
+    }
+    /* D3 and D4: the model samples */
+    return remaining[Math.floor(Math.random()*remaining.length)];
+  }
+
+  crank.addEventListener("click", function(){
+    if(done || busy) return;
+    cranks++;
+    if(d === 4){
+      busy = true;
+      crank.textContent = "SAMPLING THROUGH API…";
+      setTimeout(function(){
+        busy = false;
+        if(!done) crank.textContent = "CRANK";
+        var n = pickNext();
+        if(n) place(n);
+      }, 650);
+    } else {
+      var n = pickNext();
+      if(n) place(n);
+    }
+    updateReadout();
+  });
+
+  function resetAll(){
+    cranks = 0; shown = []; done = false; busy = false;
+    crank.disabled = false;
+    crank.textContent = (d === 1) ? "INSCRIBE NEXT SENTENCE" : "CRANK";
+    stage.innerHTML = "";
+    stage.appendChild(el("span","dimtext", d === 1
+      ? "The page is blank. You will write it yourself, in order."
+      : (d === 4 ? "The mechanism is remote. Textons: quantity not disclosed."
+                 : "Nothing is legible yet. Nine textons are held inside the mechanism.")));
+    updateReadout();
+  }
+  reset.addEventListener("click", resetAll);
+
+  makeDial(dialHost, {
+    start: 2,
+    chains: [
+      ["HUMAN","FINAL TEXT"],
+      ["HUMAN","RULE SET / MECHANISM","FINAL TEXT"],
+      ["HUMAN","CODE + TEXTON SET","WEIGHT MODEL","FINAL TEXT"],
+      ["HUMAN","(INTERFACE / API)","(CODE + TEXTON SET)","(WEIGHT MODEL)","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> You inscribe the passage directly; traversal is trivial and the withheld textons do not exist. By Aarseth's own invariant, this is not yet a cybertext.",
+      "<b>D2 — secondary.</b> A legible rule decides what your work reveals. The mechanism can be read, cited, and blamed.",
+      "<b>D3 — tertiary.</b> A weight model samples the next scripton. The same effort no longer yields the same text: traversal becomes stochastic.",
+      "<b>D4 — quaternary.</b> The crank talks to an API. Latency, opacity, and an undisclosed texton count — nontrivial work against an unknowable machine."
+    ],
+    onSet: function(nd){ d = nd; resetAll(); }
+  });
+})();
+
+/* ============================================================
+   PANEL 2 — CYBERTEXT POETICS (Eskelinen) × distance
+   user functions migrate to system functions as D rises
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-po");
+  root.appendChild(el("div","panel-eyebrow","MARKKU ESKELINEN — CYBERTEXT POETICS (2012)"));
+  root.appendChild(el("h2","", "The text is a formal system"));
+  root.appendChild(el("p","def","USE — set a distance, then run whichever controls remain yours: swap two sentences, add a texton. The readout lists who holds each function."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var ctrls = el("div","ctrls");
+  demo.appendChild(ctrls);
+  var stage = el("div","stage"); stage.id = "po-stage"; stage.style.marginTop = "12px";
+  demo.appendChild(stage);
+  var readout = el("div","readout");
+  demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A configurative literary system whose formal operations can be analyzed.",
+    "An analyst-player-reader who observes and performs textual operations.",
+    "Classify, compare, configure, interpret formal behavior.",
+    "Rules, events, temporal structures, user functions, textual layers.",
+    "Rules plus user functions produce the formal sequence.",
+    "Analytically separated into system functions and user functions.",
+    "Genre, work, formal system, and medium.",
+    "Textual events unfold through rule-governed time.",
+    "Analysis must account for what the system does, not only what it represents.",
+    "Reducing games and cybertexts to conventional narrative categories."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;formal system&gt;</b>",
+    "  → [defines] {rules, user functions, temporal possibilities}",
+    "  → <b>&lt;player-reader&gt;</b> [configures] &lt;textual events&gt;",
+    "  → <b>&lt;critic&gt;</b> [analyzes] &lt;operational form&gt;"
+  ]));
+
+  var d = 1;
+  var order, added, pick, swaps, ruleFirings;
+
+  function resetState(){
+    order = BASE.map(function(_,i){ return i; });
+    added = []; pick = -1; swaps = 0; ruleFirings = 0;
+  }
+  resetState();
+
+  var EXTRA = [
+    "A rule fired here that no reading could have predicted.",
+    "The critic counts functions where the reader counted meanings.",
+    "This sentence exists because the textonic function was enabled."
+  ];
+
+  function profile(){
+    var userFns = ["INTERPRETIVE"], sysFns = [];
+    if(d === 1){ userFns.push("CONFIGURATIVE","TEXTONIC"); }
+    if(d === 2){ sysFns.push("CONFIGURATIVE (RULE)"); userFns.push("TEXTONIC"); }
+    if(d === 3){ userFns.push("CONFIGURATIVE"); sysFns.push("TEXTONIC (MODEL)"); }
+    if(d === 4){ sysFns.push("CONFIGURATIVE (WITHHELD)","TEXTONIC (WITHHELD)"); }
+    readout.innerHTML =
+      "<span>USER FN <b>"+userFns.join(" · ")+"</b></span>"+
+      "<span>SYSTEM FN <b>"+(sysFns.length?sysFns.join(" · "):"NONE")+"</b></span>"+
+      "<span>SWAPS <b>"+swaps+"</b></span>"+
+      "<span>RULE FIRINGS <b>"+ruleFirings+"</b></span>";
+  }
+
+  function userConfigurative(){ return d === 1 || d === 3; }
+
+  function render(){
+    stage.innerHTML = "";
+    stage.classList.toggle("cfg", userConfigurative());
+    var all = order.map(function(i){ return BASE[i]; }).concat(added);
+    all.forEach(function(s, idx){
+      var div = el("div","s","<span class='ord'>"+String(idx+1).padStart(2,"0")+"</span>"+s);
+      if(userConfigurative()){
+        div.addEventListener("click", function(){
+          if(pick === -1){ pick = idx; div.classList.add("pick"); return; }
+          if(pick === idx){ pick = -1; render(); return; }
+          var combined = order.map(function(i){ return {base:true, v:i}; })
+            .concat(added.map(function(a){ return {base:false, v:a}; }));
+          var tmp = combined[pick]; combined[pick] = combined[idx]; combined[idx] = tmp;
+          order = combined.filter(function(c){ return c.base; }).map(function(c){ return c.v; });
+          added = combined.filter(function(c){ return !c.base; }).map(function(c){ return c.v; });
+          pick = -1; swaps++;
+          render(); profile();
+        });
+      }
+      stage.appendChild(div);
+    });
+  }
+
+  function rebuildControls(){
+    ctrls.innerHTML = "";
+    if(d === 1){
+      var addU = el("button",null,"ADD A TEXTON (YOU)");
+      addU.addEventListener("click", function(){
+        if(added.length < EXTRA.length){ added.push(EXTRA[added.length]); render(); profile(); }
+        else { addU.disabled = true; addU.textContent = "TEXTON SET EXHAUSTED"; }
+      });
+      ctrls.appendChild(addU);
+      ctrls.appendChild(el("span","dnote","Tap two sentences to exchange them."));
+    }
+    if(d === 2){
+      var rule = el("button",null,"RUN PERMUTATION RULE");
+      rule.addEventListener("click", function(){
+        /* legible deterministic rule: rotate the combined sequence by two */
+        var combined = order.map(function(i){ return {base:true, v:i}; })
+          .concat(added.map(function(a){ return {base:false, v:a}; }));
+        combined = combined.slice(2).concat(combined.slice(0,2));
+        order = combined.filter(function(c){ return c.base; }).map(function(c){ return c.v; });
+        added = combined.filter(function(c){ return !c.base; }).map(function(c){ return c.v; });
+        ruleFirings++;
+        render(); profile();
+      });
+      ctrls.appendChild(rule);
+      ctrls.appendChild(el("span","dnote","RULE (LEGIBLE): rotate sequence left by 2. Configuration is now a system function."));
+    }
+    if(d === 3){
+      var addM = el("button",null,"ADD A TEXTON (MODEL)");
+      addM.addEventListener("click", function(){
+        added.push(MARKOV.sentence("the", 12));
+        render(); profile();
+      });
+      ctrls.appendChild(addM);
+      ctrls.appendChild(el("span","dnote","The textonic function belongs to a bigram model over the corpus. You keep configurative: tap two sentences to swap."));
+    }
+    if(d === 4){
+      var dead1 = el("button",null,"CONFIGURE"); dead1.disabled = true;
+      var dead2 = el("button",null,"ADD TEXTON"); dead2.disabled = true;
+      ctrls.appendChild(dead1); ctrls.appendChild(dead2);
+      ctrls.appendChild(el("span","dnote","The interface exposes interpretation only. The functions exist — for someone else."));
+    }
+  }
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","FINAL TEXT"],
+      ["HUMAN","PERMUTATION RULE","FINAL TEXT"],
+      ["HUMAN","CODE + CORPUS","WEIGHT MODEL (TEXTONIC)","FINAL TEXT"],
+      ["HUMAN","(INTERFACE)","(RULES + MODEL)","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> All four user functions are yours: interpret, explore, configure, add.",
+      "<b>D2 — secondary.</b> Configuration migrates to a legible rule. You trigger it; you no longer perform it.",
+      "<b>D3 — tertiary.</b> The textonic function migrates to a weight model. New textons arrive from a distribution, not a pen.",
+      "<b>D4 — quaternary.</b> The platform holds every function except interpretation. Formal analysis must now proceed without access to the form."
+    ],
+    onSet: function(nd){ d = nd; pick = -1; rebuildControls(); render(); profile(); }
+  });
+})();
+
+/* ============================================================
+   PANEL 3 — MEMEX (Bush) × distance
+   who makes the association?
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-mx");
+  root.appendChild(el("div","panel-eyebrow","VANNEVAR BUSH — AS WE MAY THINK (1945)"));
+  root.appendChild(el("h2","", "The text is an associative archive"));
+  root.appendChild(el("p","def","USE — tap one record, then another: that is a trail. At D2–D4, press the system’s button and compare its trails with yours in the ledger."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var recWrap = el("div");
+  demo.appendChild(recWrap);
+  var ctrls = el("div","ctrls");
+  demo.appendChild(ctrls);
+  var trailHead = el("div","dlabel","TRAILS"); trailHead.style.marginTop = "14px";
+  demo.appendChild(trailHead);
+  var trailList = el("div");
+  demo.appendChild(trailList);
+  var ctrls2 = el("div","ctrls");
+  var replay = el("button",null,"REPLAY TRAILS");
+  var clear = el("button",null,"CLEAR");
+  ctrls2.appendChild(replay); ctrls2.appendChild(clear);
+  demo.appendChild(ctrls2);
+  var readout = el("div","readout");
+  demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A personal associative archive.",
+    "A scholar-user who stores, retrieves, and connects records.",
+    "Store, retrieve, associate, annotate, share trail.",
+    "A network of associative trails through documents.",
+    "User association creates a trail through records.",
+    "Human judgment creates links; machinery preserves and retrieves them.",
+    "Personal knowledge collection.",
+    "Trails accumulate through repeated use.",
+    "Information must remain retrievable through meaningful associations.",
+    "Confusing association with automatic understanding or neutral organization."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;record collection&gt;</b>",
+    "  → <b>&lt;user&gt;</b> [creates] &lt;association&gt;",
+    "  → &lt;association&gt; [becomes] <b>&lt;persistent trail&gt;</b>",
+    "  → &lt;trail&gt; [supports] &lt;retrieval and future thought&gt;"
+  ]));
+
+  var recs = [];
+  BASE.forEach(function(s,i){
+    var r = el("div","rec","<span class='rid'>RECORD R"+(i+1)+"</span>"+s);
+    r.setAttribute("tabindex","0");
+    recWrap.appendChild(r);
+    recs.push(r);
+  });
+
+  var d = 1, pick = -1, trails = [], playing = false;
+  var codes = "abcdefghijklmnop";
+
+  function emptyMsg(){
+    trailList.innerHTML = "";
+    trailList.appendChild(el("div","trail-item dimtext","No trails yet."));
+  }
+
+  function addTrail(a, b, label){
+    trails.push([a,b]);
+    if(trails.length === 1) trailList.innerHTML = "";
+    trailList.appendChild(el("div","trail-item",
+      "<b>TRAIL "+codes[(trails.length-1)%codes.length].toUpperCase()+"</b> — R"+(a+1)+" → R"+(b+1)+
+      (label ? " &nbsp;·&nbsp; "+label : " &nbsp;·&nbsp; YOUR JUDGMENT")));
+    updateReadout();
+  }
+
+  function tap(i){
+    if(pick === -1){ pick = i; recs[i].classList.add("pick"); return; }
+    if(pick === i){ recs[i].classList.remove("pick"); pick = -1; return; }
+    var a = pick;
+    recs[pick].classList.remove("pick"); pick = -1;
+    addTrail(a, i);
+  }
+  recs.forEach(function(r,i){
+    r.addEventListener("click", function(){ tap(i); });
+    r.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); tap(i);} });
+  });
+
+  function words(s){
+    var STOP = ["the","a","of","was","were","did","by","no","not","on","its","until"];
+    return s.toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).filter(function(w){ return w && STOP.indexOf(w) === -1; });
+  }
+  function overlap(i,j){
+    var wa = words(BASE[i]), wb = words(BASE[j]);
+    var shared = wa.filter(function(w){ return wb.indexOf(w) > -1; });
+    var uniq = {}; shared.forEach(function(w){ uniq[w]=1; });
+    var union = {}; wa.concat(wb).forEach(function(w){ union[w]=1; });
+    return { sim: Object.keys(uniq).length / Object.keys(union).length, shared: Object.keys(uniq) };
+  }
+
+  function updateReadout(){
+    var human = 0, sys = 0;
+    trailList.querySelectorAll(".trail-item").forEach(function(t){
+      if(/YOUR JUDGMENT/.test(t.innerHTML)) human++;
+      else if(/TRAIL/.test(t.innerHTML)) sys++;
+    });
+    readout.innerHTML =
+      "<span>RECORDS <b>"+recs.length+"</b></span>"+
+      "<span>TRAILS <b>"+trails.length+"</b></span>"+
+      "<span>BY HUMAN <b>"+human+"</b></span>"+
+      "<span>BY SYSTEM <b>"+sys+"</b></span>";
+  }
+
+  function rebuildControls(){
+    ctrls.innerHTML = "";
+    if(d === 2){
+      var rule = el("button",null,"RUN LINK RULE");
+      rule.addEventListener("click", function(){
+        var made = 0;
+        for(var i=0;i<BASE.length && made<3;i++){
+          for(var j=i+1;j<BASE.length && made<3;j++){
+            var hasCross = /cross/.test(BASE[i].toLowerCase()) && /cross/.test(BASE[j].toLowerCase());
+            if(hasCross && !trails.some(function(t){ return t[0]===i && t[1]===j; })){
+              addTrail(i, j, "RULE: SHARED TERM 'CROSSING'");
+              made++;
+            }
+          }
+        }
+        if(!made) rule.disabled = true;
+      });
+      ctrls.appendChild(rule);
+    }
+    if(d === 3){
+      var sug = el("button",null,"SUGGEST TRAIL (MODEL)");
+      sug.addEventListener("click", function(){
+        var best = null;
+        for(var i=0;i<BASE.length;i++){
+          for(var j=i+1;j<BASE.length;j++){
+            if(trails.some(function(t){ return t[0]===i && t[1]===j; })) continue;
+            var o = overlap(i,j);
+            if(!best || o.sim > best.sim) best = {i:i, j:j, sim:o.sim};
+          }
+        }
+        if(best) addTrail(best.i, best.j, "MODEL · SIM "+best.sim.toFixed(2));
+        else sug.disabled = true;
+      });
+      ctrls.appendChild(sug);
+    }
+    if(d === 4){
+      /* the platform trails on arrival, and will not explain */
+      [[1,3],[4,5]].forEach(function(p){
+        if(!trails.some(function(t){ return t[0]===p[0] && t[1]===p[1]; })){
+          addTrail(p[0], p[1], "AUTO — REASON WITHHELD");
+        }
+      });
+      ctrls.appendChild(el("span","dnote","Two trails appeared on arrival. The platform recommends; the criteria are proprietary."));
+    }
+  }
+
+  replay.addEventListener("click", function(){
+    if(playing || !trails.length) return;
+    playing = true;
+    var seq = [];
+    trails.forEach(function(t){ seq.push(t[0], t[1]); });
+    var k = 0;
+    (function step(){
+      recs.forEach(function(r){ r.classList.remove("lit"); });
+      if(k >= seq.length){ playing = false; return; }
+      recs[seq[k]].classList.add("lit"); k++;
+      setTimeout(step, 550);
+    })();
+  });
+
+  clear.addEventListener("click", function(){
+    trails = []; pick = -1; playing = false;
+    recs.forEach(function(r){ r.classList.remove("pick","lit"); });
+    emptyMsg(); updateReadout();
+  });
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","TRAIL","FINAL TEXT"],
+      ["HUMAN","LINK RULE","TRAIL","FINAL TEXT"],
+      ["HUMAN","SIMILARITY MODEL","TRAIL","FINAL TEXT"],
+      ["HUMAN","(PLATFORM)","(RANKING MODEL)","TRAIL","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> Tap one record, then another. The trail is your judgment, item to item, as the mind ties them.",
+      "<b>D2 — secondary.</b> A legible rule links records sharing the term 'crossing'. Mechanical association — auditable, but no longer thought.",
+      "<b>D3 — tertiary.</b> A similarity model proposes the strongest untrailed pair, with a score. Plausible, quantified, and reasonless.",
+      "<b>D4 — quaternary.</b> Trails arrive pre-made. Bush's danger fulfilled: association mistaken for understanding, by design."
+    ],
+    onSet: function(nd){
+      d = nd; trails = []; pick = -1;
+      recs.forEach(function(r){ r.classList.remove("pick","lit"); });
+      emptyMsg(); rebuildControls(); updateReadout();
+    }
+  });
+})();
+
+/* ============================================================
+   PANEL 4 — HYPERTEXT × distance
+   who authors the link, who follows it?
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-ht");
+  root.appendChild(el("div","panel-eyebrow","TED NELSON (1965) · BERNERS-LEE (1989) · HYPERTEXT FICTION (1987–)"));
+  root.appendChild(el("h2","", "The text is a network of paths"));
+  root.appendChild(el("p","def","USE — click the underlined words to move; BACK and RESTART manage the path. At D1 rewire link targets below the text; at D4 press NEXT and let the feed drive."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var stage = el("div","stage");
+  demo.appendChild(stage);
+  var rewire = el("div","rewire"); rewire.style.display = "none";
+  demo.appendChild(rewire);
+  var crumbs = el("div","crumbs");
+  demo.appendChild(crumbs);
+  var ctrls = el("div","ctrls");
+  var back = el("button",null,"BACK");
+  var restart = el("button",null,"RESTART");
+  var feedNext = el("button",null,"NEXT (FEED DECIDES)");
+  ctrls.appendChild(back); ctrls.appendChild(restart); ctrls.appendChild(feedNext);
+  demo.appendChild(ctrls);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A nonsequential writing network / distributed linked resource / branching literary work.",
+    "A reader-author who follows and creates connections; a reader-player performing choices.",
+    "Link, branch, transclude, choose, revisit, assemble narrative.",
+    "A network of lexia, links, branches, loops, and concealed conditions.",
+    "Link choice selects the next textual unit; reading history plus choice produces the path.",
+    "Shared between link author and link follower; author designs, reader actualizes.",
+    "From single works to document networks to a global distributed system.",
+    "The path becomes determinate as links are followed.",
+    "Multiple possible sequences must remain structurally available; the path must affect the experienced sequence.",
+    "Reducing hypertext to one-way web links, or assuming choice means unlimited coauthorship."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>{textual nodes}</b>",
+    "  → [are connected by] {links}",
+    "  → <b>&lt;reader&gt;</b> [chooses] &lt;link&gt;",
+    "  → &lt;choice&gt; [produces] &lt;local sequence&gt;",
+    "  → &lt;reading history&gt; [constitutes] <b>&lt;path&gt;</b>"
+  ]));
+
+  var LEX = [
+    {id:1, parts:["The signal crossed the ", ["river",2], " before the ", ["reader",3], " did."]},
+    {id:2, parts:["On the far bank, a ", ["machine",3], " kept ", ["records",4], " of every crossing."]},
+    {id:3, parts:["Some crossings were made ", ["by hand",1], "; others were ", ["sampled",4], " from earlier crossings."]},
+    {id:4, parts:["The ", ["archive",5], " grew until no single reader could hold it."]},
+    {id:5, parts:["What remained legible was not the text but the ", ["pattern",6], " of its traversals."]},
+    {id:6, parts:["Somewhere in the record, the ", ["first crossing",1], " was still retrievable."]}
+  ];
+
+  var d = 2, path = [1], unlocked = false;
+  /* mutable copy of link targets for D1 authoring: targets[lexIdx][linkIdx] */
+  var targets = LEX.map(function(lx){
+    return lx.parts.filter(function(p){ return typeof p !== "string"; }).map(function(p){ return p[1]; });
+  });
+
+  function follow(target){
+    if(d === 2 && target === 6 && !unlocked){
+      stage.appendChild(el("div","note","The link resists. A concealed condition holds L6 shut — something in the archive must be seen first."));
+      return;
+    }
+    path.push(target);
+    render();
+  }
+
+  function render(){
+    var cur = path[path.length-1];
+    if(cur === 4) unlocked = true;
+    var lx = LEX[cur-1];
+    stage.innerHTML = "";
+    rewire.innerHTML = "";
+    rewire.style.display = (d === 1) ? "flex" : "none";
+    feedNext.style.display = (d === 4) ? "inline-block" : "none";
+
+    var p = el("div","s");
+    var linkIdx = 0;
+    lx.parts.forEach(function(part){
+      if(typeof part === "string"){
+        p.appendChild(document.createTextNode(part));
+        return;
+      }
+      var word = part[0];
+      var authoredTarget = targets[cur-1][linkIdx];
+      var myIdx = linkIdx;
+      linkIdx++;
+      if(d === 4){
+        p.appendChild(el("span","lnk inert", word));
+        return;
+      }
+      var b = el("button","lnk", word);
+      b.addEventListener("click", function(){
+        var t;
+        if(d === 1){ t = targets[cur-1][myIdx]; }
+        else if(d === 2){ t = part[1]; }
+        else { /* D3: the predictor samples any other lexia */
+          var opts = [1,2,3,4,5,6].filter(function(n){ return n !== cur; });
+          t = opts[Math.floor(Math.random()*opts.length)];
+          stage.appendChild(el("div","note dimtext","TARGET SAMPLED BY LINK PREDICTOR — authored destination overridden."));
+        }
+        follow(t);
+      });
+      p.appendChild(b);
+
+      if(d === 1){
+        var lab = el("label",null,"LINK '"+word.toUpperCase()+"' POINTS TO ");
+        var sel = document.createElement("select");
+        [1,2,3,4,5,6].forEach(function(n){
+          if(n === cur) return;
+          var o = document.createElement("option");
+          o.value = n; o.textContent = "L"+n;
+          if(n === authoredTarget) o.selected = true;
+          sel.appendChild(o);
+        });
+        sel.addEventListener("change", function(){
+          targets[cur-1][myIdx] = parseInt(sel.value, 10);
+        });
+        lab.appendChild(sel);
+        rewire.appendChild(lab);
+      }
+    });
+    stage.appendChild(p);
+    stage.appendChild(el("div","note dimtext","LEXIA L"+cur+(cur===6 && d===2 ? " — REACHED THROUGH A CONCEALED CONDITION":"")));
+    crumbs.innerHTML = "PATH — " + path.map(function(n,i){
+      return (i===path.length-1 ? "<b>L"+n+"</b>" : "L"+n);
+    }).join(" → ") + " &nbsp;·&nbsp; " + path.length + " STEP" + (path.length>1?"S":"") +
+    (d===4 ? " &nbsp;·&nbsp; CHOSEN BY THE FEED" : "");
+  }
+
+  feedNext.addEventListener("click", function(){
+    /* the feed favors the archive and the pattern; criteria not disclosed to the reader */
+    var weighted = [1,2,3,4,4,4,5,5,6];
+    var cur = path[path.length-1];
+    var t = cur;
+    var guard = 0;
+    while(t === cur && guard++ < 20){ t = weighted[Math.floor(Math.random()*weighted.length)]; }
+    path.push(t); render();
+  });
+  back.addEventListener("click", function(){ if(path.length > 1){ path.pop(); render(); } });
+  restart.addEventListener("click", function(){ path = [1]; unlocked = false; render(); });
+
+  makeDial(dialHost, {
+    start: 2,
+    chains: [
+      ["HUMAN (AUTHOR + FOLLOWER)","LINK","FINAL TEXT"],
+      ["HUMAN","AUTHORED LINK GRAPH","FINAL TEXT"],
+      ["HUMAN","CODE + LINK DATA","LINK PREDICTOR","FINAL TEXT"],
+      ["HUMAN","(FEED / API)","(RANKING MODEL)","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> You are Nelson's reader-author: rewire any link's destination below the lexia, then follow it. Both roles, one person.",
+      "<b>D2 — secondary.</b> The graph is authored and fixed; you supply only the following. One concealed condition guards L6, in the manner of hypertext fiction.",
+      "<b>D3 — tertiary.</b> A link predictor samples destinations. The words still look like links; the topology underneath is a distribution.",
+      "<b>D4 — quaternary.</b> Links go inert. NEXT asks the feed, which favors what it favors. You are the follower of a follower."
+    ],
+    onSet: function(nd){ d = nd; path = [1]; unlocked = false; render(); }
+  });
+})();
+
+/* ============================================================
+   PANEL 5 — DISTANT READING × distance
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-dr");
+  root.appendChild(el("div","panel-eyebrow","FRANCO MORETTI — DISTANT READING (2000–2013)"));
+  root.appendChild(el("h2","", "The text is a corpus of patterns"));
+  root.appendChild(el("p","def","USE — set a distance and read with the method it gives you: the page (D1), the bars (D2 — tap one to trace it), the clusters (D3), the claim (D4). Watch the RETURN field."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var body = el("div");
+  demo.appendChild(body);
+  var readout = el("div","readout");
+  demo.appendChild(readout);
+  var mini = el("div","corpus-mini");
+  demo.appendChild(mini);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A corpus treated as analyzable data.",
+    "A researcher who designs questions and interprets patterns.",
+    "Aggregate, measure, model, visualize, compare.",
+    "Documents, metadata, features, statistical relationships.",
+    "The corpus transforms through analysis into a pattern model.",
+    "Machines calculate patterns; humans define categories and interpret significance.",
+    "Hundreds to millions of texts (here: a demonstrative three).",
+    "Patterns become visible after aggregation and computation.",
+    "Claims must remain traceable to corpus construction and analytical method.",
+    "Treating computational patterns as self-explanatory literary meanings."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>{text collection}</b>",
+    "  → [is encoded as] &lt;corpus&gt;",
+    "  → <b>&lt;method&gt;</b> [extracts] &lt;features&gt;",
+    "  → &lt;computation&gt; [produces] <b>&lt;patterns&gt;</b>",
+    "  → <b>&lt;researcher&gt;</b> [interprets] &lt;literary-historical claim&gt;"
+  ]));
+
+  var STOP = ["the","a","of","was","were","did","by","no","not","on","its","until","an","in","to","that","this","it","and"];
+  var counts = {};
+  DOCS.forEach(function(doc){
+    doc.text.toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/).forEach(function(w){
+      if(!w || STOP.indexOf(w) > -1) return;
+      counts[w] = (counts[w]||0) + 1;
+    });
+  });
+  var vocab = Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a]; });
+  var top = vocab.slice(0,8);
+  var maxC = counts[top[0]];
+  var tokens = 0;
+  DOCS.forEach(function(doc){ tokens += doc.text.split(/\s+/).length; });
+
+  var d = 2, selected = null;
+
+  function renderMini(showAll){
+    mini.innerHTML = "";
+    mini.classList.toggle("big", d === 1);
+    var docs = (d === 1) ? [DOCS[0]] : DOCS;
+    if(d === 4){ mini.appendChild(el("div","doc","SOURCES NOT RETURNED BY THE API")); return; }
+    docs.forEach(function(doc){
+      mini.appendChild(el("div","doc", doc.id));
+      var b = el("div");
+      if(selected && d === 2){
+        var re = new RegExp("\\b("+selected+"[a-z]*)\\b","gi");
+        b.innerHTML = doc.text.replace(re,"<mark>$1</mark>");
+      } else {
+        b.textContent = doc.text;
+      }
+      b.style.marginBottom = "8px";
+      mini.appendChild(b);
+    });
+  }
+
+  function ret(){
+    if(d === 1) return "THE PAGE ITSELF";
+    if(d === 2) return selected ? "'"+selected.toUpperCase()+"' TRACED TO SOURCE" : "TAP A BAR TO DESCEND";
+    if(d === 3) return "CLUSTERS TRACEABLE · WEIGHTS NOT";
+    return "NONE — METHOD WITHHELD";
+  }
+
+  function renderReadout(){
+    readout.innerHTML =
+      "<span>DOCS <b>"+(d===1?1:DOCS.length)+"</b></span>"+
+      "<span>TOKENS <b>"+(d===1?DOCS[0].text.split(/\s+/).length:tokens)+"</b></span>"+
+      "<span>METHOD <b>"+["CLOSE READING","COUNTING SCRIPT","EMBEDDING (SIMULATED)","WITHHELD"][d-1]+"</b></span>"+
+      "<span>RETURN <b>"+ret()+"</b></span>";
+  }
+
+  function renderBody(){
+    body.innerHTML = "";
+    if(d === 1){
+      body.appendChild(el("p","dnote","One document, read whole, at reading size. N = 1. Every claim points at a sentence you can see."));
+    }
+    if(d === 2){
+      var bars = el("div","bars");
+      top.forEach(function(w){
+        var b = el("button","bar");
+        b.innerHTML =
+          "<span class='bw'>"+w+"</span>"+
+          "<span class='bt'><i style='width:"+Math.round(100*counts[w]/maxC)+"%'></i></span>"+
+          "<span class='bn'>"+counts[w]+"</span>";
+        b.addEventListener("click", function(){
+          selected = (selected === w) ? null : w;
+          bars.querySelectorAll(".bar").forEach(function(x){ x.classList.remove("sel"); });
+          if(selected) b.classList.add("sel");
+          renderMini(); renderReadout();
+        });
+        bars.appendChild(b);
+      });
+      body.appendChild(bars);
+    }
+    if(d === 3){
+      var groups = {CROSSING:[], MEMORY:[], OTHER:[]};
+      DOCS.forEach(function(doc, di){
+        doc.text.split(/(?<=\.)\s+/).forEach(function(s){
+          var low = s.toLowerCase();
+          if(/cross|river|water|bank/.test(low)) groups.CROSSING.push([di,s]);
+          else if(/machine|record|archive|pattern|retriev/.test(low)) groups.MEMORY.push([di,s]);
+          else groups.OTHER.push([di,s]);
+        });
+      });
+      Object.keys(groups).forEach(function(k){
+        if(!groups[k].length) return;
+        var c = el("div","cluster");
+        c.appendChild(el("div","ch","CLUSTER · "+k+" · "+groups[k].length+" SENTENCES"));
+        groups[k].forEach(function(item){
+          c.appendChild(el("div","ci","D0"+(item[0]+1)+" — "+item[1]));
+        });
+        body.appendChild(c);
+      });
+      body.appendChild(el("p","dnote","Sentences grouped by a similarity model. The clusters can be inspected; the space that produced them cannot."));
+    }
+    if(d === 4){
+      var claim = el("div","claim");
+      claim.appendChild(el("div","ch","PATTERN CLAIM — RETURNED BY MODEL"));
+      claim.appendChild(document.createTextNode("The corpus concerns crossing, recording, and the gradual loss of retrievability. Confidence: high."));
+      body.appendChild(claim);
+      body.appendChild(el("p","dnote","A finished claim, no features, no counts, no corpus card. Persuasive in exact proportion to what it hides."));
+    }
+  }
+
+  makeDial(dialHost, {
+    start: 2,
+    chains: [
+      ["HUMAN","CLOSE READING","CLAIM"],
+      ["HUMAN","COUNTING SCRIPT","PATTERN","CLAIM"],
+      ["HUMAN","CODE + CORPUS","EMBEDDING MODEL","PATTERN","CLAIM"],
+      ["HUMAN","(API)","(SEALED METHOD)","CLAIM"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> Reading without apparatus. Total traceability, no scale.",
+      "<b>D2 — secondary.</b> A counting script you could rewrite yourself. Scale arrives; the return to the page is one tap away.",
+      "<b>D3 — tertiary.</b> An embedding model clusters what counting cannot. Outputs inspectable, mechanism not.",
+      "<b>D4 — quaternary.</b> The oracle returns a claim about a corpus it will not show, by a method it will not name. Moretti's danger, fully industrialized."
+    ],
+    onSet: function(nd){ d = nd; selected = null; renderBody(); renderMini(); renderReadout(); }
+  });
+})();
+
+/* ============================================================
+   PANEL 6 — DISTANT WRITING × distance
+   Bajohr's home territory: the four chains, literally
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-dw");
+  root.appendChild(el("div","panel-eyebrow","HANNES BAJOHR — FOUR DEGREES OF CAUSAL AUTHORSHIP"));
+  root.appendChild(el("h2","", "The text is a directed possibility space"));
+  root.appendChild(el("p","def","USE — write it yourself (D1), or generate 3 candidates and SELECT one (D2–D4). Every selection enters the ledger with its full causal chain attached."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var ctrls = el("div","ctrls");
+  demo.appendChild(ctrls);
+  var candWrap = el("div"); candWrap.style.marginTop = "6px";
+  demo.appendChild(candWrap);
+  var circHead = el("div","dlabel","CIRCULATION — PROVENANCE LEDGER"); circHead.style.marginTop = "14px";
+  demo.appendChild(circHead);
+  var circ = el("div");
+  circ.appendChild(el("div","trail-item dimtext","Nothing has entered circulation. A candidate becomes text only when selected — at any distance."));
+  demo.appendChild(circ);
+  var readout = el("div","readout");
+  demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A generative possibility space mediated by a model.",
+    "A director-editor-prompter who specifies, evaluates, and revises.",
+    "Prompt, generate, select, constrain, edit, regenerate.",
+    "Prompts, model states, outputs, selections, revision histories.",
+    "Human instruction plus model distribution generates candidate text.",
+    "Human agency shifts from direct inscription toward direction, selection, and curation.",
+    "Sentence, work, corpus, or ongoing generative process.",
+    "Text becomes provisionally determinate when an output is selected.",
+    "Human authorship persists through consequential direction and judgment.",
+    "Equating prompting with complete authorship, or treating output as autonomous creativity."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;human intention&gt;</b>",
+    "  → [is operationalized as] &lt;prompt and constraints&gt;",
+    "  → <b>&lt;model&gt;</b> [generates] {candidate sequences}",
+    "  → <b>&lt;human&gt;</b> [selects and revises] &lt;output&gt;",
+    "  → &lt;selected output&gt; [enters] <b>&lt;literary circulation&gt;</b>"
+  ]));
+
+  var POOL = {
+    compress: [
+      "The signal crossed first; the machine remembered; the reader arrived too late to hold it all.",
+      "A river, a machine, an archive too large for one reader — only the pattern stayed legible.",
+      "Crossings by hand became crossings by sample; the record kept what the reader could not.",
+      "Signal, bank, record, archive, pattern, retrieval: six stations of a single crossing.",
+      "Everything crossed. Only the pattern of crossing remained readable."
+    ],
+    continue: [
+      "The reader crossed back, and the machine recorded the return as if it were the first crossing again.",
+      "In time the machine began to cross the river itself, sampling readers as it went.",
+      "A second archive grew on the near bank, holding only what the first had refused.",
+      "The pattern, once legible, began to write crossings of its own.",
+      "Retrieval became a kind of crossing, and the record grew by being read."
+    ],
+    invert: [
+      "The reader crossed the river before the signal did, and the machine failed to notice.",
+      "On the near bank, a reader kept records of every machine.",
+      "Every crossing was made by hand; nothing was sampled, and the archive stayed small enough to hold.",
+      "What remained legible was the text itself; the pattern of traversals had been lost.",
+      "Somewhere in the reader, the first machine was still retrievable."
+    ]
+  };
+  var STARTS = {compress:"the", continue:"reader", invert:"machine"};
+
+  var d = 2, genCount = 0, rejected = 0, circulated = 0;
+
+  function updateReadout(){
+    readout.innerHTML =
+      "<span>GENERATED <b>"+genCount+"</b></span>"+
+      "<span>REJECTED <b>"+rejected+"</b></span>"+
+      "<span>CIRCULATED <b>"+circulated+"</b></span>"+
+      "<span>CHAIN LENGTH <b>"+["1 STEP","2 STEPS","3 STEPS","4 STEPS"][d-1]+"</b></span>";
+  }
+
+  var CHAIN_LABEL = [
+    "HUMAN → FINAL TEXT",
+    "HUMAN → RULE SET → FINAL TEXT",
+    "HUMAN → CODE + DATA SET → WEIGHT MODEL → FINAL TEXT",
+    "HUMAN → API → CODE + DATA SET → WEIGHT MODEL → FINAL TEXT"
+  ];
+
+  function circulate(text, detail){
+    circulated++;
+    if(circulated === 1) circ.innerHTML = "";
+    var item = el("div","circ-item", text);
+    item.appendChild(el("span","prov","D"+d+" · <b>"+CHAIN_LABEL[d-1]+"</b> · "+detail));
+    circ.insertBefore(item, circ.firstChild);
+    updateReadout();
+  }
+
+  function offerCandidates(picks, detail){
+    rejected += candWrap.querySelectorAll(".cand").length;
+    candWrap.innerHTML = "";
+    picks.forEach(function(t){
+      genCount++;
+      var c = el("div","cand");
+      var head = el("div","ch");
+      head.appendChild(el("span","cid","CANDIDATE "+String(genCount).padStart(3,"0")));
+      var pickBtn = el("button",null,"SELECT");
+      head.appendChild(pickBtn);
+      c.appendChild(head);
+      c.appendChild(document.createTextNode(t));
+      pickBtn.addEventListener("click", function(){
+        rejected += candWrap.querySelectorAll(".cand").length - 1;
+        candWrap.innerHTML = "";
+        circulate(t, detail);
+      });
+      candWrap.appendChild(c);
+    });
+    updateReadout();
+  }
+
+  function rebuildControls(){
+    ctrls.innerHTML = "";
+    candWrap.innerHTML = "";
+    if(d === 1){
+      var ta = document.createElement("textarea");
+      ta.placeholder = "Write the sentence yourself. No mediation.";
+      var go = el("button",null,"INSCRIBE + CIRCULATE");
+      go.addEventListener("click", function(){
+        var t = ta.value.trim();
+        if(!t) return;
+        genCount++;
+        circulate(t, "DIRECT INSCRIPTION · NO CANDIDATES · NO REJECTIONS");
+        ta.value = "";
+      });
+      ctrls.appendChild(ta); ctrls.appendChild(go);
+    }
+    if(d === 2 || d === 3){
+      var sel = document.createElement("select");
+      [["compress","DIRECTIVE: COMPRESS"],["continue","DIRECTIVE: CONTINUE"],["invert","DIRECTIVE: INVERT"]].forEach(function(o){
+        var opt = document.createElement("option");
+        opt.value = o[0]; opt.textContent = o[1];
+        sel.appendChild(opt);
+      });
+      var gen = el("button",null,"GENERATE 3 CANDIDATES");
+      gen.addEventListener("click", function(){
+        var mode = sel.value;
+        if(d === 2){
+          var pool = POOL[mode].slice(), picks = [];
+          while(picks.length < 3 && pool.length){
+            picks.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+          }
+          offerCandidates(picks, "TEMPLATE POOL · DIRECTIVE "+mode.toUpperCase()+" · SELECTED BY HUMAN JUDGMENT");
+        } else {
+          var picks3 = [
+            MARKOV.sentence(STARTS[mode], 13),
+            MARKOV.sentence(STARTS[mode], 13),
+            MARKOV.sentence(STARTS[mode], 13)
+          ];
+          offerCandidates(picks3, "BIGRAM WEIGHT MODEL · CORPUS 3 DOCS · SEED '"+STARTS[mode].toUpperCase()+"' · SELECTED BY HUMAN JUDGMENT");
+        }
+      });
+      ctrls.appendChild(sel); ctrls.appendChild(gen);
+    }
+    if(d === 4){
+      var sel4 = document.createElement("select");
+      var opt4 = document.createElement("option");
+      opt4.textContent = "DIRECTIVE: PARAMETER NOT EXPOSED";
+      sel4.appendChild(opt4);
+      sel4.disabled = true;
+      var gen4 = el("button",null,"REQUEST FROM API");
+      gen4.addEventListener("click", function(){
+        gen4.disabled = true;
+        gen4.textContent = "AWAITING RESPONSE…";
+        setTimeout(function(){
+          gen4.disabled = false;
+          gen4.textContent = "REQUEST FROM API";
+          var picks = [MARKOV.sentence("the",13), MARKOV.sentence("the",13), MARKOV.sentence("the",13)];
+          offerCandidates(picks, "API · MODEL VERSION WITHHELD · PARAMETERS WITHHELD · SELECTED BY HUMAN JUDGMENT");
+        }, 800);
+      });
+      ctrls.appendChild(sel4); ctrls.appendChild(gen4);
+    }
+  }
+
+  makeDial(dialHost, {
+    start: 2,
+    chains: [
+      ["HUMAN","FINAL TEXT"],
+      ["HUMAN","CODE / RULE SET","FINAL TEXT"],
+      ["HUMAN","CODE + DATA SET","WEIGHT MODEL","FINAL TEXT"],
+      ["HUMAN","(PROPRIETARY INTERFACE / API)","(CODE + DATA SET)","(WEIGHT MODEL)","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> Human → final text. The traditional paradigm: you write, it circulates.",
+      "<b>D2 — secondary.</b> Human → rule set → text. The sequential paradigm: you direct a template, then judge.",
+      "<b>D3 — tertiary.</b> Human → code + data → weight model → text. The connectionist paradigm: candidates are sampled from a distribution built on the corpus — every word traceable to a source, no sentence traceable to a hand.",
+      "<b>D4 — quaternary.</b> Human → API → the rest. The distribution is real but rented: version withheld, parameters withheld, latency included."
+    ],
+    onSet: function(nd){ d = nd; rebuildControls(); updateReadout(); }
+  });
+})();
+
+/* ============================================================
+   PANEL 7 — DISTANT TEXT × distance
+   what provenance survives each layer?
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-dt");
+  root.appendChild(el("div","panel-eyebrow","DISTANT TEXT — THE MACHINE-READABLE FIELD (AFTER MORETTI & BAJOHR)"));
+  root.appendChild(el("h2","", "The text is a machine-readable field"));
+  root.appendChild(el("p","def","USE — press SHOW PROVENANCE at D2; at D1 it is always on, at D3 it returns as estimates, at D4 the button is gone. Read SOURCES in the readout."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+
+  var field = el("div","field");
+  demo.appendChild(field);
+  var legend = el("div","legend");
+  demo.appendChild(legend);
+  var ctrls = el("div","ctrls");
+  var prov = el("button","tgl","SHOW PROVENANCE");
+  ctrls.appendChild(prov);
+  demo.appendChild(ctrls);
+  var readout = el("div","readout");
+  demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A machine-readable textual aggregation; a machine-generated output separated from inscription.",
+    "A curator-researcher who selects and structures; an initiator-curator-recipient.",
+    "Collect, digitize, normalize, encode, index; sample, synthesize, filter, circulate.",
+    "Documents, tokens, metadata, categories, provenance records; training traces and distributions.",
+    "Source documents are transformed into a computable corpus; model conditions sample a sequence.",
+    "Institutions and curators shape what machines perceive; agency spans dataset makers to editors.",
+    "Very large collections; single outputs through industrial-scale generation.",
+    "The corpus changes as material is added; the sequence emerges token by token.",
+    "Provenance and selection boundaries must remain visible; output is mediated, not inscribed.",
+    "Presenting the corpus as natural or neutral; erasing hidden labor and infrastructure."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>{distributed textual sources}</b>",
+    "  → [are aggregated or synthesized]",
+    "  → <b>&lt;machine-readable textual field&gt;</b>",
+    "  → [supports] {analysis, generation, retrieval, circulation}"
+  ]));
+
+  var LEGEND_TRUE =
+    "<span><i style='background:#19e6c8'></i>DOC 01 · FIRST EDITION · KEYED BY HAND</span>"+
+    "<span><i style='background:#3b82f6'></i>DOC 02 · RIVER VARIANT · SCANNED, OCR-CORRECTED</span>"+
+    "<span><i style='background:#ffd23f'></i>DOC 03 · MACHINE VARIANT · SCRAPED, UNPAID LABOR UNCREDITED</span>";
+  var LEGEND_RECON =
+    "<span><i style='background:#19e6c8'></i>ATTRIBUTED DOC 01 (ESTIMATE)</span>"+
+    "<span><i style='background:#3b82f6'></i>ATTRIBUTED DOC 02 (ESTIMATE)</span>"+
+    "<span><i style='background:#ffd23f'></i>ATTRIBUTED DOC 03 (ESTIMATE)</span>";
+
+  var toks = [], total = 0;
+  var SRC = [
+    DOCS[0].text,
+    "The signal crossed the water before the reader did. On the near bank, a machine kept records of every crossing. Most crossings were made by hand; a few were sampled from earlier crossings.",
+    "The reader crossed the river after the signal did. On the far bank, the machine kept a record of the reader. Every crossing was sampled; no crossing was made by hand."
+  ];
+  SRC.forEach(function(t, di){
+    t.split(/\s+/).forEach(function(w){
+      var s = el("span","tok", w.toLowerCase().replace(/[^a-z';,.\-]/g,""));
+      s.setAttribute("data-doc", di);
+      field.appendChild(s);
+      toks.push(s);
+      total++;
+    });
+  });
+
+  var d = 2, provOn = false, confidence = 0;
+
+  function applyClasses(){
+    var correct = 0;
+    toks.forEach(function(s){
+      var trueDoc = parseInt(s.getAttribute("data-doc"),10);
+      s.classList.remove("d0","d1","d2");
+      s.removeAttribute("title");
+      if(d === 3){
+        /* reconstruction: right about 60% of the time */
+        var guess = (Math.random() < 0.6) ? trueDoc : Math.floor(Math.random()*3);
+        if(guess === trueDoc) correct++;
+        s.classList.add("d"+guess);
+      } else {
+        s.classList.add("d"+trueDoc);
+        if(d === 1) s.title = DOCS[trueDoc].id;
+        correct++;
+      }
+    });
+    confidence = Math.round(100*correct/total);
+  }
+
+  function render(){
+    var showing = (d === 1) || (d === 3) || (d === 2 && provOn);
+    field.classList.toggle("prov", showing && d !== 4);
+    legend.classList.toggle("show", showing && d !== 4);
+    legend.innerHTML = (d === 3) ? LEGEND_RECON : LEGEND_TRUE;
+    prov.style.display = (d === 2) ? "inline-block" : "none";
+    prov.classList.toggle("on", provOn);
+    prov.textContent = provOn ? "HIDE PROVENANCE" : "SHOW PROVENANCE";
+    var srcTxt =
+      d === 1 ? "3 — MANUSCRIPT-LEVEL" :
+      d === 2 ? (provOn ? "3 — DISTINCT LABORS" : "APPARENTLY 1") :
+      d === 3 ? "3 — RECONSTRUCTED" : "SEALED BY LICENSE";
+    readout.innerHTML =
+      "<span>TOKENS <b>"+total+"</b></span>"+
+      "<span>SOURCES <b>"+srcTxt+"</b></span>"+
+      "<span>SURFACE <b>"+["HISTORICIZED","", "ESTIMATED","NATURALIZED"][d-1]+(d===2?(provOn?"HISTORICIZED":"NATURALIZED"):"")+"</b></span>"+
+      (d === 3 ? "<span>ATTRIBUTION ACCURACY <b>"+confidence+"%</b></span>" : "");
+  }
+
+  prov.addEventListener("click", function(){ provOn = !provOn; render(); });
+
+  makeDial(dialHost, {
+    start: 2,
+    chains: [
+      ["HUMAN","TRANSCRIPTION","FIELD"],
+      ["HUMAN","ENCODING PIPELINE","FIELD"],
+      ["HUMAN","PIPELINE","TRAINING TRACES","FIELD"],
+      ["HUMAN","(PLATFORM)","(SEALED WEIGHTS)","FIELD"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> Provenance is total and always on: every token knows its manuscript. Tap-and-hold a token for its source.",
+      "<b>D2 — secondary.</b> Document-level provenance, kept in metadata — recoverable, but only if someone toggles it on.",
+      "<b>D3 — tertiary.</b> The pipeline discarded the records; a model re-attributes each token, right about 60% of the time. Colors return as estimates.",
+      "<b>D4 — quaternary.</b> Provenance is not lost — it is licensed. The field flattens to one gray surface by contract."
+    ],
+    onSet: function(nd){ d = nd; provOn = false; applyClasses(); render(); }
+  });
+})();
+
+
+/* ============================================================
+   PANEL — TRANSLATION (O'Neill): the polyglot macrotext
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-tr");
+  root.appendChild(el("div","panel-eyebrow","PATRICK O'NEILL — POLYGLOT JOYCE (2005) · IMPOSSIBLE JOYCE (2013)"));
+  root.appendChild(el("h2","", "The text is a polyglot macrotext"));
+  root.appendChild(el("p","def","USE — press the execute button at each distance and watch the macrotext ledger grow. Fusion glitches are flagged and kept."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+  demo.appendChild(el("p","dnote","<b>SOURCE —</b> "+BASE[0]));
+  var ctrls = el("div","ctrls"); demo.appendChild(ctrls);
+  var ledHead = el("div","dlabel","THE MACROTEXT — ALL EXECUTIONS, ONE WORK"); ledHead.style.marginTop = "14px";
+  demo.appendChild(ledHead);
+  var ledger = el("div");
+  ledger.appendChild(el("div","trail-item dimtext","No executions yet. The macrotext begins at the second text."));
+  demo.appendChild(ledger);
+  var readout = el("div","readout"); demo.appendChild(readout);
+  root.appendChild(demo);
+
+  var rrdet = el("details");
+  rrdet.appendChild(el("summary",null,"REFERENCE — 'RIVERRUN' EXECUTIONS (AFTER O'NEILL)"));
+  var rrwrap = el("div","genes");
+  [["ITALIAN · 1982 · SCHENONI","fluidofiume"],
+   ["GERMAN · 1989 · JAUSLIN","Flußflöß" .replace("ö","o")],
+   ["POLISH · 1998 · KRÓLIKOWSKI","rzekobieg"],
+   ["RUSSIAN · 2000 · VOLOKHONSKY","beg reki"],
+   ["DUTCH · 2002 · BINDERVOET & HENKES","rivierein"],
+   ["PORTUGUESE · 2003 · SCHÜLER","rolarriuanna"],
+   ["SPANISH · 2009 · VICTORIA","correrrío"],
+   ["ESPERANTO · 2010 · GRAMTRANS (MACHINE)","riverkuro — accidental compound; the glitch that closes the circuit"]
+  ].forEach(function(row){
+    var g = el("div","g");
+    g.appendChild(el("span","gk",row[0]));
+    g.appendChild(document.createTextNode(row[1]));
+    rrwrap.appendChild(g);
+  });
+  rrdet.appendChild(rrwrap);
+  root.appendChild(rrdet);
+
+  root.appendChild(geneBlock([
+    "Polyglot macrotext — the work as the sum of its translations.",
+    "Translator as executor of the source program in a target language.",
+    "Translate · mutate · extend · transread.",
+    "Network of versions around a source; every variant a node.",
+    "Source constraints plus target language produce the variant.",
+    "Split among author, translator, and the target language's own system.",
+    "The work across all its languages at once.",
+    "The macrotext is never complete; each execution extends it.",
+    "Untranslatability must stimulate, not terminate, interpretation.",
+    "Treating translation as loss — and machine error as mere failure."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;source text&gt;</b>",
+    "  → [is executed in] &lt;target language&gt;",
+    "  → <b>&lt;variant&gt;</b> [joins] &lt;macrotext&gt;",
+    "  → &lt;macrotext&gt; [continues] <b>&lt;the work&gt;</b>",
+    "  → &lt;glitch&gt; [reveals] &lt;latent possibility&gt;"
+  ]));
+
+  var HUMANS = [
+    ["FRENCH","Le signal traversa le fleuve avant le lecteur."],
+    ["GERMAN","Das Signal überquerte den Fluss vor dem Leser."],
+    ["SPANISH","La señal cruzó el río antes que el lector."]
+  ];
+  var DICT = {"the":"la","signal":"signalo","crossed":"transiris","river":"riveron","before":"antaŭ","reader":"leganto","did":"faris"};
+  var TOKENS = BASE[0].toLowerCase().replace(/[^a-z\s]/g,"").split(/\s+/).filter(Boolean);
+
+  var d = 1, humanIdx = 0, variants = 0, glitches = 0, langs = {};
+
+  function updateReadout(){
+    readout.innerHTML =
+      "<span>EXECUTIONS <b>"+variants+"</b></span>"+
+      "<span>LANGUAGES <b>"+Object.keys(langs).length+"</b></span>"+
+      "<span>GLITCHES <b>"+glitches+"</b></span>"+
+      "<span>MACROTEXT <b>ONE WORK</b></span>";
+  }
+  function addVariant(lang, text, engine, glitch){
+    variants++; langs[lang] = 1;
+    if(glitch) glitches++;
+    if(variants === 1) ledger.innerHTML = "";
+    var item = el("div","circ-item", text);
+    item.appendChild(el("span","prov", lang+" · <b>"+engine+"</b>"+(glitch ? " · GLITCH RETAINED — LATENT POSSIBILITY" : "")));
+    ledger.insertBefore(item, ledger.firstChild);
+    updateReadout();
+  }
+  function espTokens(){
+    return TOKENS.map(function(w){ return DICT[w] || w; });
+  }
+  function joinCap(arr){
+    var s = arr.join(" ");
+    return s.charAt(0).toUpperCase() + s.slice(1) + ".";
+  }
+  function fuseOne(arr){
+    var i = Math.floor(Math.random() * (arr.length - 1));
+    var fused = arr[i] + arr[i+1];
+    var out = arr.slice(0, i).concat([fused], arr.slice(i+2));
+    return {arr: out, fused: fused};
+  }
+
+  function rebuildControls(){
+    ctrls.innerHTML = "";
+    if(d === 1){
+      var b1 = el("button",null,"ADD HUMAN EXECUTION");
+      b1.addEventListener("click", function(){
+        if(humanIdx >= HUMANS.length){ b1.disabled = true; b1.textContent = "TRANSLATORS EXHAUSTED"; return; }
+        var h = HUMANS[humanIdx++];
+        addVariant(h[0], h[1], "HUMAN — AUTHORED JUDGMENT");
+        if(humanIdx >= HUMANS.length){ b1.disabled = true; b1.textContent = "TRANSLATORS EXHAUSTED"; }
+      });
+      ctrls.appendChild(b1);
+    }
+    if(d === 2){
+      var b2 = el("button",null,"RUN DICTIONARY RULE (ESPERANTO)");
+      b2.addEventListener("click", function(){
+        addVariant("ESPERANTO", joinCap(espTokens()), "DICTIONARY RULE — WORD-FOR-WORD, ORDER PRESERVED");
+        b2.disabled = true; b2.textContent = "RULE IS DETERMINISTIC — SAME INPUT, SAME OUTPUT";
+      });
+      ctrls.appendChild(b2);
+      ctrls.appendChild(el("span","dnote","RULE (LEGIBLE): token → lexicon lookup. What the rule cannot find, it leaves untouched."));
+    }
+    if(d === 3){
+      var b3 = el("button",null,"SAMPLE TRANSLATION (MODEL)");
+      b3.addEventListener("click", function(){
+        var t = espTokens();
+        var glitch = Math.random() < 0.7;
+        var fused = null;
+        if(glitch){ var f = fuseOne(t); t = f.arr; fused = f.fused; }
+        addVariant("ESPERANTO", joinCap(t), "STATISTICAL MODEL — ALIGNMENTS SAMPLED"+(fused ? " · FUSION: "+fused.toUpperCase() : ""), !!fused);
+      });
+      ctrls.appendChild(b3);
+    }
+    if(d === 4){
+      var b4 = el("button",null,"REQUEST TRANSLATION (API)");
+      b4.addEventListener("click", function(){
+        b4.disabled = true; b4.textContent = "AWAITING RESPONSE…";
+        setTimeout(function(){
+          b4.disabled = false; b4.textContent = "REQUEST TRANSLATION (API)";
+          var t = espTokens();
+          var f = fuseOne(t);
+          addVariant("TARGET WITHHELD (AUTO-DETECTED)", joinCap(f.arr), "API — MODEL VERSION WITHHELD · ALTERNATIVES NOT RETURNED", true);
+        }, 750);
+      });
+      ctrls.appendChild(b4);
+    }
+  }
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","TARGET TEXT"],
+      ["HUMAN","DICTIONARY RULE","TARGET TEXT"],
+      ["HUMAN","CORPUS + ALIGNMENTS","STATISTICAL MODEL","TARGET TEXT"],
+      ["HUMAN","(API)","(ALIGNMENTS)","(MODEL)","TARGET TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> A human translator executes the source, judgment call by judgment call. Each language adds a node to the macrotext.",
+      "<b>D2 — secondary.</b> A lexicon rule substitutes word for word. Auditable, deterministic — and deaf to everything between the words.",
+      "<b>D3 — tertiary.</b> A statistical model samples alignments. Sometimes it fuses two words into an accidental compound: riverkuro. The glitch is the finding.",
+      "<b>D4 — quaternary.</b> One output, no alternatives, target auto-detected, version withheld. The macrotext still grows — it just can't say how."
+    ],
+    onSet: function(nd){ d = nd; rebuildControls(); updateReadout(); }
+  });
+})();
+
+/* ============================================================
+   PANEL — GENESIS (genetic criticism): the draft field
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-ge");
+  root.appendChild(el("div","panel-eyebrow","GENETIC CRITICISM — VAN HULLE · THE GUILTLESS COPYBOOK (BL ADD MS 47471B, 1923)"));
+  root.appendChild(el("h2","", "The text is an executable field of drafts"));
+  root.appendChild(el("p","def","USE — at D1 tap a sentence then add a margin; at D2 apply commit layers; at D3 accept model insertions. Toggle DIFF/PLAIN; press CUT to freeze an edition."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+  var stage = el("div","stage"); demo.appendChild(stage);
+  var ctrls = el("div","ctrls"); demo.appendChild(ctrls);
+  var ctrls2 = el("div","ctrls");
+  var diffBtn = el("button",null,"VIEW: DIFF");
+  var cutBtn = el("button",null,"CUT THE EDITION");
+  ctrls2.appendChild(diffBtn); ctrls2.appendChild(cutBtn);
+  demo.appendChild(ctrls2);
+  var readout = el("div","readout"); demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "Executable field of drafts — the avant-texte, not the product.",
+    "Author-as-reviser; geneticist who reads the making.",
+    "Insert · delete · branch · merge · layer.",
+    "Copybooks, layers, marginalia, version entanglements.",
+    "Layered inscription accumulates into a publishable state.",
+    "Author writes; the archive remembers; the editor cuts.",
+    "From a single insertion to the whole dossier.",
+    "The work is never final — an edition is a cut, not an end.",
+    "Every state must remain recoverable from the archive.",
+    "Teleology — reading drafts as mere steps toward the final text."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>{copybooks}</b>",
+    "  → [layer] &lt;insertions and deletions&gt;",
+    "  → <b>&lt;avant-texte&gt;</b>",
+    "  → [is cut into] &lt;edition&gt;",
+    "  → <b>&lt;archive&gt;</b> [keeps] &lt;every state&gt;"
+  ]));
+
+  var LAYERS = [
+    [1, "a machine", "the recording machine"],
+    [3, "no single reader", "no reader, single or assembled,"],
+    [4, "the pattern", "the drifting pattern"],
+    [0, "The signal", "riverrun, the signal"]
+  ];
+
+  var d = 1, W, layersApplied, insertions, pickIdx, cut, plain;
+
+  function resetState(){
+    W = BASE.slice();
+    layersApplied = 0; insertions = 0; pickIdx = -1; cut = false; plain = false;
+    diffBtn.textContent = "VIEW: DIFF";
+    cutBtn.disabled = false; cutBtn.textContent = "CUT THE EDITION";
+    stage.classList.remove("plain");
+  }
+
+  function render(){
+    stage.innerHTML = "";
+    stage.classList.toggle("plain", plain);
+    W.forEach(function(s, i){
+      var div = el("div","s"+(i === pickIdx ? " pick" : ""), s);
+      if(d === 1 && !cut){
+        div.style.cursor = "pointer";
+        div.addEventListener("click", function(){
+          pickIdx = (pickIdx === i) ? -1 : i;
+          render();
+        });
+      }
+      stage.appendChild(div);
+    });
+  }
+  function updateReadout(){
+    readout.innerHTML =
+      "<span>LAYERS <b>"+layersApplied+"/"+LAYERS.length+"</b></span>"+
+      "<span>INSERTIONS <b>"+insertions+"</b></span>"+
+      "<span>STATE <b>"+(cut ? "EDITION — A CUT, NOT AN END" : "AVANT-TEXTE")+"</b></span>";
+  }
+  function applyLayer(k, silent){
+    var L = LAYERS[k];
+    if(W[L[0]].indexOf(L[1]) === -1) return false;
+    if(silent){
+      W[L[0]] = W[L[0]].replace(L[1], L[2]);
+    } else {
+      W[L[0]] = W[L[0]].replace(L[1],
+        '<span class="delmark">'+L[1]+'</span> <span class="insmark">'+L[2]+'</span>');
+    }
+    layersApplied++; insertions++;
+    return true;
+  }
+
+  function rebuildControls(){
+    ctrls.innerHTML = "";
+    if(d === 1){
+      var m = el("button",null,"MARGINAL ADDITION (YOU)");
+      m.addEventListener("click", function(){
+        if(cut) return;
+        if(pickIdx === -1){
+          ctrls.appendChild(el("span","dnote","Pick a sentence first — the margin needs a recto to be destined for."));
+          return;
+        }
+        W[pickIdx] += ' <span class="insmark">— added in the margin, destined for the facing page</span>';
+        insertions++;
+        pickIdx = -1;
+        render(); updateReadout();
+      });
+      ctrls.appendChild(m);
+      ctrls.appendChild(el("span","dnote","Tap a sentence to select it, then add your margin. The verso writes onto the recto."));
+    }
+    if(d === 2){
+      var r = el("button",null,"APPLY REVISION LAYER");
+      r.addEventListener("click", function(){
+        if(cut || layersApplied >= LAYERS.length){ r.disabled = true; r.textContent = "DOSSIER EXHAUSTED"; return; }
+        applyLayer(layersApplied, false);
+        if(layersApplied >= LAYERS.length){ r.disabled = true; r.textContent = "DOSSIER EXHAUSTED"; }
+        render(); updateReadout();
+      });
+      ctrls.appendChild(r);
+      ctrls.appendChild(el("span","dnote","RULE (LEGIBLE): commits apply in dossier order. Every layer names its target."));
+    }
+    if(d === 3){
+      var s = el("button",null,"SUGGEST REVISION (MODEL)");
+      s.addEventListener("click", function(){
+        if(cut) return;
+        var t = Math.floor(Math.random()*W.length);
+        var clause = MARKOV.sentence("the", 7).toLowerCase().replace(/\.$/,"");
+        W[t] = W[t].replace(/\.(\s*)$/,"") + ', <span class="insmark">'+clause+'</span>.';
+        insertions++;
+        render(); updateReadout();
+      });
+      ctrls.appendChild(s);
+      ctrls.appendChild(el("span","dnote","The model proposes clauses sampled from the corpus. Each acceptance is yours; each phrasing is not."));
+    }
+    if(d === 4){
+      if(!cut){
+        applyLayer(0, true); /* silent platform edit — no markup */
+        if(W[4].indexOf("the pattern") > -1){
+          W[4] = W[4].replace("the pattern", 'the pattern <span class="insmark">[edited]</span>');
+          insertions++;
+        }
+      }
+      ctrls.appendChild(el("span","dnote","Two edits were applied on arrival — one marked, one silent. HISTORY: VIEW-ONLY · EXPORT DISABLED."));
+      render(); updateReadout();
+    }
+  }
+
+  diffBtn.addEventListener("click", function(){
+    plain = !plain;
+    diffBtn.textContent = plain ? "VIEW: PLAIN" : "VIEW: DIFF";
+    render();
+  });
+  cutBtn.addEventListener("click", function(){
+    if(cut) return;
+    cut = true; plain = true;
+    diffBtn.textContent = "VIEW: PLAIN";
+    cutBtn.disabled = true; cutBtn.textContent = "EDITION CUT — FIELD PRESERVED";
+    render(); updateReadout();
+  });
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","HOLOGRAPH DRAFT","EDITION"],
+      ["HUMAN","VERSIONING RULE","EDITION"],
+      ["HUMAN","CODE + DRAFT CORPUS","SUGGESTION MODEL","EDITION"],
+      ["HUMAN","(PLATFORM)","(EDIT HISTORY)","EDITION"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> Your hand in the copybook: pick a sentence, write in its margin. Verso bleeds into recto.",
+      "<b>D2 — secondary.</b> Revisions arrive as legible commits, in dossier order, each naming its target. Version control, manual.",
+      "<b>D3 — tertiary.</b> A model drafts the insertions; you host them. The archive fills with phrasings no hand chose.",
+      "<b>D4 — quaternary.</b> The platform edits on arrival — one change marked, one silent — and the history is view-only. The avant-texte belongs to someone else."
+    ],
+    onSet: function(nd){ d = nd; resetState(); rebuildControls(); render(); updateReadout(); }
+  });
+})();
+
+/* ============================================================
+   PANEL — COMBINATORY (Polti / Oulipo): finite inventory
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-cb");
+  root.appendChild(el("div","panel-eyebrow","GEORGES POLTI — THE 36 DRAMATIC SITUATIONS (1916) · OULIPO (1960–)"));
+  root.appendChild(el("h2","", "The text is a finite inventory, permuted"));
+  root.appendChild(el("p","def","USE — reorder the six sentences: by hand (D1, tap two), by rule (D2, next permutation), by sample (D3), or from a ranked shortlist (D4). SEEN counts your coverage of the 720."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+  var stage = el("div","stage"); stage.id = "cb-stage"; demo.appendChild(stage);
+  var ctrls = el("div","ctrls"); demo.appendChild(ctrls);
+  var offerWrap = el("div"); demo.appendChild(offerWrap);
+  var readout = el("div","readout"); demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "Finite inventory plus recombination rules.",
+    "Combiner who permutes within constraint.",
+    "Classify · permute · enumerate · exhaust.",
+    "A taxonomy of situations; a constraint set over orderings.",
+    "One sequence fixed from n-factorial possibilities.",
+    "The taxonomy authors the space; the combiner picks the point.",
+    "All possible narratives at once.",
+    "Potential until a permutation is fixed; potential again after.",
+    "The inventory must be finite and the rules explicit.",
+    "Mistaking the taxonomy for the territory, constraint for cage."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;finite inventory&gt;</b>",
+    "  → [under] &lt;constraint&gt;",
+    "  → <b>{n! orderings}</b>",
+    "  → <b>&lt;combiner&gt;</b> [fixes] &lt;one sequence&gt;",
+    "  → &lt;sequence&gt; [returns to] &lt;potential&gt;"
+  ]));
+
+  var SITCH = ["DEPARTURE","SURVEILLANCE","SUBSTITUTION","ACCUMULATION","REVELATION","RECOVERY"];
+  var d = 1, order, pick, seen;
+
+  function key(){ return order.join(""); }
+  function markSeen(){ seen[key()] = 1; }
+  function resetState(){
+    order = [0,1,2,3,4,5]; pick = -1; seen = {}; markSeen();
+  }
+  function updateReadout(){
+    readout.innerHTML =
+      "<span>ORDERINGS <b>720</b></span>"+
+      "<span>SEEN <b>"+Object.keys(seen).length+"</b></span>"+
+      "<span>FIXER <b>"+["YOUR HAND","ENUMERATION RULE","SAMPLING MODEL","PLATFORM RANKING"][d-1]+"</b></span>";
+  }
+  function render(){
+    stage.innerHTML = "";
+    order.forEach(function(bi, idx){
+      var div = el("div","s"+(idx === pick ? " pick" : ""));
+      div.innerHTML = "<span class='kwtag'>"+SITCH[bi]+"</span>" + BASE[bi];
+      if(d === 1){
+        div.style.cursor = "pointer";
+        div.addEventListener("click", function(){
+          if(pick === -1){ pick = idx; render(); return; }
+          if(pick === idx){ pick = -1; render(); return; }
+          var t = order[pick]; order[pick] = order[idx]; order[idx] = t;
+          pick = -1; markSeen();
+          render(); updateReadout();
+        });
+      }
+      stage.appendChild(div);
+    });
+  }
+  function nextPerm(a){
+    var i = a.length - 2;
+    while(i >= 0 && a[i] >= a[i+1]) i--;
+    if(i < 0){ a.reverse(); return a; }
+    var j = a.length - 1;
+    while(a[j] <= a[i]) j--;
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+    var l = i + 1, r = a.length - 1;
+    while(l < r){ t = a[l]; a[l] = a[r]; a[r] = t; l++; r--; }
+    return a;
+  }
+  function shuffledPlausible(){
+    var rest = [1,2,3,4,5];
+    for(var i = rest.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t = rest[i]; rest[i] = rest[j]; rest[j] = t;
+    }
+    return (Math.random() < 0.7) ? [0].concat(rest) : rest.concat([0]);
+  }
+  function seqLabel(o){ return o.map(function(n){ return "S"+(n+1); }).join("→"); }
+
+  function rebuildControls(){
+    ctrls.innerHTML = ""; offerWrap.innerHTML = "";
+    if(d === 1){
+      ctrls.appendChild(el("span","dnote","Tap two sentences to exchange them. You are the combiner; the taxonomy watches."));
+    }
+    if(d === 2){
+      var b = el("button",null,"NEXT PERMUTATION (LEXICOGRAPHIC)");
+      b.addEventListener("click", function(){
+        nextPerm(order); markSeen(); render(); updateReadout();
+      });
+      ctrls.appendChild(b);
+      ctrls.appendChild(el("span","dnote","RULE (LEGIBLE): lexicographic successor. Press 719 times and the space is exhausted."));
+    }
+    if(d === 3){
+      var b3 = el("button",null,"SAMPLE ORDER (MODEL)");
+      b3.addEventListener("click", function(){
+        order = shuffledPlausible(); markSeen(); render(); updateReadout();
+      });
+      ctrls.appendChild(b3);
+      ctrls.appendChild(el("span","dnote","The model favors DEPARTURE first — a learned prior, not a rule. Plausibility is a distribution."));
+    }
+    if(d === 4){
+      var b4 = el("button",null,"REQUEST RANKED ORDERS");
+      b4.addEventListener("click", function(){
+        offerWrap.innerHTML = "";
+        for(var k = 0; k < 3; k++){
+          (function(){
+            var o = shuffledPlausible();
+            var row = el("div","offer");
+            row.appendChild(el("span","seq","RANK "+(offerWrap.children.length+1)+" · "+seqLabel(o)));
+            var use = el("button",null,"USE");
+            use.addEventListener("click", function(){
+              order = o.slice(); markSeen();
+              offerWrap.innerHTML = "";
+              render(); updateReadout();
+            });
+            row.appendChild(use);
+            offerWrap.appendChild(row);
+          })();
+        }
+      });
+      ctrls.appendChild(b4);
+      ctrls.appendChild(el("span","dnote","Three orders, pre-ranked. CRITERIA WITHHELD. 717 orderings are never shown."));
+    }
+  }
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","PERMUTATION","FINAL TEXT"],
+      ["HUMAN","ENUMERATION RULE","FINAL TEXT"],
+      ["HUMAN","TAXONOMY + PRIORS","SAMPLING MODEL","FINAL TEXT"],
+      ["HUMAN","(PLATFORM)","(RANKING MODEL)","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> You permute by hand inside the constraint. Queneau's reader, cutting the sonnet strips.",
+      "<b>D2 — secondary.</b> A legible rule walks the space in strict order. Exhaustion is possible, and countable.",
+      "<b>D3 — tertiary.</b> A model samples 'plausible' orderings from learned priors. The space stops being uniform.",
+      "<b>D4 — quaternary.</b> The platform shows three ranked orders of 720 and withholds the ranking. The inventory is finite; your view of it is smaller."
+    ],
+    onSet: function(nd){ d = nd; resetState(); rebuildControls(); render(); updateReadout(); }
+  });
+})();
+
+/* ============================================================
+   PANEL — RECURSION (Vico): the ring, corso e ricorso
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-rc");
+  root.appendChild(el("div","panel-eyebrow","GIAMBATTISTA VICO — THE NEW SCIENCE (1725)"));
+  root.appendChild(el("h2","", "The text is a ring that returns, differing"));
+  root.appendChild(el("p","def","USE — press CYCLE to turn the ring. At D1 also tap any word to drift it. Watch STATE flip from REPETITION to RICORSO."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+  var stage = el("div","stage"); stage.id = "rc-stage"; demo.appendChild(stage);
+  var loop = el("div","loopback","↺ SENTENCE 06 FEEDS SENTENCE 01 — THE RING HAS NO FIRST WORD");
+  demo.appendChild(loop);
+  var ctrls = el("div","ctrls");
+  var cyc = el("button",null,"CYCLE");
+  var rst = el("button",null,"RESET RING");
+  ctrls.appendChild(cyc); ctrls.appendChild(rst);
+  demo.appendChild(ctrls);
+  var readout = el("div","readout"); demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "Cyclical corpus — a ring of units, a standing wave.",
+    "Reciter-copyist who keeps the wheel turning.",
+    "Recirculate · vary · return.",
+    "Corso e ricorso: the last unit feeds the first.",
+    "Each pass reproduces the sequence with drift.",
+    "The cycle owns the structure; the reciter owns the variation.",
+    "From a sentence to a civilization.",
+    "Never determinate — the text is always mid-cycle.",
+    "The return must differ: ricorso is not repetition.",
+    "Mistaking recurrence for stasis, the loop for a prison."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;ring of units&gt;</b>",
+    "  → [each pass] &lt;recitation with drift&gt;",
+    "  → <b>&lt;variant state&gt;</b>",
+    "  → [feeds] &lt;next pass&gt;",
+    "  → &lt;history&gt; [is] <b>&lt;the standing wave&gt;</b>"
+  ]));
+
+  var MUT = {"river":"riverrun","signal":"signature","reader":"rereader","machine":"mechanism",
+             "records":"echoes","archive":"anarchive","pattern":"patterning","crossing":"recrossing",
+             "crossings":"recrossings","first":"last","hand":"memory","record":"rerecord"};
+  function clean(w){ return w.toLowerCase().replace(/[^a-z]/g,""); }
+
+  var d = 1, W, M, pass, muts, silentMuts, SCHED, sp;
+
+  function resetState(){
+    W = BASE.map(function(s){ return s.split(" "); });
+    M = W.map(function(a){ return a.map(function(){ return false; }); });
+    pass = 0; muts = 0; silentMuts = 0; sp = 0;
+    SCHED = [];
+    W.forEach(function(a, si){
+      a.forEach(function(w, wi){ if(MUT[clean(w)]) SCHED.push([si, wi]); });
+    });
+    cyc.disabled = false;
+  }
+  function mutate(si, wi, silent){
+    var w = W[si][wi];
+    var c = clean(w);
+    if(!MUT[c]) return false;
+    var trail = w.replace(/^[A-Za-z]+/,"");
+    var neo = MUT[c] + trail;
+    if(w[0] === w[0].toUpperCase()) neo = neo.charAt(0).toUpperCase() + neo.slice(1);
+    W[si][wi] = neo;
+    if(silent){ silentMuts++; } else { M[si][wi] = true; muts++; }
+    return true;
+  }
+  function eligible(){
+    var out = [];
+    W.forEach(function(a, si){
+      a.forEach(function(w, wi){ if(MUT[clean(w)]) out.push([si, wi]); });
+    });
+    return out;
+  }
+  function render(){
+    stage.innerHTML = "";
+    stage.classList.toggle("rc-click", d === 1);
+    W.forEach(function(a, si){
+      var div = el("div","s");
+      div.appendChild(el("span","kwtag","0"+(si+1)));
+      a.forEach(function(w, wi){
+        var sp2 = el("span","rc-word"+(M[si][wi] ? " mut" : ""), w + " ");
+        if(d === 1){
+          sp2.addEventListener("click", function(){
+            if(mutate(si, wi, false)){ render(); updateReadout(); }
+          });
+        }
+        div.appendChild(sp2);
+      });
+      stage.appendChild(div);
+    });
+  }
+  function updateReadout(){
+    var total = 0; W.forEach(function(a){ total += a.length; });
+    var visible = muts + silentMuts;
+    readout.innerHTML =
+      "<span>PASS <b>"+pass+"</b></span>"+
+      "<span>MUTATIONS <b>"+(d === 4 ? visible + " · LOG WITHHELD" : muts)+"</b></span>"+
+      "<span>DRIFT <b>"+Math.round(100*visible/total)+"%</b></span>"+
+      "<span>STATE <b>"+(visible > 0 ? "RICORSO — RETURN WITH DIFFERENCE" : "REPETITION — NOT YET RICORSO")+"</b></span>";
+  }
+
+  cyc.addEventListener("click", function(){
+    if(cyc.disabled) return;
+    pass++;
+    if(d === 2){
+      if(sp < SCHED.length){ mutate(SCHED[sp][0], SCHED[sp][1], false); sp++; }
+    }
+    if(d === 3){
+      var e = eligible();
+      if(e.length){ var p = e[Math.floor(Math.random()*e.length)]; mutate(p[0], p[1], false); }
+    }
+    if(d === 4){
+      cyc.disabled = true;
+      cyc.textContent = "CYCLING REMOTELY…";
+      setTimeout(function(){
+        cyc.disabled = false; cyc.textContent = "CYCLE";
+        var e4 = eligible();
+        if(e4.length){ var p4 = e4[Math.floor(Math.random()*e4.length)]; mutate(p4[0], p4[1], true); }
+        render(); updateReadout();
+      }, 600);
+      updateReadout();
+      return;
+    }
+    render(); updateReadout();
+  });
+  rst.addEventListener("click", function(){ resetState(); render(); updateReadout(); });
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","RECITATION","NEXT PASS"],
+      ["HUMAN","DRIFT SCHEDULE","NEXT PASS"],
+      ["HUMAN","CORPUS + RING","DRIFT MODEL","NEXT PASS"],
+      ["HUMAN","(REMOTE LOOP)","(DRIFT MODEL)","NEXT PASS"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> You are the scribe: CYCLE turns the wheel, and any word you tap drifts under your hand. Scribal variation, chosen.",
+      "<b>D2 — secondary.</b> A fixed schedule mutates one word per pass, in a legible order. Drift as liturgy.",
+      "<b>D3 — tertiary.</b> A model picks what drifts. The ring still turns; the variation stops being anyone's.",
+      "<b>D4 — quaternary.</b> The loop runs remotely. Words change without marks; the count is disclosed, the log is not. Find the drift yourself."
+    ],
+    onSet: function(nd){ d = nd; resetState(); render(); updateReadout(); }
+  });
+})();
+
+/* ============================================================
+   PANEL — STOCHASTIC (Shannon / Liu): Joyceware
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-st");
+  root.appendChild(el("div","panel-eyebrow","CLAUDE SHANNON (1948) · LYDIA H. LIU — THE FREUDIAN ROBOT (2010)"));
+  root.appendChild(el("h2","", "The text is a spend of entropy"));
+  root.appendChild(el("p","def","USE — drag the density slider (D1) or press the compress/generate buttons (D2–D4) and read the live entropy meter: H, H/HMAX, and the share of spaces."));
+
+  var demo = el("div","demo");
+  var dialHost = el("div"); demo.appendChild(dialHost);
+  var ctrls = el("div","ctrls"); demo.appendChild(ctrls);
+  var stage = el("div","stage dense"); demo.appendChild(stage);
+  var readout = el("div","readout"); demo.appendChild(readout);
+  root.appendChild(demo);
+
+  root.appendChild(geneBlock([
+    "A statistical letter-stream; writing as a distribution.",
+    "Encoder-decoder playing pattern against noise.",
+    "Measure · compress · perturb · decode.",
+    "Alphabet plus space — the twenty-seventh letter — and its redundancy.",
+    "Sampling under an entropy budget produces the sequence.",
+    "The code owns the distribution; the writer spends the entropy.",
+    "From a letter to a corpus.",
+    "Determinate only as probability until decoded.",
+    "Redundancy must remain partial: all surprise is noise, none is silence.",
+    "Equating a probable sequence with an understood one."
+  ]));
+  root.appendChild(genomeBlock("CONDENSED GENOME",[
+    "<b>&lt;alphabet + space&gt;</b>",
+    "  → [carries] &lt;redundancy&gt;",
+    "  → <b>&lt;writer&gt;</b> [spends] &lt;entropy&gt;",
+    "  → <b>&lt;reader&gt;</b> [recovers] &lt;pattern from noise&gt;"
+  ]));
+
+  var L0 = BASE.join(" ");
+  var LEVELS = [
+    L0,
+    "The signal crossed the riverrun before the reader did. On the farbank a machine kept records of everycrossing. Some were handmade; others sampled from earliercrossings. The archive grew till no onereader could hold it. What stayed legible was not the text but the pattern of its traversals. Somewhere in the record the firstcrossing was still retrievable.",
+    "Thesignal crossed theriverrun ere thereader did. Onfarbank a memorymachine kept everycrossing. Somehandmade; somesampled from earliercrossings. Thearchive grew past anyreader's holding. Legible was notext but traversalpattern. Inrecord somewhere firstcrossing stillretrievable.",
+    "thesignalsang theriverrun erereaderran onfarbank memorymachine kepteverycrossing handmadesampled fromearliercrossings archivegrewpast anyreadersholding notextlegible buttraversalpattern inrecordsomewhere firstcrossingstillretrievable"
+  ];
+  var NAMES = ["L0 · PLAIN","L1 · MILD FUSION","L2 · HEAVY PORTMANTEAU","L3 · WAKE-DENSITY"];
+
+  var d = 1, cur = L0, curLabel = NAMES[0], mechPasses = 0;
+
+  function ent(s){
+    var f = {}, n = 0;
+    s.toLowerCase().replace(/[^a-z ]/g,"").split("").forEach(function(c){ f[c] = (f[c]||0)+1; n++; });
+    var h = 0;
+    for(var k in f){ var p = f[k]/n; h -= p * Math.log(p) / Math.log(2); }
+    return {h: h, n: n, sp: (f[" "]||0)/n};
+  }
+  function mech(s){
+    var count = 0;
+    return s.replace(/ /g, function(){ count++; return (count % 3 === 0) ? "" : " "; });
+  }
+  function updateReadout(){
+    var m = ent(cur);
+    var hmax = Math.log(27)/Math.log(2);
+    readout.innerHTML =
+      "<span>TEXT <b>"+curLabel+"</b></span>"+
+      "<span>H <b>"+m.h.toFixed(2)+" BITS/CHAR</b></span>"+
+      "<span>H/HMAX <b>"+Math.round(100*m.h/hmax)+"%</b></span>"+
+      "<span>27TH LETTER <b>"+(100*m.sp).toFixed(1)+"% SPACES</b></span>";
+  }
+  function show(){
+    stage.textContent = cur;
+    updateReadout();
+  }
+
+  function rebuildControls(){
+    ctrls.innerHTML = "";
+    if(d === 1){
+      var wrapc = el("div"); wrapc.style.width = "100%";
+      var lab = el("span","dnote","DENSITY — authored compression, four states of the same passage.");
+      var slider = document.createElement("input");
+      slider.type = "range"; slider.min = "0"; slider.max = "3"; slider.value = "0"; slider.step = "1";
+      slider.setAttribute("aria-label","Density level");
+      slider.addEventListener("input", function(){
+        var v = parseInt(slider.value, 10);
+        cur = LEVELS[v]; curLabel = NAMES[v];
+        show();
+      });
+      wrapc.appendChild(lab); wrapc.appendChild(slider);
+      ctrls.appendChild(wrapc);
+      cur = LEVELS[0]; curLabel = NAMES[0];
+    }
+    if(d === 2){
+      var b = el("button",null,"RULE COMPRESS (DELETE EVERY 3RD SPACE)");
+      b.addEventListener("click", function(){
+        cur = mech(cur); mechPasses++;
+        curLabel = "RULE ×"+mechPasses;
+        show();
+      });
+      ctrls.appendChild(b);
+      ctrls.appendChild(el("span","dnote","RULE (LEGIBLE): every third space is deleted. Fusion without judgment; portmanteaus by arithmetic."));
+      cur = L0; curLabel = NAMES[0]; mechPasses = 0;
+    }
+    if(d === 3){
+      var b3 = el("button",null,"LAGADO LINE (BIGRAM MODEL)");
+      b3.addEventListener("click", function(){
+        cur = MARKOV.sentence("the", 14);
+        curLabel = "BELL LABS MANNER";
+        show();
+      });
+      ctrls.appendChild(b3);
+      ctrls.appendChild(el("span","dnote","Pierce's engineers, Lagado manner: a line sampled from letter-and-word association. Structure without intention."));
+      cur = L0; curLabel = NAMES[0];
+    }
+    if(d === 4){
+      var b4 = el("button",null,"REQUEST DENSITY (API)");
+      b4.addEventListener("click", function(){
+        b4.disabled = true; b4.textContent = "AWAITING RESPONSE…";
+        setTimeout(function(){
+          b4.disabled = false; b4.textContent = "REQUEST DENSITY (API)";
+          var g = MARKOV.sentence("the", 12) + " " + MARKOV.sentence("archive", 12);
+          cur = mech(mech(mech(g)));
+          curLabel = "API · REDUNDANCY TARGET WITHHELD";
+          show();
+        }, 750);
+      });
+      ctrls.appendChild(b4);
+      ctrls.appendChild(el("span","dnote","Density on demand: generated, compressed, returned. The entropy budget was set by someone else."));
+      cur = L0; curLabel = NAMES[0];
+    }
+    show();
+  }
+
+  makeDial(dialHost, {
+    start: 1,
+    chains: [
+      ["HUMAN","FINAL TEXT"],
+      ["HUMAN","COMPRESSION RULE","FINAL TEXT"],
+      ["HUMAN","CORPUS + FREQUENCIES","BIGRAM MODEL","FINAL TEXT"],
+      ["HUMAN","(API)","(FREQUENCIES)","(MODEL)","FINAL TEXT"]
+    ],
+    notes: [
+      "<b>D1 — primary.</b> Authored compression: four states of the passage, each fusion a decision. Joyce's manner — entropy spent by hand.",
+      "<b>D2 — secondary.</b> A legible rule deletes every third space. The portmanteau becomes arithmetic; the meter still moves.",
+      "<b>D3 — tertiary.</b> The bigram model writes in the Lagado manner — IT HAPPENED ONE FROSTY LOOK OF TREES. Probability wearing the mask of sense.",
+      "<b>D4 — quaternary.</b> Density requested, generated, compressed, and returned — under an entropy budget you never set and cannot read."
+    ],
+    onSet: function(nd){ d = nd; rebuildControls(); }
+  });
+})();
+
+/* ============================================================
+   PANEL 8 — GENE COMPARATOR + BAJOHR AXIS
+   ============================================================ */
+(function(){
+  var root = document.getElementById("panel-gn");
+  root.appendChild(el("div","panel-eyebrow","THE GENOME — FIFTEEN THEORIES × TEN GENES"));
+  root.appendChild(el("h2","", "Fifteen theories, gene by gene"));
+  root.appendChild(el("p","def","USE — tap G1–G10 to compare all fifteen theories on one gene. The Bajohr ladder below is the axis every dial walks."));
+
+  var GENES = [
+    ["G1 — TEXTUAL OBJECT","What kind of thing is the text?"],
+    ["G2 — HUMAN ROLE","What does the reader, writer, or operator do?"],
+    ["G3 — CONSTITUTIVE OPERATION","What action makes the text exist as an experience?"],
+    ["G4 — ORGANIZATION","How is the textual material structured?"],
+    ["G5 — SEQUENCE PRODUCTION","How is a particular reading or output generated?"],
+    ["G6 — AGENCY DISTRIBUTION","How is control divided among human, machine, and text?"],
+    ["G7 — SCALE","At what level does the theory operate?"],
+    ["G8 — TEMPORALITY","When does the text become determinate?"],
+    ["G9 — INVARIANT","What must remain true for the concept to retain its identity?"],
+    ["G10 — CRITICAL DANGER","What misunderstanding threatens the concept?"]
+  ];
+
+  var T = [
+    {n:"ESPEN AARSETH — CYBERTEXT: PERSPECTIVES ON ERGODIC LITERATURE (1997)", c:"var(--red)", g:[
+      "Textual machine of signs, rules, and material mechanisms.",
+      "Operator who must perform nontrivial work.",
+      "Traverse · select · configure · act.",
+      "Texton-system containing possible scriptons.",
+      "Operator action generates the experienced sequence.",
+      "Distributed among operator, medium, and textual mechanism.",
+      "Individual work or textual system.",
+      "The realized text appears during traversal.",
+      "Reading requires nontrivial intervention, not merely interpretation.",
+      "Treating every clickable or electronic text as automatically ergodic."]},
+    {n:"MARKKU ESKELINEN — CYBERTEXT POETICS (2012)", c:"var(--red)", g:[
+      "Configurative literary system with analyzable formal operations.",
+      "Analyst-player-reader who observes and performs operations.",
+      "Classify · compare · configure · interpret formal behavior.",
+      "Rules, events, temporal structures, user functions, textual layers.",
+      "Rules plus user functions produce the formal sequence.",
+      "Analytically split into system functions and user functions.",
+      "Genre, work, formal system, medium.",
+      "Textual events unfold through rule-governed time.",
+      "Analysis must account for what the system does, not only what it represents.",
+      "Reducing games and cybertexts to conventional narrative categories."]},
+    {n:"VANNEVAR BUSH — AS WE MAY THINK (1945)", c:"var(--blue)", g:[
+      "Personal associative archive.",
+      "Scholar-user who stores, retrieves, and connects records.",
+      "Store · retrieve · associate · annotate · share trail.",
+      "Network of associative trails through documents.",
+      "User association creates a trail through records.",
+      "Human judgment links; machinery preserves and retrieves.",
+      "Personal knowledge collection.",
+      "Trails accumulate through repeated use.",
+      "Information must remain retrievable through meaningful associations.",
+      "Confusing association with automatic understanding or neutral organization."]},
+    {n:"NELSONIAN HYPERTEXT", c:"var(--blue)", g:[
+      "Nonsequential writing network.",
+      "Reader-author who follows and creates connections.",
+      "Link · branch · transclude · compare versions.",
+      "Network rather than a fixed linear document.",
+      "Link choice selects the next textual unit.",
+      "Shared between link author and link follower.",
+      "Document networks; potentially universal publishing systems.",
+      "The path becomes determinate as links are followed.",
+      "Multiple possible sequences must remain structurally available.",
+      "Reducing hypertext to one-way web links or simple menus."]},
+    {n:"WORLD WIDE WEB", c:"var(--blue)", g:[
+      "Distributed linked resource.",
+      "Browser-user who requests and navigates resources.",
+      "Publish · address · request · link · navigate.",
+      "Pages, URLs, servers, hyperlinks.",
+      "A URL or link requests a resource.",
+      "Authors publish links; users choose paths; protocols retrieve.",
+      "Global distributed network.",
+      "A page is assembled when requested and rendered.",
+      "Resources must possess addressable identities and interoperable retrieval rules.",
+      "Mistaking global accessibility for semantic connection or permanence."]},
+    {n:"HYPERTEXT FICTION", c:"var(--blue)", g:[
+      "Branching or networked literary work.",
+      "Reader-player who performs choices within a designed field.",
+      "Choose · revisit · discover · assemble narrative.",
+      "Lexia, links, branches, loops, concealed conditions.",
+      "Reading history plus choice produces the narrative path.",
+      "Author designs possibilities; reader actualizes one traversal.",
+      "Individual literary work with many possible readings.",
+      "Narrative order emerges during reading.",
+      "The path must affect the experienced literary sequence.",
+      "Assuming reader choice means unlimited freedom or coauthorship."]},
+    {n:"DISTANT READING", c:"var(--teal)", g:[
+      "Corpus treated as analyzable data.",
+      "Researcher who designs questions and interprets patterns.",
+      "Aggregate · measure · model · visualize · compare.",
+      "Documents, metadata, features, statistical relationships.",
+      "The corpus transforms through analysis into a pattern model.",
+      "Machines calculate; humans define categories and interpret.",
+      "Hundreds to millions of texts.",
+      "Patterns become visible after aggregation and computation.",
+      "Claims must remain traceable to corpus construction and method.",
+      "Treating computational patterns as self-explanatory literary meanings."]},
+    {n:"DISTANT WRITING", c:"var(--amber)", g:[
+      "Generative possibility space mediated by a model.",
+      "Director-editor-prompter who specifies, evaluates, revises.",
+      "Prompt · generate · select · constrain · edit · regenerate.",
+      "Prompts, model states, outputs, selections, revision histories.",
+      "Human instruction plus model distribution generates candidates.",
+      "Agency shifts from inscription toward direction, selection, curation.",
+      "Sentence, work, corpus, or ongoing generative process.",
+      "Text becomes provisionally determinate when an output is selected.",
+      "Human authorship persists through consequential direction and judgment.",
+      "Equating prompting with complete authorship; treating output as autonomous."]},
+    {n:"DISTANT TEXT — CORPUS FORM", c:"var(--teal)", g:[
+      "Machine-readable textual aggregation.",
+      "Curator-researcher who selects and structures materials.",
+      "Collect · digitize · normalize · encode · index.",
+      "Documents, tokens, metadata, categories, provenance records.",
+      "Source documents are transformed into a computable corpus.",
+      "Institutions and curators shape what machines can perceive.",
+      "Very large collections.",
+      "The corpus changes as texts and metadata are revised.",
+      "Provenance and selection boundaries must remain visible.",
+      "Presenting the corpus as complete, natural, or politically neutral."]},
+    {n:"DISTANT TEXT — SYNTHETIC FORM", c:"var(--teal)", g:[
+      "Machine-generated output separated from direct inscription.",
+      "Initiator-curator-recipient.",
+      "Sample · synthesize · filter · circulate.",
+      "Training traces, prompts, probability distributions, outputs.",
+      "Model conditions sample a linguistic sequence.",
+      "Agency spans dataset creators, model builders, prompters, editors.",
+      "Single output through industrial-scale content generation.",
+      "The sequence emerges token by token during generation.",
+      "Output arises from mediated statistical operations, not manual inscription.",
+      "Erasing hidden human labor, data history, and infrastructure."]},
+    {n:"O'NEILL — TRANSLATION MACROTEXT", c:"var(--teal)", g:[
+      "Polyglot macrotext — the work as the sum of its translations.",
+      "Translator as executor of the source program in a target language.",
+      "Translate · mutate · extend · transread.",
+      "Network of versions around a source; every variant a node.",
+      "Source constraints plus target language produce the variant.",
+      "Split among author, translator, and the target language's own system.",
+      "The work across all its languages at once.",
+      "The macrotext is never complete; each execution extends it.",
+      "Untranslatability must stimulate, not terminate, interpretation.",
+      "Treating translation as loss — and machine error as mere failure."]},
+    {n:"GENETIC CRITICISM — DRAFT FIELD", c:"var(--red)", g:[
+      "Executable field of drafts — the avant-texte, not the product.",
+      "Author-as-reviser; geneticist who reads the making.",
+      "Insert · delete · branch · merge · layer.",
+      "Copybooks, layers, marginalia, version entanglements.",
+      "Layered inscription accumulates into a publishable state.",
+      "Author writes; the archive remembers; the editor cuts.",
+      "From a single insertion to the whole dossier.",
+      "The work is never final — an edition is a cut, not an end.",
+      "Every state must remain recoverable from the archive.",
+      "Teleology — reading drafts as mere steps toward the final text."]},
+    {n:"GEORGES POLTI — THE 36 DRAMATIC SITUATIONS (1916) · OULIPO (1960–)", c:"var(--blue)", g:[
+      "Finite inventory plus recombination rules.",
+      "Combiner who permutes within constraint.",
+      "Classify · permute · enumerate · exhaust.",
+      "A taxonomy of situations; a constraint set over orderings.",
+      "One sequence fixed from n-factorial possibilities.",
+      "The taxonomy authors the space; the combiner picks the point.",
+      "All possible narratives at once.",
+      "Potential until a permutation is fixed; potential again after.",
+      "The inventory must be finite and the rules explicit.",
+      "Mistaking the taxonomy for the territory, constraint for cage."]},
+    {n:"GIAMBATTISTA VICO — THE NEW SCIENCE (1725)", c:"var(--blue)", g:[
+      "Cyclical corpus — a ring of units, a standing wave.",
+      "Reciter-copyist who keeps the wheel turning.",
+      "Recirculate · vary · return.",
+      "Corso e ricorso: the last unit feeds the first.",
+      "Each pass reproduces the sequence with drift.",
+      "The cycle owns the structure; the reciter owns the variation.",
+      "From a sentence to a civilization.",
+      "Never determinate — the text is always mid-cycle.",
+      "The return must differ: ricorso is not repetition.",
+      "Mistaking recurrence for stasis, the loop for a prison."]},
+    {n:"CLAUDE SHANNON (1948) · LYDIA H. LIU — THE FREUDIAN ROBOT (2010)", c:"var(--amber)", g:[
+      "A statistical letter-stream; writing as a distribution.",
+      "Encoder-decoder playing pattern against noise.",
+      "Measure · compress · perturb · decode.",
+      "Alphabet plus space — the twenty-seventh letter — and its redundancy.",
+      "Sampling under an entropy budget produces the sequence.",
+      "The code owns the distribution; the writer spends the entropy.",
+      "From a letter to a corpus.",
+      "Determinate only as probability until decoded.",
+      "Redundancy must remain partial: all surprise is noise, none is silence.",
+      "Equating a probable sequence with an understood one."]}
+  ];
+
+  var gsel = el("div","gsel");
+  root.appendChild(gsel);
+  var gq = el("div","gq");
+  root.appendChild(gq);
+  var rows = el("div");
+  root.appendChild(rows);
+
+  var cur = 0;
+  function renderGene(){
+    gq.innerHTML = "<b>"+GENES[cur][0]+"</b> — "+GENES[cur][1];
+    rows.innerHTML = "";
+    T.forEach(function(t){
+      var r = el("div","grow");
+      r.style.setProperty("--gc", t.c);
+      r.appendChild(el("div","gname", t.n));
+      r.appendChild(el("div","gval", t.g[cur]));
+      rows.appendChild(r);
+    });
+    gsel.querySelectorAll("button").forEach(function(b,i){
+      b.classList.toggle("on", i===cur);
+    });
+  }
+  GENES.forEach(function(g,i){
+    var b = el("button",null,"G"+(i+1));
+    b.addEventListener("click", function(){ cur = i; renderGene(); });
+    gsel.appendChild(b);
+  });
+
+  /* ---- Bajohr axis ---- */
+  var axisHead = el("div","dlabel","THE BAJOHR AXIS — FOUR DEGREES OF CAUSAL AUTHORSHIP");
+  axisHead.style.margin = "22px 0 8px";
+  axisHead.style.color = "var(--fg)";
+  root.appendChild(axisHead);
+  root.appendChild(el("p","def","Bajohr measures the distance between human author and final text by counting causal layers. Every panel's dial walks this ladder. It is orthogonal to the genome: each theory keeps its constitutive operation at every degree — <em>what changes is who performs it</em>."));
+
+  var ladder = el("div","ladder");
+  var RUNGS = [
+    {d:"D1 — PRIMARY AUTHORSHIP", p:"TRADITIONAL PARADIGM", chain:["HUMAN","FINAL TEXT"],
+     txt:"Direct inscription. Every mark on the page passes through the hand. Total causal proximity — and total labor."},
+    {d:"D2 — SECONDARY AUTHORSHIP", p:"SEQUENTIAL PARADIGM", chain:["HUMAN","CODE / RULE SET","FINAL TEXT"],
+     txt:"The human writes rules; the rules write text. The mechanism is legible — it can be printed, audited, and blamed. Oulipo, generators, the v1 demos."},
+    {d:"D3 — TERTIARY AUTHORSHIP", p:"CONNECTIONIST PARADIGM", chain:["HUMAN","CODE + DATA SET","WEIGHT MODEL","FINAL TEXT"],
+     txt:"The human writes code and curates data; training produces weights; weights produce text. The mechanism exists but is no longer readable — inspectable only through its outputs."},
+    {d:"D4 — QUATERNARY AUTHORSHIP", p:"CONNECTIONIST + PLATFORM", chain:["HUMAN","PROPRIETARY INTERFACE / API","CODE + DATA SET","WEIGHT MODEL","FINAL TEXT"],
+     txt:"A platform interposes before the code. Data, weights, and parameters become someone else's property. Each theory's G10 danger stops being a mistake and becomes the terms of service."}
+  ];
+  RUNGS.forEach(function(r){
+    var rung = el("div","rung");
+    var rh = el("div","rh");
+    rh.appendChild(el("span","rd", r.d));
+    rh.appendChild(el("span","rp", r.p));
+    rung.appendChild(rh);
+    var chain = el("div","chain");
+    r.chain.forEach(function(st,i){
+      if(i>0) chain.appendChild(el("span","ar","→"));
+      chain.appendChild(el("span","st"+(st==="HUMAN"?" hu":"")+(i===r.chain.length-1?" fin":""), st));
+    });
+    rung.appendChild(chain);
+    rung.appendChild(el("p","note", r.txt));
+    ladder.appendChild(rung);
+  });
+  root.appendChild(ladder);
+
+  root.appendChild(genomeBlock("THE CENTRAL DISTINCTION",[
+    "<b>&lt;hypertext&gt;</b>       [organizes]                &lt;possible paths&gt;",
+    "<b>&lt;cybertext&gt;</b>       [requires]                 &lt;operational traversal&gt;",
+    "<b>&lt;distant reading&gt;</b> [abstracts from]           &lt;many existing texts&gt;",
+    "<b>&lt;distant writing&gt;</b> [directs the production of] &lt;new textual sequences&gt;",
+    "<b>&lt;distant text&gt;</b>    [names]                    &lt;the machine-readable field&gt;",
+    "<b>&lt;translation&gt;</b>     [extends]                  &lt;the work across languages&gt;",
+    "<b>&lt;genesis&gt;</b>         [keeps]                    &lt;every state of the making&gt;",
+    "<b>&lt;combinatorics&gt;</b>   [fixes]                    &lt;one ordering of the finite&gt;",
+    "<b>&lt;recursion&gt;</b>       [returns]                  &lt;the same, differing&gt;",
+    "<b>&lt;stochastics&gt;</b>     [spends]                   &lt;entropy against redundancy&gt;",
+    "",
+    "AND ACROSS ALL OF THEM, THE BAJOHR AXIS:",
+    "<b>&lt;causal distance&gt;</b> [relocates]                &lt;the constitutive operation&gt;",
+    "",
+    "SHARED INVARIANT — digital literature is not merely words",
+    "on a screen; it is <b>textual material governed by operations,",
+    "interfaces, infrastructures, and distributions of agency</b>."
+  ]));
+
+  renderGene();
+})();
+
+/* specimen toggle */
+(function(){
+  var spec = document.getElementById("spec");
+  var tgl = document.getElementById("spectgl");
+  tgl.addEventListener("click", function(){
+    var hid = spec.classList.toggle("hid");
+    tgl.textContent = hid ? "SHOW" : "HIDE";
+  });
+})();
+
+/* boot */
+showPanel("cx");
+</script>
+</body>
+</html>
