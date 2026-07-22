@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Worldtext — Chapter Lineage Atlas</title>
+<meta name="description" content="A concise lineage atlas for the eleven chapters of Worldtext: Generative AI as a Medium for Verbal and Visual Expression.">
+<style>
+:root {
+  --paper:#f3f0e8;
+  --ink:#171714;
+  --muted:#68675f;
+  --line:#b8b4a8;
+  --panel:#fbf9f2;
+  --accent:#b43b27;
+  --lit:#6e3f96;
+  --formal:#1e6680;
+  --rd:#56722a;
+  --max:1120px;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--paper); color:var(--ink); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.45; }
+button,input { font:inherit; }
+a { color:inherit; }
+.wrap { width:min(var(--max), calc(100% - 32px)); margin-inline:auto; }
+.masthead { padding:clamp(42px,8vw,100px) 0 28px; border-bottom:1px solid var(--ink); }
+.eyebrow { margin:0 0 10px; font-size:.76rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+h1 { max-width:900px; margin:0; font-family:Georgia, "Times New Roman", serif; font-size:clamp(2.35rem,7vw,6.6rem); font-weight:500; line-height:.92; letter-spacing:-.055em; }
+.thesis { max-width:780px; margin:28px 0 0; font-size:clamp(1.05rem,2vw,1.35rem); }
+.note { max-width:780px; margin:16px 0 0; color:var(--muted); font-size:.92rem; }
+.controls-shell { position:sticky; top:0; z-index:10; background:color-mix(in srgb, var(--paper) 94%, transparent); border-bottom:1px solid var(--line); backdrop-filter:blur(10px); }
+.controls { min-height:64px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0; }
+.search { flex:1 1 260px; min-width:0; height:42px; border:1px solid var(--ink); background:var(--panel); color:var(--ink); padding:0 12px; border-radius:0; }
+.filter, .action { height:42px; border:1px solid var(--ink); background:transparent; color:var(--ink); padding:0 12px; cursor:pointer; }
+.filter[aria-pressed="true"] { background:var(--ink); color:var(--paper); }
+.action:hover,.filter:hover { outline:2px solid var(--accent); outline-offset:1px; }
+main { padding:28px 0 88px; }
+.legend { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin:0 0 20px; color:var(--muted); font-size:.86rem; }
+.badge { display:inline-flex; align-items:center; min-height:24px; border:1px solid currentColor; padding:2px 7px; font-size:.68rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+.badge.lit { color:var(--lit); } .badge.formal { color:var(--formal); } .badge.rd { color:var(--rd); }
+.chapter { border-top:1px solid var(--ink); }
+.chapter:last-of-type { border-bottom:1px solid var(--ink); }
+.chapter[hidden] { display:none; }
+details > summary { list-style:none; cursor:pointer; display:grid; grid-template-columns:54px minmax(0,1fr) auto 28px; gap:14px; align-items:start; padding:20px 0; }
+details > summary::-webkit-details-marker { display:none; }
+.chapter-number { font:700 .86rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--accent); padding-top:6px; }
+.summary-copy { display:grid; gap:6px; min-width:0; }
+.summary-copy strong { font-family:Georgia, "Times New Roman", serif; font-size:clamp(1.32rem,2.5vw,2rem); font-weight:500; line-height:1.05; }
+.summary-copy small { max-width:760px; color:var(--muted); font-size:.9rem; }
+.badges { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; padding-top:3px; }
+.disclosure { font-size:1.5rem; line-height:1; text-align:right; transition:transform .15s ease; }
+details[open] .disclosure { transform:rotate(45deg); }
+.chapter-body { margin-left:68px; padding:0 0 38px; max-width:calc(100% - 68px); }
+.first-principles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:1px solid var(--ink); margin:4px 0 28px; }
+.first-principles > div { padding:13px; border-right:1px solid var(--line); }
+.first-principles > div:last-child { border-right:0; }
+.first-principles span { display:block; margin-bottom:6px; color:var(--accent); font-size:.66rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+.first-principles p { margin:0; font-size:.9rem; }
+section { margin:26px 0 0; }
+h3 { margin:0 0 10px; font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; }
+p { margin:0; }
+.lineage { counter-reset:lineage; list-style:none; margin:0; padding:0; border-left:1px solid var(--ink); }
+.lineage li { position:relative; padding:0 0 18px 22px; }
+.lineage li:last-child { padding-bottom:0; }
+.lineage li::before { content:""; position:absolute; width:9px; height:9px; left:-5px; top:5px; background:var(--paper); border:1px solid var(--ink); border-radius:50%; }
+.node-label { color:var(--accent); font-size:.69rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+cite { display:block; margin:2px 0 4px; font-family:Georgia, "Times New Roman", serif; font-size:1.04rem; font-style:normal; }
+.lineage p { max-width:800px; color:var(--muted); font-size:.9rem; }
+.migrations { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+.migrations li { display:grid; grid-template-columns:minmax(120px,.75fr) 24px minmax(120px,.75fr) minmax(220px,1.5fr); gap:8px; align-items:start; border-top:1px solid var(--line); padding-top:8px; font-size:.9rem; }
+.migrations span { font-weight:700; }
+.migrations b { text-align:center; color:var(--accent); }
+.migrations p { color:var(--muted); }
+.axis-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); }
+.axis-grid > div { background:var(--panel); padding:14px; }
+.axis-grid p { font-size:.9rem; }
+.ecology dl { margin:0; border-top:1px solid var(--line); }
+.ecology dl > div { display:grid; grid-template-columns:160px minmax(0,1fr); gap:18px; padding:10px 0; border-bottom:1px solid var(--line); }
+dt { font-size:.76rem; font-weight:800; }
+dd { margin:0; color:var(--muted); font-size:.92rem; }
+.echo { border-left:4px solid var(--accent); padding:4px 0 4px 16px; }
+.echo p { max-width:860px; font-family:Georgia, "Times New Roman", serif; font-size:1.05rem; }
+footer { border-top:1px solid var(--ink); padding:24px 0 48px; color:var(--muted); font-size:.83rem; }
+.status { margin-left:auto; color:var(--muted); font-size:.78rem; white-space:nowrap; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+@media (max-width:760px) {
+  .wrap { width:min(100% - 22px, var(--max)); }
+  .controls-shell { position:relative; }
+  .controls { align-items:stretch; }
+  .search { flex-basis:100%; }
+  .filter,.action { flex:1 1 auto; }
+  .status { width:100%; margin-left:0; }
+  details > summary { grid-template-columns:36px minmax(0,1fr) 24px; gap:8px; }
+  .badges { grid-column:2 / 3; justify-content:flex-start; }
+  .disclosure { grid-column:3; grid-row:1; }
+  .chapter-body { margin-left:44px; max-width:calc(100% - 44px); }
+  .first-principles { grid-template-columns:1fr; }
+  .first-principles > div { border-right:0; border-bottom:1px solid var(--line); }
+  .first-principles > div:last-child { border-bottom:0; }
+  .migrations li { grid-template-columns:1fr 20px 1fr; }
+  .migrations p { grid-column:1 / -1; }
+  .axis-grid { grid-template-columns:1fr; }
+  .ecology dl > div { grid-template-columns:1fr; gap:4px; }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .disclosure { transition:none; } }
+@media (prefers-color-scheme:dark) {
+  :root { --paper:#121210; --ink:#efede4; --muted:#aaa79b; --line:#4d4b45; --panel:#191916; --accent:#ef745f; --lit:#c79be8; --formal:#81c4dc; --rd:#b7d276; }
+}
+@media print {
+  :root { --paper:#fff; --ink:#000; --muted:#333; --line:#888; --panel:#fff; }
+  .controls-shell,.legend .legend-help { display:none !important; }
+  .wrap { width:100%; }
+  .masthead { padding:0 0 18px; }
+  h1 { font-size:42pt; }
+  main { padding-top:12px; }
+  details { break-inside:auto; }
+  details > summary { break-after:avoid; }
+  .chapter-body { display:block !important; }
+  .chapter { break-before:page; }
+  .chapter:first-of-type { break-before:auto; }
+  .badge { color:#000 !important; }
+}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Dissertation lineage atlas · working document</p>
+    <h1>Worldtext</h1>
+    <p class="thesis"><strong>Generative AI as a Medium for Verbal and Visual Expression.</strong> A generative model does not return only an image or passage, but one temporary surface of a latent world that can be read, written, navigated, sampled, constrained, and contested.</p>
+    <p class="note">These are constructive lineages: selected intellectual and formal routes that make each chapter defensible. They are not claims that every source was a direct biographical influence.</p>
+  </div>
+</header>
+<div class="controls-shell">
+  <div class="wrap controls" aria-label="Atlas controls">
+    <label class="sr-only" for="search"></label>
+    <input id="search" class="search" type="search" placeholder="Search chapters, thinkers, methods…" autocomplete="off" aria-label="Search the lineage atlas">
+    <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+    <button class="filter" type="button" data-filter="lit" aria-pressed="false">Literature</button>
+    <button class="filter" type="button" data-filter="formal" aria-pressed="false">Code / Math</button>
+    <button class="filter" type="button" data-filter="rd" aria-pressed="false">R&amp;D</button>
+    <button class="action" type="button" id="expand">Expand</button>
+    <button class="action" type="button" id="collapse">Collapse</button>
+    <button class="action" type="button" id="print">Print</button>
+    <span class="status" id="status" role="status" aria-live="polite">11 chapters</span>
+  </div>
+</div>
+<main class="wrap">
+  <div class="legend">
+    <span class="badge lit">Literature</span><span>concept, history, interpretation</span>
+    <span class="badge formal">Code / Math</span><span>representation, invariants, validation</span>
+    <span class="badge rd">R&amp;D</span><span>prototype, evaluation, deployment pressure</span>
+    <span class="legend-help">Open a chapter to see its chain, migrations, citation axis, evidence, construction logic, boundary, and research echo.</span>
+  </div>
+  <div id="chapters">
+
+    <article class="chapter" data-chapter="1" data-encoders="lit rd" data-search="literature r&amp;d introduction: the worldtext problem generative media turn creative scarcity into interpretive abundance: the problem is no longer only making, but selecting, steering, and accounting for possible worlds. benjamin; flusser; mcluhan; kittler; bush; nelson; manovich borges; umberto eco’s open work; n. katherine hayles on materiality and computation the claim that generative ai is merely a faster neutral tool, or that novelty alone explains its cultural significance.">
+      <details open>
+        <summary>
+          <span class="chapter-number">01</span>
+          <span class="summary-copy"><strong>Introduction: The Worldtext Problem</strong><small>Generative media turn creative scarcity into interpretive abundance: the problem is no longer only making, but selecting, steering, and accounting for possible worlds.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>What is the actual object of creative work when a model can produce more outputs than anyone can inspect?</p></div>
+            <div><span>First conflict</span><p>artifact vs. possibility field; production vs. selection; tool vs. medium</p></div>
+            <div><span>Method</span><p>medium analysis joined to prototype observation</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Technical reproduction</div><cite>Walter Benjamin — The Work of Art in the Age of Mechanical Reproduction</cite><p>A production technology changes perception, authority, circulation, and the status of the work—not merely its quantity.</p></li>
+<li><div class="node-label">Technical images and apparatus</div><cite>Vilém Flusser — Towards a Philosophy of Photography</cite><p>The maker works inside a programmed field of possibilities and must learn to play against the apparatus.</p></li>
+<li><div class="node-label">Medium conditions</div><cite>Marshall McLuhan — Understanding Media; Friedrich Kittler — media materialism</cite><p>A medium reorganizes what can be expressed, stored, transmitted, and perceived.</p></li>
+<li><div class="node-label">Navigable abundance</div><cite>Vannevar Bush — As We May Think; Ted Nelson — hypertext; Jorge Luis Borges — The Library of Babel</cite><p>The archive becomes a navigable field whose excess creates a problem of orientation.</p></li>
+<li><div class="node-label">Database and generative turn</div><cite>Lev Manovich — The Language of New Media; computational creativity and foundation-model practice</cite><p>The work shifts from a fixed sequence to a selectable and regenerable space of alternatives.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>reproduction theory</span><b aria-hidden="true">→</b><span>generative medium theory</span><p>The copy is no longer only multiplied; each request can yield a different member of a latent family.</p></li>
+<li><span>content analysis</span><b aria-hidden="true">→</b><span>worldtext analysis</span><p>The visible output is treated as one temporary surface of a larger operational field.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Benjamin; Flusser; McLuhan; Kittler; Bush; Nelson; Manovich</p></div>
+            <div><h3>Shadow citations</h3><p>Borges; Umberto Eco’s open work; N. Katherine Hayles on materiality and computation</p></div>
+            <div><h3>Adversary</h3><p>The claim that generative AI is merely a faster neutral tool, or that novelty alone explains its cultural significance.</p></div>
+            <div><h3>Evidence stack</h3><p>interfaces, prompt histories, alternative outputs, selection decisions, failed generations, and the built artifacts that make the medium operable</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Frame the medium through what it permits, withholds, multiplies, and makes difficult. Treat abundance as an operational condition that changes authorship and criticism.</dd></div>
+              <div><dt>Artifact test</dt><dd>The full dissertation corpus functions as the archive; the introduction establishes why each later artifact is evidence rather than illustration.</dd></div>
+              <div><dt>Boundary</dt><dd>Worldtext must not become a totalizing metaphor. It names a creative and interpretive condition, not every social, economic, or material fact about AI.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Describe generative AI from the position of the person forced to choose among possible worlds. Show how interface, model, prompt, and selection jointly define the medium, then state the boundary beyond which worldtext does not explain enough.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="2" data-encoders="lit" data-search="literature a genealogy of the worldtext worldtext emerges when signs become simultaneously interpretable, writable, navigable, multimodal, stateful, and generative. barthes; eco; nelson; landow; mitchell; geertz; goodman; aarseth; ryan ricoeur; bakhtin’s dialogism; hayles on electronic textuality medium purity, the fixed-work model, and the idea that a prompt simply transmits a complete intention to an obedient system.">
+      <details >
+        <summary>
+          <span class="chapter-number">02</span>
+          <span class="summary-copy"><strong>A Genealogy of the Worldtext</strong><small>Worldtext emerges when signs become simultaneously interpretable, writable, navigable, multimodal, stateful, and generative.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>How does a text become a world without ceasing to be something that must be read?</p></div>
+            <div><span>First conflict</span><p>fixed inscription vs. operable field; word vs. image; decoding vs. steering</p></div>
+            <div><span>Method</span><p>conceptual genealogy and synthetic distinction-making</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Text as a field of interpretation</div><cite>Roland Barthes — From Work to Text; Umberto Eco — The Open Work; Paul Ricoeur — hermeneutics</cite><p>A text exceeds authorial intention and is completed through situated acts of interpretation.</p></li>
+<li><div class="node-label">Writable and navigable text</div><cite>Vannevar Bush — associative trails; Ted Nelson — hypertext; George Landow — hypertext theory</cite><p>Digital text can be traversed, linked, reorganized, and partly written through reading.</p></li>
+<li><div class="node-label">Word–image inseparability</div><cite>G. E. Lessing — Laocoön as the separation to overcome; W. J. T. Mitchell — Picture Theory</cite><p>Words and images are not pure media; their meanings emerge through mutual implication and friction.</p></li>
+<li><div class="node-label">Meaning through context</div><cite>Clifford Geertz — Thick Description</cite><p>Interpretation reconstructs the layered situation that makes an act, sign, or output intelligible.</p></li>
+<li><div class="node-label">Worlds and traversal</div><cite>Nelson Goodman — Ways of Worldmaking; Espen Aarseth — Cybertext; Marie-Laure Ryan — possible-worlds narratology</cite><p>A textual system may contain rules, states, paths, and possible worlds that require traversal rather than linear reading.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>text</span><b aria-hidden="true">→</b><span>hypertext</span><p>Reading acquires navigational and configurative action.</p></li>
+<li><span>imagetext</span><b aria-hidden="true">→</b><span>worldtext</span><p>Word–image relation gains state, traversal, and a generative field of unrealized alternatives.</p></li>
+<li><span>interpretation as decoding</span><b aria-hidden="true">→</b><span>interpretation as sampling and steering</span><p>The reader tests the system by changing conditions and comparing resulting worlds.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Barthes; Eco; Nelson; Landow; Mitchell; Geertz; Goodman; Aarseth; Ryan</p></div>
+            <div><h3>Shadow citations</h3><p>Ricoeur; Bakhtin’s dialogism; Hayles on electronic textuality</p></div>
+            <div><h3>Adversary</h3><p>Medium purity, the fixed-work model, and the idea that a prompt simply transmits a complete intention to an obedient system.</p></div>
+            <div><h3>Evidence stack</h3><p>conceptual distinctions, interface actions, prompt revisions, generated variants, persistent states, and interpretive reconstructions</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Derive worldtext by adding properties only when an earlier concept cannot carry them. The argument succeeds if each step names a real change in what a reader-maker can do.</dd></div>
+              <div><dt>Artifact test</dt><dd>Later artifacts serve as retroactive tests: operative description, sampling, state, provenance, and verification each activate one property of the concept.</dd></div>
+              <div><dt>Boundary</dt><dd>The latent field cannot be fully seen or recovered. Worldtext is inferred through outputs and interactions, not possessed as a complete hidden universe.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Build the term worldtext through a sequence of necessary inheritances. At every transition, state what the earlier concept explains, what it cannot explain, and which new operation—writing, navigation, multimodality, state, or generation—forces the next term.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="3" data-encoders="lit rd" data-search="literature r&amp;d method: thick prompting prompting becomes research when the whole run—conditions, interpretations, revisions, failures, and selections—counts as evidence. dewey; schön; geertz; suchman; research through design; latour ethnomethodology; critical making; software testing and notebook science single-shot prompt spectacle, secret prompt recipes, benchmark-only evaluation, and post hoc claims unsupported by process records.">
+      <details >
+        <summary>
+          <span class="chapter-number">03</span>
+          <span class="summary-copy"><strong>Method: Thick Prompting</strong><small>Prompting becomes research when the whole run—conditions, interpretations, revisions, failures, and selections—counts as evidence.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>How can making with a generative system produce knowledge rather than a polished demonstration?</p></div>
+            <div><span>First conflict</span><p>output vs. process; command vs. negotiation; demonstration vs. inquiry</p></div>
+            <div><span>Method</span><p>iterative building, controlled variation, situated interpretation, and trace preservation</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Inquiry through consequence</div><cite>John Dewey — Logic and Art as Experience</cite><p>Knowledge grows through situated action, encountered resistance, and revision rather than detached contemplation alone.</p></li>
+<li><div class="node-label">Reflective practice</div><cite>Donald Schön — The Reflective Practitioner</cite><p>The maker conducts a conversation with materials whose back-talk redirects the design.</p></li>
+<li><div class="node-label">Thick interpretation</div><cite>Clifford Geertz — Thick Description</cite><p>An event becomes intelligible only when its surrounding conditions, distinctions, and stakes are reconstructed.</p></li>
+<li><div class="node-label">Situated action</div><cite>Lucy Suchman — Plans and Situated Actions</cite><p>Plans do not determine action; practical meaning emerges through local interaction with a partially unpredictable system.</p></li>
+<li><div class="node-label">Research through design and tracing</div><cite>Christopher Frayling; Zimmerman, Forlizzi, and Evenson; Bruno Latour</cite><p>Artifacts can generate knowledge when their construction, mediation, and actor relations remain available for analysis.</p></li>
+<li><div class="node-label">Experimental software practice</div><cite>ablation, property testing, versioning, logging, and iterative prototyping</cite><p>A claim becomes stronger when conditions are varied, edge cases are sought, and failures remain inspectable.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>prompt as instruction</span><b aria-hidden="true">→</b><span>prompt as experimental intervention</span><p>Each prompt perturbs a system and reveals how it resolves underspecification.</p></li>
+<li><span>final artifact</span><b aria-hidden="true">→</b><span>documented run</span><p>The evidentiary unit expands to include prompts, states, branches, edits, and rejected outputs.</p></li>
+<li><span>studio intuition</span><b aria-hidden="true">→</b><span>repeatable protocol</span><p>Tacit making is preserved while comparisons and revision rules become explicit.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Dewey; Schön; Geertz; Suchman; Research through Design; Latour</p></div>
+            <div><h3>Shadow citations</h3><p>Ethnomethodology; critical making; software testing and notebook science</p></div>
+            <div><h3>Adversary</h3><p>Single-shot prompt spectacle, secret prompt recipes, benchmark-only evaluation, and post hoc claims unsupported by process records.</p></div>
+            <div><h3>Evidence stack</h3><p>prompt versions, model settings, screen recordings, output families, failure cases, decision notes, code, and artifact revisions</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Build a bounded system, vary one meaningful condition, observe what remains and drifts, interpret the resistance, revise the artifact, and preserve the chain.</dd></div>
+              <div><dt>Artifact test</dt><dd>Every case study uses the method; the chapter supplies a common protocol so later claims can be compared rather than treated as unrelated artworks.</dd></div>
+              <div><dt>Boundary</dt><dd>No run record exhausts the model’s training history or internal causality. Thick prompting produces situated evidence, not total explanation.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Write the method as a repeatable cycle of construction, perturbation, comparison, interpretation, and revision. Make failure a first-class result, distinguish observation from inference, and show exactly how an artifact changes because the model resisted intention.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="4" data-encoders="lit formal" data-search="literature code/math composition: the writable image description becomes operative when language does not merely accompany an image but conditions the process that brings it into view. ekphrasis; lessing; mitchell; bolter and grusin; flusser; farocki; text-to-image generation speech-act theory; conceptual art instructions; sol lewitt’s executable descriptions the myth of the perfectly sovereign prompt author and the belief that a plausible image has preserved the described world’s relations.">
+      <details >
+        <summary>
+          <span class="chapter-number">04</span>
+          <span class="summary-copy"><strong>Composition: The Writable Image</strong><small>Description becomes operative when language does not merely accompany an image but conditions the process that brings it into view.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge formal">Code/Math</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>What kind of authorship begins when a sentence can alter objects, space, style, action, and camera at once?</p></div>
+            <div><span>First conflict</span><p>description vs. execution; intention vs. interpretation; local plausibility vs. global relation</p></div>
+            <div><span>Method</span><p>operative ekphrasis, iterative conditioning, comparative visual analysis</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Ekphrasis</div><cite>Homeric shield description; Philostratus; the rhetorical tradition</cite><p>Language can construct a scene in the mind by organizing attention, relation, temporality, and affect.</p></li>
+<li><div class="node-label">Media separation and contest</div><cite>G. E. Lessing — Laocoön</cite><p>Word and image are historically assigned different temporal and spatial powers, creating the boundary the chapter tests.</p></li>
+<li><div class="node-label">Imagetext and remediation</div><cite>W. J. T. Mitchell — Picture Theory; Jay David Bolter and Richard Grusin — Remediation</cite><p>Words and images remediate one another; neither is merely an annotation of the other.</p></li>
+<li><div class="node-label">Programmed image</div><cite>Vilém Flusser — apparatus and technical image; Harun Farocki — operational images</cite><p>Images can be produced inside programs and used to act, calculate, or control rather than only represent.</p></li>
+<li><div class="node-label">Text-conditioned generation</div><cite>contrastive language–image models, diffusion models, latent representations</cite><p>A verbal condition reshapes a probability distribution from which a visual result is sampled.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>ekphrasis as verbal representation</span><b aria-hidden="true">→</b><span>operative ekphrasis</span><p>The description becomes part of the causal surface that produces the image.</p></li>
+<li><span>image editing</span><b aria-hidden="true">→</b><span>world specification</span><p>The maker edits relations, implied histories, behavior, and atmosphere through language.</p></li>
+<li><span>direct control</span><b aria-hidden="true">→</b><span>probabilistic conditioning</span><p>Authorship shifts from placing every mark to constraining and evaluating interpretations.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>ekphrasis; Lessing; Mitchell; Bolter and Grusin; Flusser; Farocki; text-to-image generation</p></div>
+            <div><h3>Shadow citations</h3><p>speech-act theory; conceptual art instructions; Sol LeWitt’s executable descriptions</p></div>
+            <div><h3>Adversary</h3><p>The myth of the perfectly sovereign prompt author and the belief that a plausible image has preserved the described world’s relations.</p></div>
+            <div><h3>Evidence stack</h3><p>prompt variants, image sequences, relation failures, preserved motifs, camera changes, and differences between verbal specification and visual realization</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Treat the prompt as a bundle of constraints whose influence is partial and uneven. Compare which relations survive across samples and which are replaced by learned defaults.</dd></div>
+              <div><dt>Artifact test</dt><dd>Operative Ekphrasis and Play, Freedom, and AI Films test description as composition across still and moving images.</dd></div>
+              <div><dt>Boundary</dt><dd>The system often satisfies isolated nouns and styles while losing causal, spatial, or temporal relations. The image can arrive before the intended film exists.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Compose one scene whose meaning depends on relations rather than objects, then vary the description without changing its core action. Use the resulting failures to define the exact boundary between writing an image and merely requesting one.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="5" data-encoders="lit formal rd" data-search="literature code/math r&amp;d assembly is sampling when footage can be generated without practical limit, editing becomes an alternating process of sampling, evaluating, steering, and resampling. eisenstein; vertov; benjamin; eco; manovich; sampling and search traditions dj culture; oulipo; evolutionary art; interactive machine learning the inherited metaphor of editing as subtraction and the opaque generator that hides why one shot follows another.">
+      <details >
+        <summary>
+          <span class="chapter-number">05</span>
+          <span class="summary-copy"><strong>Assembly Is Sampling</strong><small>When footage can be generated without practical limit, editing becomes an alternating process of sampling, evaluating, steering, and resampling.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge formal">Code/Math</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>What replaces cutting when the archive expands in response to every editorial decision?</p></div>
+            <div><span>First conflict</span><p>finite footage vs. generative abundance; sequence vs. database; fluidity vs. legibility</p></div>
+            <div><span>Method</span><p>generative montage, interactive sampling, visible state and provenance</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Montage</div><cite>Sergei Eisenstein; Dziga Vertov</cite><p>Meaning can arise from collision, interval, rhythm, and the organization of fragments rather than from any single shot.</p></li>
+<li><div class="node-label">Reproduction and constellation</div><cite>Walter Benjamin — montage method and technical reproducibility</cite><p>Fragments become thinkable through new arrangements; the archive can be read by constructing constellations.</p></li>
+<li><div class="node-label">Open and recombinant work</div><cite>Umberto Eco — The Open Work; sampling and remix cultures</cite><p>The work is completed through structured variation, recombination, and selection.</p></li>
+<li><div class="node-label">Database cinema</div><cite>Lev Manovich — database and narrative</cite><p>A collection of possible elements and the sequence drawn from it become distinct layers of the work.</p></li>
+<li><div class="node-label">Stochastic search</div><cite>Monte Carlo sampling, evolutionary search, recommender loops, interactive machine learning</cite><p>A maker explores a distribution through repeated samples and uses evaluation to redirect subsequent search.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>montage of recorded fragments</span><b aria-hidden="true">→</b><span>montage of generated alternatives</span><p>The editor can request material that does not yet exist.</p></li>
+<li><span>archive navigation</span><b aria-hidden="true">→</b><span>distribution steering</span><p>Selection feeds back into the production of the next candidate set.</p></li>
+<li><span>hidden generative pipeline</span><b aria-hidden="true">→</b><span>legible engine</span><p>The system exposes state, lineage, rejection, and consequence while composition continues.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Eisenstein; Vertov; Benjamin; Eco; Manovich; sampling and search traditions</p></div>
+            <div><h3>Shadow citations</h3><p>DJ culture; Oulipo; evolutionary art; interactive machine learning</p></div>
+            <div><h3>Adversary</h3><p>The inherited metaphor of editing as subtraction and the opaque generator that hides why one shot follows another.</p></div>
+            <div><h3>Evidence stack</h3><p>candidate pools, selection histories, generation parameters, rejected variants, sequence changes, and the engine’s visible state</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Model assembly as a feedback loop: sample, compare, select, condition, and resample. Legibility requires that each editorial action reveal its consequence without stopping the creative flow.</dd></div>
+              <div><dt>Artifact test</dt><dd>CINEOSIS and The Machinery of Meaning test abundant footage, fluid assembly, and an engine that can be read while it runs.</dd></div>
+              <div><dt>Boundary</dt><dd>Abundance can collapse into noise, repetitive defaults, or untraceable automation. A coherent sequence may conceal an incoherent production process.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Design the editor as a live sampling instrument rather than a bin of clips. Show the current distribution, the selected lineage, and the next consequence with the least possible interface, then test whether viewers can explain how the sequence came to be.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="6" data-encoders="lit formal" data-search="literature code/math the world that remembers a generated sequence becomes a world only when what has happened constrains what can happen next. goodman; ryan; aarseth; murray; state machines; event sourcing; external model memory bergson on duration; game save systems; database transaction logs the equation of visual consistency with world continuity and the assumption that a longer prompt automatically creates memory.">
+      <details >
+        <summary>
+          <span class="chapter-number">06</span>
+          <span class="summary-copy"><strong>The World That Remembers</strong><small>A generated sequence becomes a world only when what has happened constrains what can happen next.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge formal">Code/Math</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>Which facts must persist for multiple generations to remain the same world rather than a series of plausible replacements?</p></div>
+            <div><span>First conflict</span><p>next-scene plausibility vs. historical continuity; visual similarity vs. causal state</p></div>
+            <div><span>Method</span><p>world modeling, state transition design, continuity stress tests</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Worldmaking</div><cite>Nelson Goodman — Ways of Worldmaking</cite><p>Worlds are constructed through symbol systems, distinctions, rules, and versions rather than simply found intact.</p></li>
+<li><div class="node-label">Possible worlds and narrative</div><cite>Marie-Laure Ryan — possible-worlds narratology; narratology of character knowledge and causality</cite><p>A narrative world contains facts, alternatives, beliefs, and consequences that constrain interpretation.</p></li>
+<li><div class="node-label">Ergodic and interactive worlds</div><cite>Espen Aarseth — Cybertext; Janet Murray — procedural and participatory environments</cite><p>The reader-player traverses a system whose states and rules help produce the experienced sequence.</p></li>
+<li><div class="node-label">Game and software state</div><cite>finite-state machines, databases, event sourcing, entity-component systems</cite><p>Continuity is implemented by representing state explicitly and applying valid transitions rather than regenerating everything from appearance.</p></li>
+<li><div class="node-label">Machine memory</div><cite>retrieval systems, context windows, external memory, summaries, and agent state</cite><p>Generative models can be scaffolded with records, but remembering a fact and using it correctly remain separate problems.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>narrative continuity</span><b aria-hidden="true">→</b><span>formal state</span><p>Characters, objects, relations, and events become explicit variables with transition rules.</p></li>
+<li><span>context repetition</span><b aria-hidden="true">→</b><span>event memory</span><p>The system preserves what happened, not only a description of the current appearance.</p></li>
+<li><span>plausible continuation</span><b aria-hidden="true">→</b><span>consequential continuation</span><p>The next scene must inherit obligations, damage, knowledge, and changed possibilities.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Goodman; Ryan; Aarseth; Murray; state machines; event sourcing; external model memory</p></div>
+            <div><h3>Shadow citations</h3><p>Bergson on duration; game save systems; database transaction logs</p></div>
+            <div><h3>Adversary</h3><p>The equation of visual consistency with world continuity and the assumption that a longer prompt automatically creates memory.</p></div>
+            <div><h3>Evidence stack</h3><p>state ledgers, event logs, object identity tests, character knowledge checks, spatial maps, and deliberate contradiction probes</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Separate visible description from authoritative state. Each generation reads a bounded state, proposes changes, and must return a validated transition whose consequences persist.</dd></div>
+              <div><dt>Artifact test</dt><dd>Coaxing the Ripples, After the Scene, and the LEGOS framework test visual, narrative, social, procedural, and ethical memory.</dd></div>
+              <div><dt>Boundary</dt><dd>The model tends to rewrite the world at the seam between generations. External memory can preserve facts while the produced scene still ignores their meaning.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Specify the smallest state ledger that makes a scene consequential. Break it deliberately—remove one fact, alter one identity, erase one obligation—and show which kinds of worldhood disappear first.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="7" data-encoders="lit rd" data-search="literature r&amp;d legible mechanisms a persuasive generated artifact becomes contestable only when a reader can reconstruct enough of the process, sources, and decisions beneath it. geertz; ginzburg; foucault; latour; bowker and star; data provenance; model documentation archival diplomatics; reproducible science; critical code studies the belief that a fluent output explains itself, and the opposite fantasy that complete transparency into a model is possible.">
+      <details >
+        <summary>
+          <span class="chapter-number">07</span>
+          <span class="summary-copy"><strong>Legible Mechanisms</strong><small>A persuasive generated artifact becomes contestable only when a reader can reconstruct enough of the process, sources, and decisions beneath it.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>What must remain traceable for a generated story, simulation, or explanation to be questioned rather than merely believed?</p></div>
+            <div><span>First conflict</span><p>story vs. run record; persuasion vs. provenance; explanation vs. total transparency</p></div>
+            <div><span>Method</span><p>thick reading, provenance capture, actor and decision tracing</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Interpretive reconstruction</div><cite>Clifford Geertz — thick description; Carlo Ginzburg — evidential clues</cite><p>Meaning and causality are reconstructed from partial signs by situating them in a larger pattern of action.</p></li>
+<li><div class="node-label">Genealogy and archive</div><cite>Michel Foucault — archaeology and genealogy; archival provenance traditions</cite><p>Claims acquire force through systems of classification, preservation, exclusion, and descent.</p></li>
+<li><div class="node-label">Tracing associations</div><cite>Bruno Latour — actor-network theory</cite><p>An outcome is followed through the heterogeneous people, devices, documents, and translations that made it possible.</p></li>
+<li><div class="node-label">Infrastructure and classification</div><cite>Geoffrey Bowker and Susan Leigh Star — Sorting Things Out</cite><p>Categories and records are material infrastructures whose histories shape what can be seen and acted upon.</p></li>
+<li><div class="node-label">Computational provenance and documentation</div><cite>data lineage; reproducible workflows; model cards; datasheets for datasets</cite><p>Technical records can expose sources, transformations, limits, and intended uses without pretending to reveal every internal cause.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>close reading of the output</span><b aria-hidden="true">→</b><span>thick reading of the production ecology</span><p>Interpretation expands to prompts, agents, sources, code, interfaces, and selections.</p></li>
+<li><span>authorship attribution</span><b aria-hidden="true">→</b><span>provenance graph</span><p>A single author label is replaced by a recoverable sequence of contributions and transformations.</p></li>
+<li><span>transparency</span><b aria-hidden="true">→</b><span>contestability</span><p>The goal becomes providing practical points where a claim can be checked, challenged, or revised.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Geertz; Ginzburg; Foucault; Latour; Bowker and Star; data provenance; model documentation</p></div>
+            <div><h3>Shadow citations</h3><p>archival diplomatics; reproducible science; critical code studies</p></div>
+            <div><h3>Adversary</h3><p>The belief that a fluent output explains itself, and the opposite fantasy that complete transparency into a model is possible.</p></div>
+            <div><h3>Evidence stack</h3><p>source links, prompt and agent traces, transformation logs, version histories, decision annotations, and discrepancies between narrative and run record</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Capture only provenance that changes interpretation or permits challenge. Preserve uncertainty and distinguish observed records from inferred causal stories.</dd></div>
+              <div><dt>Artifact test</dt><dd>Centaur Box and Growing Entanglements expose how history, agent decisions, and human interventions enter a persuasive result.</dd></div>
+              <div><dt>Boundary</dt><dd>A record can be complete yet meaningless, while a compelling story can remain underdocumented. Provenance supports judgment but cannot automate it.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Choose one persuasive output and reconstruct the smallest evidentiary chain needed to challenge it. Make every transformation inspectable, mark every inference, and preserve the gap between what the run record proves and what the story claims.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="8" data-encoders="formal rd" data-search="code/math r&amp;d legal worlds generation becomes construction when every proposed object must obey explicit rules and survive independent verification. formal systems; modular construction; cad; csp/sat; type systems; property testing; ldraw papert; pattern languages; procedural content generation with constraints visual plausibility as a substitute for truth, and unrestricted generation that leaves verification to a human after the fact.">
+      <details >
+        <summary>
+          <span class="chapter-number">08</span>
+          <span class="summary-copy"><strong>Legal Worlds</strong><small>Generation becomes construction when every proposed object must obey explicit rules and survive independent verification.</small></span>
+          <span class="badges"><span class="badge formal">Code/Math</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>How can an open-ended model produce structures that are not only plausible but valid, reproducible, and buildable?</p></div>
+            <div><span>First conflict</span><p>appearance vs. validity; freedom vs. constraint; generation vs. verification</p></div>
+            <div><span>Method</span><p>formal representation, constraint checking, generate–validate–repair loops</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Axiomatic construction</div><cite>Euclidean geometry and formal systems</cite><p>A world becomes checkable when primitive objects, permitted operations, and valid relations are explicitly defined.</p></li>
+<li><div class="node-label">Modular construction</div><cite>standardized parts, LEGO’s system of play, and Seymour Papert’s constructionism</cite><p>Creative freedom can emerge from a finite vocabulary of interoperable elements and visible rules.</p></li>
+<li><div class="node-label">Computer-aided design</div><cite>solid modeling, coordinate systems, collision tests, and assembly constraints</cite><p>A representation must encode geometry and connection, not only a surface image.</p></li>
+<li><div class="node-label">Constraint computation</div><cite>constraint-satisfaction problems, SAT/SMT solving, graph validation</cite><p>A candidate structure is accepted only when all declared invariants hold.</p></li>
+<li><div class="node-label">Executable specification</div><cite>type systems, formal verification, property-based testing</cite><p>A claim is strengthened when invalid states are difficult or impossible to represent and counterexamples are actively sought.</p></li>
+<li><div class="node-label">Machine-readable construction</div><cite>LDraw and structured part libraries</cite><p>A generated design can be parsed, checked, repaired, rendered, and physically reproduced from the same description.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>image prompt</span><b aria-hidden="true">→</b><span>typed construction specification</span><p>Objects become named parts with coordinates, orientations, and legal connections.</p></li>
+<li><span>one-shot generation</span><b aria-hidden="true">→</b><span>generate–validate–repair</span><p>The model proposes; deterministic systems reject or diagnose; the model revises.</p></li>
+<li><span>aesthetic judgment</span><b aria-hidden="true">→</b><span>dual evaluation</span><p>A structure must be both expressive and formally valid.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>formal systems; modular construction; CAD; CSP/SAT; type systems; property testing; LDraw</p></div>
+            <div><h3>Shadow citations</h3><p>Papert; pattern languages; procedural content generation with constraints</p></div>
+            <div><h3>Adversary</h3><p>Visual plausibility as a substitute for truth, and unrestricted generation that leaves verification to a human after the fact.</p></div>
+            <div><h3>Evidence stack</h3><p>part inventories, connection graphs, collision reports, support checks, parser errors, repair histories, and successful reconstruction</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Define primitives and invariants first. Permit the model to generate only a structured proposal, validate it deterministically, return localized errors, and preserve the repaired lineage.</dd></div>
+              <div><dt>Artifact test</dt><dd>Can a Model Build with LEGO? uses LDraw to test whether an attractive output is composed of real parts in legal, reproducible relations.</dd></div>
+              <div><dt>Boundary</dt><dd>Formal validity does not guarantee usefulness, beauty, safety, or physical stability beyond the rules represented. Every legal world is only as adequate as its constraints.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Build a generator whose outputs can fail loudly and locally. Make invalidity visible at the exact connection where it occurs, then compare unconstrained plausibility with verified construction to show what formal discipline adds and what it still omits.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="9" data-encoders="lit rd" data-search="literature r&amp;d misreading as material a classifier’s confident mistake becomes critical material when its assumptions, uncertainty, and consequences are made tangible. darwin; ekman as a contested lineage; barrett; fridlund; bowker and star; noble; benjamin; buolamwini and gebru; critical design history of physiognomy; feminist standpoint theory; disability studies critiques of normative expression the claim that emotion is a universal visible fact and that bias is merely a removable edge case in an otherwise neutral classifier.">
+      <details >
+        <summary>
+          <span class="chapter-number">09</span>
+          <span class="summary-copy"><strong>Misreading as Material</strong><small>A classifier’s confident mistake becomes critical material when its assumptions, uncertainty, and consequences are made tangible.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>What does an automated system claim to know when it converts a person’s expression into a stable emotional label?</p></div>
+            <div><span>First conflict</span><p>signal vs. interpretation; confidence vs. validity; classification vs. lived context</p></div>
+            <div><span>Method</span><p>subgroup auditing, critical interface construction, materialization of labels</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Measurement of expression</div><cite>Charles Darwin — The Expression of the Emotions; histories of physiognomy and biometric classification</cite><p>Visible bodies have repeatedly been treated as readable evidence of hidden character or inner state.</p></li>
+<li><div class="node-label">Basic-emotion classification</div><cite>Paul Ekman and automated facial-expression traditions</cite><p>A small set of emotion categories is treated as universally detectable from observable configurations.</p></li>
+<li><div class="node-label">Constructed and contextual emotion</div><cite>Lisa Feldman Barrett; Alan Fridlund</cite><p>Emotion is not a simple substance written on the face; context, concepts, social action, and interpretation are constitutive.</p></li>
+<li><div class="node-label">Classification infrastructures</div><cite>Geoffrey Bowker and Susan Leigh Star</cite><p>Categories become consequential when institutions embed them in workflows, records, and decisions.</p></li>
+<li><div class="node-label">Critical algorithm studies</div><cite>Safiya Umoja Noble; Ruha Benjamin; Joy Buolamwini and Timnit Gebru</cite><p>Technical error is unevenly distributed and can reproduce historical power while appearing objective.</p></li>
+<li><div class="node-label">Critical and adversarial design</div><cite>Dunne and Raby; Carl DiSalvo</cite><p>Artifacts can stage disagreement and make a system’s assumptions available for public encounter.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>emotion detection</span><b aria-hidden="true">→</b><span>institutional interpretation</span><p>The label is followed into the decisions and expectations it authorizes.</p></li>
+<li><span>accuracy score</span><b aria-hidden="true">→</b><span>situated audit</span><p>Performance is separated by subgroup, context, uncertainty, and consequence.</p></li>
+<li><span>hidden classification</span><b aria-hidden="true">→</b><span>material consequence</span><p>The label produces a visible object or event that can be challenged.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Darwin; Ekman as a contested lineage; Barrett; Fridlund; Bowker and Star; Noble; Benjamin; Buolamwini and Gebru; critical design</p></div>
+            <div><h3>Shadow citations</h3><p>history of physiognomy; feminist standpoint theory; disability studies critiques of normative expression</p></div>
+            <div><h3>Adversary</h3><p>The claim that emotion is a universal visible fact and that bias is merely a removable edge case in an otherwise neutral classifier.</p></div>
+            <div><h3>Evidence stack</h3><p>confusion matrices, calibration, subgroup performance, contradictory labels, participant interpretation, interface behavior, and the physical output tied to a prediction</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Do not use error only as a metric. Stage the exact movement from signal to category to consequence so that the system’s confidence and the world’s ambiguity collide in public.</dd></div>
+              <div><dt>Artifact test</dt><dd>Auditing Emotion AI and the Gumball Emotion Machine turn uncertain classifications into inspectable and consequential objects.</dd></div>
+              <div><dt>Boundary</dt><dd>Exposure does not by itself change the institution that purchases or operationalizes the classifier. A critical artifact can reveal a relation without dissolving it.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Select one label the system treats as obvious. Reconstruct the assumptions required to produce it, audit who is misread and under what conditions, then materialize the prediction so its uncertainty can no longer disappear behind a score.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="10" data-encoders="lit rd" data-search="literature r&amp;d where responsibility goes generative systems distribute creative action across many actors, but responsibility becomes visible only when praise, harm, dependence, or grief demands an account. barthes; foucault; latour; akrich; suchman; matthias; floridi; elish; turkle care ethics; legal chain-of-responsibility models; nissenbaum on accountability and contextual integrity both machine autonomy that absolves institutions and human-only authorship that ignores system behavior, infrastructure, and delegated decisions.">
+      <details >
+        <summary>
+          <span class="chapter-number">10</span>
+          <span class="summary-copy"><strong>Where Responsibility Goes</strong><small>Generative systems distribute creative action across many actors, but responsibility becomes visible only when praise, harm, dependence, or grief demands an account.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge rd">R&amp;D</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>Who becomes answerable for an outcome assembled from prompting, generation, selection, deployment, and interpretation?</p></div>
+            <div><span>First conflict</span><p>distributed agency vs. displaced accountability; authorship vs. consequence</p></div>
+            <div><span>Method</span><p>actor mapping, responsibility decomposition, staged encounters and pronoun analysis</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">The unstable author</div><cite>Roland Barthes — The Death of the Author; Michel Foucault — What Is an Author?</cite><p>Authorship is an institutional function that organizes interpretation, ownership, and authority rather than a simple origin point.</p></li>
+<li><div class="node-label">Distributed action</div><cite>Bruno Latour; Madeleine Akrich; Lucy Suchman</cite><p>Agency emerges through relations among people, artifacts, scripts, plans, institutions, and situated adjustments.</p></li>
+<li><div class="node-label">Responsibility gaps</div><cite>Andreas Matthias — responsibility gap; Luciano Floridi — distributed morality</cite><p>Learning and distributed systems complicate the assignment of responsibility without eliminating moral consequence.</p></li>
+<li><div class="node-label">Moral crumple zones</div><cite>Madeleine Clare Elish</cite><p>Humans may absorb blame for failures of systems they cannot fully control while institutions retain the benefits.</p></li>
+<li><div class="node-label">Relational machines</div><cite>Sherry Turkle and work on relational artifacts</cite><p>People can experience attachment, care, projection, and loss around systems whose reciprocity is asymmetrical.</p></li>
+<li><div class="node-label">Accountable systems</div><cite>audit trails, human-in-the-loop governance, responsibility matrices</cite><p>Operational systems can preserve handoffs, authority, overrides, and foreseeable consequences.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>single author</span><b aria-hidden="true">→</b><span>agency stack</span><p>Initiating, generative, selective, interpretive, institutional, and consequential agency are separated.</p></li>
+<li><span>who caused it?</span><b aria-hidden="true">→</b><span>who could know, alter, authorize, benefit, or repair?</span><p>Responsibility is mapped through capacities and obligations rather than a single causal label.</p></li>
+<li><span>I made it / it made it</span><b aria-hidden="true">→</b><span>pronoun alibi</span><p>Language is analyzed as a device that moves credit and blame across the seam.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>Barthes; Foucault; Latour; Akrich; Suchman; Matthias; Floridi; Elish; Turkle</p></div>
+            <div><h3>Shadow citations</h3><p>care ethics; legal chain-of-responsibility models; Nissenbaum on accountability and contextual integrity</p></div>
+            <div><h3>Adversary</h3><p>Both machine autonomy that absolves institutions and human-only authorship that ignores system behavior, infrastructure, and delegated decisions.</p></div>
+            <div><h3>Evidence stack</h3><p>prompt and selection histories, publication decisions, interface defaults, override points, pronoun shifts, participant testimony, and records of who bore the consequence</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>Map agency before assigning responsibility. For each actor, record knowledge, control, benefit, exposure, duty, and capacity to repair; then show where the account becomes evasive.</dd></div>
+              <div><dt>Artifact test</dt><dd>The Pronoun Alibi and The Adviser Leaves the Room stage the movement of credit, liability, attachment, and grief across the human–model seam.</dd></div>
+              <div><dt>Boundary</dt><dd>A precise map does not automatically settle legal or moral responsibility. The chapter reveals where accountability is displaced and which obligations remain contestable.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Begin after the outcome, when someone must explain what happened. Follow every shift between I, we, it, and the system; map who initiated, selected, authorized, benefited, and suffered; then design the artifact so no participant can claim agency without also encountering its corresponding obligation.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+
+    <article class="chapter" data-chapter="11" data-encoders="lit rd formal" data-search="literature r&amp;d code/math worldtext as medium worldtext is useful only if it keeps expressive possibility, operational structure, critical inspection, and material limits visible at the same time. mcluhan; flusser; kittler; gibson; norman; goodman; dewey; haraway; ratto; star; responsible innovation simondon on technical individuation; eco’s open work; design justice a universal theory of ai, a booster-versus-doom binary, and the assumption that an expressive artifact automatically resolves the system’s external costs.">
+      <details >
+        <summary>
+          <span class="chapter-number">11</span>
+          <span class="summary-copy"><strong>Worldtext as Medium</strong><small>Worldtext is useful only if it keeps expressive possibility, operational structure, critical inspection, and material limits visible at the same time.</small></span>
+          <span class="badges"><span class="badge lit">Literature</span><span class="badge rd">R&amp;D</span><span class="badge formal">Code/Math</span></span>
+          <span class="disclosure" aria-hidden="true">+</span>
+        </summary>
+        <div class="chapter-body">
+          <section class="first-principles" aria-label="First principles">
+            <div><span>Question</span><p>What does worldtext explain across the artifacts, and where must the concept stop?</p></div>
+            <div><span>First conflict</span><p>synthesis vs. totalization; possibility vs. constraint; expression vs. accountability</p></div>
+            <div><span>Method</span><p>cross-case synthesis, boundary testing, design principles, and research-program construction</p></div>
+          </section>
+
+          <section>
+            <h3>Lineage chain</h3>
+            <ol class="lineage"><li><div class="node-label">Medium theory</div><cite>Marshall McLuhan; Vilém Flusser; Friedrich Kittler</cite><p>Media are environments and programmed conditions that reorganize perception, action, storage, and cultural form.</p></li>
+<li><div class="node-label">Affordances</div><cite>James J. Gibson; Donald Norman</cite><p>A medium offers action possibilities that arise through relations among capacities, environments, conventions, and interfaces.</p></li>
+<li><div class="node-label">Worldmaking</div><cite>Nelson Goodman</cite><p>Worlds are made through symbol systems, classifications, versions, and operations whose adequacy can be compared.</p></li>
+<li><div class="node-label">Pragmatist inquiry and aesthetics</div><cite>John Dewey</cite><p>Meaning and value arise through experience, consequence, experimentation, and reconstruction.</p></li>
+<li><div class="node-label">Situated and critical making</div><cite>Donna Haraway — situated knowledges; Matt Ratto — critical making; Susan Leigh Star — boundary objects</cite><p>Knowledge is partial and embodied; building can expose relations; concepts can coordinate inquiry without erasing difference.</p></li>
+<li><div class="node-label">Responsible innovation</div><cite>anticipation, reflexivity, inclusion, responsiveness, and sociotechnical evaluation</cite><p>A research program must state who benefits, what is excluded, how harms are monitored, and when a line of development should change.</p></li></ol>
+          </section>
+
+          <section>
+            <h3>Migration map</h3>
+            <ul class="migrations"><li><span>individual chapter claims</span><b aria-hidden="true">→</b><span>affordance–constraint matrix</span><p>Each artifact contributes one capacity, one failure mode, and one design obligation.</p></li>
+<li><span>worldtext as description</span><b aria-hidden="true">→</b><span>worldtext as research program</span><p>The concept becomes a guide for building, evaluating, and criticizing future generative systems.</p></li>
+<li><span>medium interior</span><b aria-hidden="true">→</b><span>material and institutional exterior</span><p>Energy, water, labor, access, policy, and political economy are marked as conditions the frame cannot metabolize alone.</p></li></ul>
+          </section>
+
+          <section class="axis-grid">
+            <div><h3>Core citations</h3><p>McLuhan; Flusser; Kittler; Gibson; Norman; Goodman; Dewey; Haraway; Ratto; Star; responsible innovation</p></div>
+            <div><h3>Shadow citations</h3><p>Simondon on technical individuation; Eco’s open work; design justice</p></div>
+            <div><h3>Adversary</h3><p>A universal theory of AI, a booster-versus-doom binary, and the assumption that an expressive artifact automatically resolves the system’s external costs.</p></div>
+            <div><h3>Evidence stack</h3><p>the cross-case record of affordances, failures, state models, provenance, validations, audits, responsibility maps, and explicitly unaddressed conditions</p></div>
+          </section>
+
+          <section class="ecology">
+            <h3>Signature chapter ecology</h3>
+            <dl>
+              <div><dt>Construction logic</dt><dd>For every claimed affordance, name the artifact that demonstrates it, the failure that limits it, the evidence required to judge it, and the design obligation that follows.</dd></div>
+              <div><dt>Artifact test</dt><dd>All case studies are recomposed as a comparative medium map rather than summarized as a portfolio.</dd></div>
+              <div><dt>Boundary</dt><dd>Worldtext can make meaning, interaction, state, evidence, and agency inspectable; it does not by itself render compute supply chains, labor, water, energy, ownership, or geopolitical power adequately visible.</dd></div>
+            </dl>
+          </section>
+
+          <section class="echo">
+            <h3>Chapter echo</h3>
+            <p>Conclude by refusing both celebration and dismissal. State what worldtext lets a maker perceive and do, match every possibility to a demonstrated constraint, mark the external conditions the concept cannot absorb, and end with a bounded program for building worlds that remain readable, writable, verifiable, and contestable.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+  </div>
+</main>
+<footer>
+  <div class="wrap">Worldtext chapter lineage atlas. Source titles are directional anchors; the final dissertation bibliography should regularize editions, dates, and citation style.</div>
+</footer>
+<script>
+(() => {
+  const chapters = [...document.querySelectorAll('.chapter')];
+  const search = document.querySelector('#search');
+  const filters = [...document.querySelectorAll('.filter')];
+  const status = document.querySelector('#status');
+  let activeFilter = 'all';
+
+  function applyFilters() {
+    const q = search.value.trim().toLowerCase();
+    let visible = 0;
+    chapters.forEach(chapter => {
+      const encoderMatch = activeFilter === 'all' || chapter.dataset.encoders.split(' ').includes(activeFilter);
+      const textMatch = !q || chapter.textContent.toLowerCase().includes(q) || chapter.dataset.search.includes(q);
+      chapter.hidden = !(encoderMatch && textMatch);
+      if (!chapter.hidden) visible += 1;
+    });
+    status.textContent = `${visible} chapter${visible === 1 ? '' : 's'}`;
+  }
+
+  filters.forEach(button => button.addEventListener('click', () => {
+    activeFilter = button.dataset.filter;
+    filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    applyFilters();
+  }));
+
+  search.addEventListener('input', applyFilters);
+  document.querySelector('#expand').addEventListener('click', () => chapters.forEach(c => { if (!c.hidden) c.querySelector('details').open = true; }));
+  document.querySelector('#collapse').addEventListener('click', () => chapters.forEach(c => c.querySelector('details').open = false));
+  document.querySelector('#print').addEventListener('click', () => window.print());
+
+  let previouslyOpen = [];
+  window.addEventListener('beforeprint', () => {
+    previouslyOpen = chapters.filter(c => c.querySelector('details').open).map(c => c.dataset.chapter);
+    chapters.forEach(c => c.querySelector('details').open = true);
+  });
+  window.addEventListener('afterprint', () => {
+    chapters.forEach(c => c.querySelector('details').open = previouslyOpen.includes(c.dataset.chapter));
+  });
+})();
+</script>
+</body>
+</html>

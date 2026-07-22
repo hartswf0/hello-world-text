@@ -1,0 +1,843 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Worldtext — Chapter Lineages</title>
+<style>
+:root{
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --paper:#f1f2ee; --raise:#f7f8f5; --ink:#15181d; --muted:#565b64; --faint:#888e98;
+  --rule:#d7d9d3; --tint:#e9ebe5;
+  --lit:#a4372b; --code:#33518e; --rnd:#1d7a62;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --paper:#111318; --raise:#171a20; --ink:#e7e9e5; --muted:#9aa0aa; --faint:#666c76;
+    --rule:#282c33; --tint:#1b1f26;
+    --lit:#e4796b; --code:#84a2e4; --rnd:#4ec4a4;
+  }
+}
+:root[data-theme="light"]{
+  --paper:#f1f2ee; --raise:#f7f8f5; --ink:#15181d; --muted:#565b64; --faint:#888e98;
+  --rule:#d7d9d3; --tint:#e9ebe5; --lit:#a4372b; --code:#33518e; --rnd:#1d7a62;
+}
+:root[data-theme="dark"]{
+  --paper:#111318; --raise:#171a20; --ink:#e7e9e5; --muted:#9aa0aa; --faint:#666c76;
+  --rule:#282c33; --tint:#1b1f26; --lit:#e4796b; --code:#84a2e4; --rnd:#4ec4a4;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+.wrap{width:min(100%,70rem);margin:0 auto;padding:0 clamp(1.1rem,4vw,2.6rem)}
+a{color:inherit}
+::selection{background:var(--ink);color:var(--paper)}
+
+/* masthead */
+.mast{padding:clamp(2.4rem,6vw,4.4rem) 0 1.6rem;border-bottom:1px solid var(--ink)}
+.kicker{font:600 .7rem/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+h1{font-weight:400;letter-spacing:-.02em;line-height:1.02;margin:.7rem 0 0;
+  font-size:clamp(2rem,6vw,3.7rem);text-wrap:balance;max-width:20ch}
+.lede{margin:1.1rem 0 0;max-width:60ch;color:var(--muted);font-size:clamp(1.02rem,1.5vw,1.16rem)}
+.lede b{color:var(--ink);font-weight:600}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:.5rem .9rem;margin:1.6rem 0 0}
+.leg{display:inline-flex;align-items:center;gap:.45rem;font:600 .72rem/1 var(--sans);
+  letter-spacing:.03em;color:var(--muted);text-transform:uppercase}
+.dot{width:.62rem;height:.62rem;border-radius:2px;background:var(--f);flex:none}
+
+/* toc */
+.toc{list-style:none;padding:0;margin:1.9rem 0 0;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:.4rem}
+.toc a{display:grid;grid-template-columns:1.9rem 1fr;gap:.55rem;align-items:baseline;
+  text-decoration:none;padding:.5rem .55rem;border:1px solid var(--rule);border-radius:4px;
+  background:var(--raise);transition:border-color .12s,transform .12s}
+.toc a:hover{border-color:var(--f);transform:translateY(-1px)}
+.toc .n{font:700 .72rem/1 var(--sans);color:var(--f);font-variant-numeric:tabular-nums}
+.toc .t{font-family:var(--serif);font-size:.98rem;line-height:1.2;letter-spacing:-.01em}
+
+/* chapters */
+.ch{padding:clamp(2rem,5vw,3.4rem) 0;border-top:1px solid var(--rule);scroll-margin-top:1rem}
+.ch:first-of-type{border-top:0}
+.ch-head{display:grid;grid-template-columns:3.4rem 1fr;gap:clamp(.7rem,2vw,1.4rem);align-items:start}
+.ch-num{font:700 1.6rem/1 var(--sans);color:var(--f);font-variant-numeric:tabular-nums;padding-top:.15rem}
+.badge{display:inline-block;font:600 .64rem/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--f);border:1px solid var(--f);border-radius:100px;padding:.34rem .6rem}
+.ch-head h2{margin:.55rem 0 0;font-weight:400;letter-spacing:-.018em;line-height:1.05;
+  font-size:clamp(1.5rem,3.4vw,2.15rem);text-wrap:balance}
+.seed{margin:.5rem 0 0;color:var(--muted);max-width:62ch;font-size:1.02rem}
+
+.ch-body{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(1rem,2.4vw,1.8rem);margin:1.5rem 0 0}
+@media(max-width:820px){.ch-body{grid-template-columns:1fr}}
+
+.lbl{font:600 .64rem/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--faint);
+  margin:0 0 .55rem}
+
+.genome-wrap{min-width:0}
+pre.genome{margin:0;overflow-x:auto;background:var(--tint);border-left:3px solid var(--f);
+  border-radius:0 5px 5px 0;padding:1rem 1.1rem;
+  font-family:var(--mono);font-size:.735rem;line-height:1.62;color:var(--ink);
+  white-space:pre;tab-size:2}
+pre.genome .k{color:var(--muted)}
+pre.genome .a{color:var(--f);font-weight:600}
+
+.echo{min-width:0;border-left:3px solid var(--f);border-radius:0 5px 5px 0;
+  background:var(--raise);padding:1rem 1.15rem}
+.echo p{margin:0;font-size:1.02rem;line-height:1.6}
+.echo .tag{margin:.85rem 0 0;font:600 .72rem/1.5 var(--mono);color:var(--f);letter-spacing:.01em}
+
+footer{border-top:1px solid var(--ink);padding:1.8rem 0 3rem;color:var(--faint);
+  font:500 .74rem/1.7 var(--sans);letter-spacing:.02em}
+footer b{color:var(--muted);font-weight:600}
+
+@media(prefers-reduced-motion:no-preference){
+  .ch{opacity:0;transform:translateY(10px);animation:rise .6s ease forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+}
+a:focus-visible,.toc a:focus-visible{outline:2px solid var(--f);outline-offset:2px}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">Dissertation · lineage jukebox</div>
+  <h1>Worldtext: eleven chapters, eleven lineages</h1>
+  <p class="lede">Each chapter of <b>Worldtext: Generative AI as a Medium for Verbal and Visual Expression</b> is encoded through the single best-fit lineage forge for its material — the intellectual or formal ecology it actually descends from — as a genome plus one research-echo prompt. Color marks the forge.</p>
+  <div class="legend">
+    <span class="leg" style="--f:var(--lit)"><span class="dot"></span>Literature / Academia</span>
+    <span class="leg" style="--f:var(--code)"><span class="dot"></span>Code / Math</span>
+    <span class="leg" style="--f:var(--rnd)"><span class="dot"></span>Research &amp; Development</span>
+  </div>
+
+  <ol class="toc">
+    <li><a href="#ch1" style="--f:var(--lit)"><span class="n">01</span><span class="t">The Worldtext Problem</span></a></li>
+    <li><a href="#ch2" style="--f:var(--lit)"><span class="n">02</span><span class="t">The Genealogy</span></a></li>
+    <li><a href="#ch3" style="--f:var(--lit)"><span class="n">03</span><span class="t">Thick Prompting</span></a></li>
+    <li><a href="#ch4" style="--f:var(--code)"><span class="n">04</span><span class="t">The Writable Image</span></a></li>
+    <li><a href="#ch5" style="--f:var(--code)"><span class="n">05</span><span class="t">Assembly Is Sampling</span></a></li>
+    <li><a href="#ch6" style="--f:var(--code)"><span class="n">06</span><span class="t">The World That Remembers</span></a></li>
+    <li><a href="#ch7" style="--f:var(--rnd)"><span class="n">07</span><span class="t">Provenance</span></a></li>
+    <li><a href="#ch8" style="--f:var(--code)"><span class="n">08</span><span class="t">Legal Worlds</span></a></li>
+    <li><a href="#ch9" style="--f:var(--rnd)"><span class="n">09</span><span class="t">Misreading as Material</span></a></li>
+    <li><a href="#ch10" style="--f:var(--lit)"><span class="n">10</span><span class="t">Where Responsibility Goes</span></a></li>
+    <li><a href="#ch11" style="--f:var(--lit)"><span class="n">11</span><span class="t">Worldtext as Medium</span></a></li>
+  </ol>
+</header>
+
+<!-- 01 -->
+<section class="ch forge-lit" id="ch1" style="--f:var(--lit)">
+  <div class="ch-head">
+    <div class="ch-num">01</div>
+    <div>
+      <span class="badge">Literature / Academia</span>
+      <h2>The Worldtext Problem</h2>
+      <p class="seed">Machines generate more world than any person can inspect; abundance becomes the medium's first condition and its first poverty.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Literature lineage genome</div><pre class="genome">title: The Worldtext Problem
+seed: Generation approaches zero cost; the field of
+  results outruns any capacity to look, and choosing
+  replaces making as the creative act.
+ancestral_thinkers:
+  key_sources:
+    - "Benjamin — Work of Art in the Age of Reproduction"
+    - "Flusser — Into the Universe of Technical Images"
+    - "Herbert Simon — Designing in an Information-Rich World"
+    - "Borges — The Library of Babel"
+    - "Manovich — The Language of New Media"
+  inherited_lessons:
+    - "Reproducibility changes an artwork's ontology, not its copies"
+    - "The apparatus makes images faster than culture reads them"
+    - "A wealth of information makes a poverty of attention"
+origin_conditions:
+  first_questions:
+    - "What is the object of work when material is unlimited?"
+    - "Who reads what no one has time to read?"
+  first_conflicts: ["scarcity vs abundance", "making vs choosing", "sample vs field"]
+  first_methods: ["media theory", "close reading", "phenomenology of the apparatus"]
+disciplinary_matrix:
+  home_fields: ["media theory", "literary theory"]
+  adjacent_fields: ["information science", "HCI", "philosophy of technology"]
+  key_vocabularies: ["reproducibility", "apparatus", "attention", "latent field", "surplus"]
+epochs:
+  - period: "1936-1990"
+    stage: "ancestral formation"
+    dominant_questions: ["how does technical production reorganize perception?"]
+    influence_weight: 70
+  - period: "2010-present"
+    stage: "generative turn"
+    dominant_questions: ["what changes as generation nears zero cost?"]
+    influence_weight: 90
+citation_axis:
+  core_citations: ["Benjamin", "Flusser", "Simon", "Manovich"]
+  shadow_citations: ["Borges", "Kittler"]
+  adversaries: ["techno-utopian abundance narratives"]
+signature_thesis_ecology:
+  problem_logic: "abundance relocates labor from production to inspection"
+  method_logic: "name the object of work before judging any output"
+  intervention_logic: "reframe generation as a field, not a product"
+tagline: "#abundance-poverty #latent-field #apparatus #attention-scarcity"</pre></div>
+    <div class="echo"><div class="lbl">Research echo</div>
+      <p>Open the dissertation as a phenomenology of surplus: a maker before a screen that returns one image from a distribution it will never fully show. Read that condition through Benjamin's reproducibility and Flusser's apparatus, then push past both — where they theorized copies and programs, theorize the unrealized neighborhood surrounding every result. Frame the worldtext as the true unit of work: output, conditioning, alternatives, lineage. Let Simon's poverty of attention become an ontological claim, not an economic aside, and refuse the reading in which more is simply better.</p>
+      <p class="tag">#abundance-poverty #latent-field #apparatus</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="ch forge-lit" id="ch2" style="--f:var(--lit)">
+  <div class="ch-head">
+    <div class="ch-num">02</div>
+    <div>
+      <span class="badge">Literature / Academia</span>
+      <h2>The Genealogy</h2>
+      <p class="seed">Verbal text, hypertext, imagetext, thick description — a descent in which each ancestor survives, transformed, inside a generative system.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Literature lineage genome</div><pre class="genome">title: A Genealogy of the Worldtext
+seed: How an object can be at once read and operated —
+  traced from the writerly text through hypertext and
+  imagetext to thick description.
+ancestral_thinkers:
+  key_sources:
+    - "Barthes — From Work to Text; S/Z (readerly/writerly)"
+    - "Ted Nelson / Landow — Hypertext"
+    - "Bolter & Grusin — Remediation; Writing Space"
+    - "W. J. T. Mitchell — Picture Theory (imagetext)"
+    - "Geertz — The Interpretation of Cultures (thick description)"
+  inherited_lessons:
+    - "The writerly text is produced in the act of reading"
+    - "New media remediate the forms they displace"
+    - "Word and image co-condition; neither is prior"
+    - "Meaning is reconstructed from context, not read off the surface"
+origin_conditions:
+  first_questions: ["how is one object both interpreted and operated?"]
+  first_conflicts: ["reading vs navigation", "word vs image", "surface vs context"]
+  first_methods: ["genealogy", "close reading", "medium-specific analysis"]
+disciplinary_matrix:
+  home_fields: ["literary theory", "media theory"]
+  adjacent_fields: ["semiotics", "cultural anthropology", "art history"]
+  key_vocabularies: ["writerly", "ergodic", "imagetext", "remediation", "thick description"]
+epochs:
+  - period: "1968-1992"
+    stage: "text and hypertext"
+    primary_sources: ["Barthes", "Nelson", "Landow", "Aarseth"]
+    dominant_questions: ["what is a text once it branches and responds?"]
+    influence_weight: 75
+  - period: "1994-present"
+    stage: "image, world, generation"
+    primary_sources: ["Mitchell", "Bolter", "Geertz"]
+    dominant_questions: ["what does interpretation become in a generable world?"]
+    influence_weight: 85
+migration_map:
+  - from: "imagetext (word-image inseparability)"
+    to: "worldtext (navigable, stateful, generative)"
+    reason: "generative systems add world and sampling to the composite"
+    intellectual_shift: "reading extends into steering and reconstruction"
+citation_axis:
+  core_citations: ["Barthes", "Mitchell", "Geertz", "Bolter"]
+  shadow_citations: ["Aarseth (Cybertext)", "Genette"]
+  adversaries: ["medium-blind treatments of 'AI content'"]
+signature_thesis_ecology:
+  problem_logic: "worldtext extends imagetext where imagetext stops"
+  method_logic: "keep the descent immanent in built artifacts"
+  intervention_logic: "define four properties as operations on a distribution"
+tagline: "#from-work-to-text #hypertext #imagetext #thick-description"</pre></div>
+    <div class="echo"><div class="lbl">Research echo</div>
+      <p>Construct the genealogy as a working descent, not a reading list: show how Barthes's move from work to text, Nelson and Landow's hypertext, Mitchell's imagetext, and Geertz's thick description each survive, transformed, inside a generative system. Argue that worldtext extends the line precisely where imagetext stops — by adding a navigable, stateful world and a generativity in which interpretation becomes sampling. Keep Bolter close, since remediation already taught that new media inherit the forms they displace. Define the four properties — interpretable, editable, multi-state, explorable — as operations on a distribution, not as metaphors.</p>
+      <p class="tag">#hypertext #imagetext #thick-description</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="ch forge-lit" id="ch3" style="--f:var(--lit)">
+  <div class="ch-head">
+    <div class="ch-num">03</div>
+    <div>
+      <span class="badge">Literature / Academia</span>
+      <h2>Thick Prompting</h2>
+      <p class="seed">A method: read the generated act, not the output alone — through the conditioning, seed, and history that make it thin or thick.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Literature lineage genome</div><pre class="genome">title: Thick Prompting as Method
+seed: Prompting studied as interpretive fieldwork —
+  build, perturb one variable, and record what a model
+  preserves, drifts, substitutes, and refuses.
+ancestral_thinkers:
+  key_sources:
+    - "Geertz — Thick Description; Ryle — the wink (thick/thin)"
+    - "Latour — follow the actors (ANT)"
+    - "Suchman — Plans and Situated Actions"
+    - "Philip Agre — Toward a Critical Technical Practice"
+    - "Donald Schon — The Reflective Practitioner"
+  inherited_lessons:
+    - "The same gesture means differently by context; output alone is thin"
+    - "Method is following, not pre-deciding, the actors"
+    - "Build the system to see the problem it hides"
+    - "Reflection-in-action makes the artifact an instrument of inquiry"
+origin_conditions:
+  first_questions: ["what would a repeatable account of a model's interpretation record?"]
+  first_conflicts: ["output vs process", "demonstration vs study", "distance vs building"]
+  first_methods: ["ethnography", "critical technical practice", "controlled perturbation"]
+disciplinary_matrix:
+  home_fields: ["cultural anthropology", "STS", "research through design"]
+  adjacent_fields: ["HCI", "qualitative methods"]
+  key_vocabularies: ["thick/thin", "invariance", "drift", "reproducibility", "fieldnote"]
+epochs:
+  - period: "1973-1997"
+    stage: "interpretive + situated turn"
+    primary_sources: ["Geertz", "Latour", "Suchman", "Agre"]
+    dominant_questions: ["how is situated meaning studied without flattening it?"]
+    influence_weight: 80
+  - period: "2019-present"
+    stage: "prompting as fieldwork"
+    dominant_questions: ["how to log a model's interpretation reproducibly?"]
+    influence_weight: 80
+citation_axis:
+  core_citations: ["Geertz", "Latour", "Agre"]
+  shadow_citations: ["Ryle", "Schon", "Frayling (research through design)"]
+  adversaries: ["prompt-as-command folklore", "leaderboard-only evaluation"]
+signature_thesis_ecology:
+  problem_logic: "a prompt is under-specified conditioning, resolved from priors"
+  method_logic: "single-variable perturbation; catalogue compliance and drift"
+  archive_logic: "the run record (model, prompt, seed, params) is the fieldnote"
+tagline: "#thick-description #critical-technical-practice #reflection-in-action"</pre></div>
+    <div class="echo"><div class="lbl">Research echo</div>
+      <p>Formalize thick prompting as an interpretive method in the Geertz–Ryle line: the same generated gesture means differently depending on the conditioning, seed, and history around it, so the output alone is thin. Borrow Latour's injunction to follow the actors and Agre's critical technical practice — build the system, then read what it preserves, drifts, substitutes, and refuses under single-variable perturbation. Insist on reproducibility (model, prompt, seed, parameters) as the ethnographic fieldnote of the medium. Treat the artifact as both instrument and object of study, after Schön's reflection-in-action.</p>
+      <p class="tag">#thick-description #critical-technical-practice</p>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section class="ch forge-code" id="ch4" style="--f:var(--code)">
+  <div class="ch-head">
+    <div class="ch-num">04</div>
+    <div>
+      <span class="badge">Code / Math</span>
+      <h2>The Writable Image</h2>
+      <p class="seed">Language enters synthesis as conditioning; each object is locally convincing while the relations between them fail.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Code / Math lineage genome</div><pre class="genome">title: The Writable Image
+seed: A description is a joint constraint on p(x|c);
+  denoising satisfies each part locally and lets the
+  binding between parts drift.
+ancestral_formalisms:
+  key_sources:
+    - "Vaswani et al. — Attention Is All You Need (cross-attention)"
+    - "Radford et al. — CLIP (text-image joint embedding)"
+    - "Ho et al. — Denoising Diffusion Probabilistic Models"
+    - "Rombach et al. — Latent Diffusion / Stable Diffusion"
+    - "Ho & Salimans — Classifier-Free Guidance"
+    - "Greff et al. — On the Binding Problem in Neural Networks"
+  inherited_lessons:
+    - "Conditioning is a vector that steers synthesis, not a caption"
+    - "Guidance strength trades prompt fidelity against diversity"
+    - "Nets satisfy marginals while failing joint/relational constraints"
+origin_conditions:
+  first_problem_statements: ["render a described scene whose objects, attributes, and relations all hold"]
+  first_representations: ["text embedding", "denoising latent", "cross-attention map"]
+  first_invariants: ["prompt tokens bind to the correct objects/regions"]
+  first_bottlenecks: ["attribute leakage", "spatial relations", "counting", "negation"]
+formal_matrix:
+  home_domains: ["diffusion models", "representation learning"]
+  adjacent_domains: ["cognitive science (feature binding)", "compositional generalization"]
+  primitive_objects: ["latents", "embeddings", "attention weights"]
+  success_pressures: ["prompt fidelity", "global coherence", "controllability"]
+epochs:
+  - period: "2017-2021"
+    stage: "formalization"
+    primary_sources: ["Transformer", "CLIP", "DDPM"]
+    dominant_questions: ["how to condition generation on language?"]
+    influence_weight: 80
+  - period: "2022-present"
+    stage: "control and binding"
+    primary_sources: ["Latent Diffusion", "ControlNet", "guidance"]
+    dominant_questions: ["why do relations fail, and how are they enforced?"]
+    influence_weight: 85
+construction_axis:
+  core_abstractions: ["conditional distribution p(x|c)", "cross-attention", "guidance scale"]
+  reusable_patterns: ["negative prompting", "regional conditioning", "img2img refinement"]
+risk_axis:
+  formal_risks: ["locally plausible / globally wrong", "binding failure"]
+  mitigation_levers: ["per-constraint satisfaction scoring", "spatial control signals"]
+signature_construction_ecology:
+  representation_logic: "language as a conditioning vector over a latent manifold"
+  invariant_logic: "tokens bind to referents; relations survive denoising"
+  evaluation_logic: "decompose prompt into predicates; satisfaction vs complexity"
+tagline: "#conditioning #cross-attention #binding-problem #guidance"</pre></div>
+    <div class="echo"><div class="lbl">Formal echo</div>
+      <p>Build the chapter around the conditional distribution p(x|c), treating the prompt as a vector in that conditioning, in the lineage of the Transformer's cross-attention and CLIP's joint embedding. State the invariant plainly — prompt tokens must bind to their referents and relations must survive denoising — then show, with Greff et al.'s binding problem, why diffusion satisfies marginals while joint relational constraints fail. Build the measurement: decompose each description into checkable predicates (presence, count, relation, attribute) and plot satisfaction rate against specification complexity. Probe guidance scale, negative prompts, and spatial conditioning as partial repairs, and locate exactly where local plausibility and global consistency diverge.</p>
+      <p class="tag">#conditioning #binding-problem #guidance</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="ch forge-code" id="ch5" style="--f:var(--code)">
+  <div class="ch-head">
+    <div class="ch-num">05</div>
+    <div>
+      <span class="badge">Code / Math</span>
+      <h2>Assembly Is Sampling</h2>
+      <p class="seed">When the corpus refills on demand, editing is guided sampling from a distribution — and the process outruns its own legibility.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Code / Math lineage genome</div><pre class="genome">title: Assembly Is Sampling
+seed: Editing becomes search-and-selection over a
+  resamplable distribution; abundance is granted,
+  legibility withdrawn as the pipeline compounds.
+ancestral_formalisms:
+  key_sources:
+    - "Shannon — A Mathematical Theory of Communication"
+    - "Metropolis et al. — MCMC / sampling from distributions"
+    - "Holtzman et al. — Neural Text Degeneration (nucleus sampling)"
+    - "Bret Victor — Learnable Programming; Ladder of Abstraction"
+    - "Knuth — Literate Programming"
+  inherited_lessons:
+    - "A generator is a distribution to sample, not a corpus to cut"
+    - "Decoding strategy (temperature, top-p) shapes what the field yields"
+    - "A process is controllable only while it stays legible in flight"
+origin_conditions:
+  first_problem_statements: ["compose from a source that produces new material on demand"]
+  first_representations: ["probability distribution", "latent interpolation path", "pipeline state machine"]
+  first_invariants: ["selection provenance is recoverable"]
+  first_bottlenecks: ["combinatorial variation", "opacity of compounded pipelines"]
+formal_matrix:
+  home_domains: ["generative sampling", "information theory"]
+  adjacent_domains: ["live/literate programming", "montage theory"]
+  primitive_objects: ["samples", "seeds", "selection edges"]
+  success_pressures: ["fluidity", "legibility", "controllability"]
+epochs:
+  - period: "1948-2000"
+    stage: "channels and sampling"
+    primary_sources: ["Shannon", "MCMC"]
+    dominant_questions: ["how is signal drawn from noise and distribution?"]
+    influence_weight: 60
+  - period: "2019-present"
+    stage: "neural decoding and steering"
+    primary_sources: ["nucleus sampling", "latent walks"]
+    dominant_questions: ["how to steer a refilling corpus while seeing the process?"]
+    influence_weight: 85
+construction_axis:
+  core_abstractions: ["ancestral sampling", "seed families", "derivation graph"]
+  reusable_patterns: ["draw-inspect-adjust-redraw", "embedding-distance dedup"]
+risk_axis:
+  computational_risks: ["variation explosion"]
+  epistemic_risks: ["coherent output masking an opaque process"]
+  mitigation_levers: ["visible engine state", "similarity indexing"]
+signature_construction_ecology:
+  method_logic: "editing as guided search over a generative distribution"
+  optimization_logic: "win legibility by exposing pipeline state in flight"
+  evaluation_logic: "inspection bandwidth = candidates surfaced / produced"
+tagline: "#sampling #nucleus #legible-engine #montage"</pre></div>
+    <div class="echo"><div class="lbl">Formal echo</div>
+      <p>Model editing-under-abundance as guided sampling from a resamplable distribution, in the lineage of Shannon's channel and neural decoding — temperature, nucleus. Make the pipeline a state machine whose seeds, prompts, parameters, and selection edges are exposed while it runs, in the legibility tradition of Bret Victor and literate programming. Measure inspection bandwidth as candidates surfaced over candidates produced, and show where coherent output masks an unreadable process. Treat montage as sampling rather than cutting, and ask what curation means when the corpus refills behind the editor.</p>
+      <p class="tag">#sampling #nucleus #legible-engine</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="ch forge-code" id="ch6" style="--f:var(--code)">
+  <div class="ch-head">
+    <div class="ch-num">06</div>
+    <div>
+      <span class="badge">Code / Math</span>
+      <h2>The World That Remembers</h2>
+      <p class="seed">Which facts persist across an action is not free; base generation is born stateless, and continuity must be built.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Code / Math lineage genome</div><pre class="genome">title: The World That Remembers
+seed: State is the set of facts that must stay true;
+  generation carries none unless something outside the
+  model maintains and re-supplies them.
+ancestral_formalisms:
+  key_sources:
+    - "McCarthy & Hayes — the frame problem"
+    - "Weston et al. — Memory Networks"
+    - "Lewis et al. — Retrieval-Augmented Generation"
+    - "Ha & Schmidhuber — World Models"
+    - "Pearl — Causality (do-calculus)"
+  inherited_lessons:
+    - "Which facts persist across an action must be specified"
+    - "Memory is external augmentation, not emergent from generation"
+    - "Consequence needs a causal structure, not mere plausibility"
+origin_conditions:
+  first_problem_statements: ["make a generated sequence remain the same world across steps"]
+  first_representations: ["state vector", "scene graph", "context window", "external store"]
+  first_invariants: ["asserted facts stay true unless explicitly changed"]
+  first_bottlenecks: ["context truncation", "semantic drift", "no causal enforcement"]
+formal_matrix:
+  home_domains: ["knowledge representation", "sequence models"]
+  adjacent_domains: ["databases", "causal inference"]
+  primitive_objects: ["state", "facts", "retrieval keys"]
+  success_pressures: ["continuity", "consistency", "identity persistence"]
+epochs:
+  - period: "1969-2000"
+    stage: "the frame problem"
+    primary_sources: ["McCarthy & Hayes"]
+    dominant_questions: ["what stays true after an action, without listing everything?"]
+    influence_weight: 65
+  - period: "2015-present"
+    stage: "memory, retrieval, world-models"
+    primary_sources: ["Memory Networks", "RAG", "World Models"]
+    dominant_questions: ["how to hold a stateful world across stateless calls?"]
+    influence_weight: 85
+construction_axis:
+  core_abstractions: ["world state", "context re-injection", "identity locking"]
+  reusable_patterns: ["carry-forward context", "external scene graph", "reference embeddings"]
+risk_axis:
+  formal_risks: ["next-plausible != consistent"]
+  mitigation_levers: ["fact-persistence tests", "causal enforcement"]
+signature_construction_ecology:
+  representation_logic: "state held outside the model and re-supplied"
+  invariant_logic: "assert facts; test survival across N generations"
+  evaluation_logic: "fact-persistence survival rate per memory type"
+tagline: "#frame-problem #state #RAG #world-models"</pre></div>
+    <div class="echo"><div class="lbl">Formal echo</div>
+      <p>Anchor the chapter on the frame problem: which facts persist across an action is not free, and base generation is born stateless. Compare mechanisms for imposing state — context re-injection, external scene graphs, retrieval-augmented conditioning, identity locking — against drift and truncation, with Pearl's causality supplying the notion of consequence. Define a memory taxonomy (visual, spatial, narrative, social, procedural, ethical) grounded in the mechanism that would maintain each. Then test fact-persistence survival over N generations and correlate failure with context length and perturbation distance.</p>
+      <p class="tag">#frame-problem #state #RAG</p>
+    </div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="ch forge-rnd" id="ch7" style="--f:var(--rnd)">
+  <div class="ch-head">
+    <div class="ch-num">07</div>
+    <div>
+      <span class="badge">Research &amp; Development</span>
+      <h2>Provenance</h2>
+      <p class="seed">A persuasive output hides its making; provenance is a lineage graph you must capture at generation time or lose.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">R&amp;D lineage genome</div><pre class="genome">title: Legible Mechanisms / Provenance
+seed: Bind every output to a derivation graph of inputs,
+  model, seed, params, sources, and edits — captured as
+  it runs, since the record is partial by construction.
+ancestral_lineage:
+  key_sources:
+    - "Buneman et al. — Why and Where: Data Provenance"
+    - "W3C PROV — provenance data model"
+    - "C2PA / Content Authenticity Initiative — content credentials"
+    - "Kirchenbauer et al. — A Watermark for Large Language Models"
+    - "Merkle / Git / IPFS — content addressing"
+  inherited_lessons:
+    - "Provenance is a graph of derivations, capturable as signed metadata"
+    - "Content addressing lets an artifact prove what it is made of"
+    - "A record is only as trustworthy as its unlogged gaps allow"
+origin_conditions:
+  first_problem_statements: ["recover the hidden history beneath a persuasive output"]
+  first_bottlenecks: ["sampling entropy", "lossy intermediate state", "unlogged human edits"]
+  first_users_or_stakeholders: ["auditors", "journalists", "courts", "archivists"]
+  first_constraints: ["privacy", "tamper-resistance", "cross-tool adoption"]
+domain_matrix:
+  home_domains: ["provenance systems", "content authenticity"]
+  adjacent_domains: ["databases", "cryptography", "digital forensics"]
+  enabling_technologies: ["hashing", "digital signatures", "watermarking", "logging"]
+  success_pressures: ["reconstructability", "tamper-evidence", "interoperability"]
+epochs:
+  - period: "2001-2015"
+    stage: "data & workflow provenance"
+    primary_sources: ["Buneman", "W3C PROV"]
+    dominant_questions: ["where did this datum come from, and how?"]
+    influence_weight: 60
+  - period: "2019-present"
+    stage: "AI content credentials"
+    primary_sources: ["C2PA", "LLM watermarking"]
+    dominant_questions: ["how to make a generated artifact contestable, not just convincing?"]
+    influence_weight: 85
+opportunity_axis:
+  unmet_needs: ["contestable rather than merely persuasive generated artifacts"]
+  leverage_points: ["capture at generation time, not after"]
+  wedge_prototypes: ["a run-record that binds output to its lineage DAG"]
+  adoption_barriers: ["cross-vendor standards", "performance overhead"]
+risk_axis:
+  epistemic_risks: ["false confidence from partial provenance"]
+  mitigation_levers: ["reconstructability score", "explicit gap disclosure"]
+signature_program_ecology:
+  core_problem_logic: "story vs run record; neither reduces to the other"
+  prototype_logic: "log inputs, model, seed, params, edits as a derivation graph"
+  evaluation_logic: "fraction of derivation edges recoverable"
+tagline: "#provenance #c2pa #content-addressing #run-record"</pre></div>
+    <div class="echo"><div class="lbl">R&amp;D echo</div>
+      <p>Frame provenance as an R&amp;D problem of capture-at-generation: bind every output to a derivation graph of inputs, model identity, seed, parameters, retrieved sources, and human edits, in the lineage of database provenance, W3C PROV, and C2PA content credentials. Distinguish the story from the run record, and design a prototype that logs the second without pretending it completes the first. Target auditors, journalists, and archivists; measure success as the fraction of derivation edges recoverable, and disclose the gaps rather than hiding them. Treat watermarking and content addressing as partial, composable levers, and name partial provenance's chief risk: false confidence.</p>
+      <p class="tag">#provenance #c2pa #run-record</p>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="ch forge-code" id="ch8" style="--f:var(--code)">
+  <div class="ch-head">
+    <div class="ch-num">08</div>
+    <div>
+      <span class="badge">Code / Math</span>
+      <h2>Legal Worlds</h2>
+      <p class="seed">Plausible appearance costs nothing; a legal world obeys a constraint system and survives a checker.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Code / Math lineage genome</div><pre class="genome">title: Legal Worlds / Constraint and Verification
+seed: Generate, parse to symbolic form, validate against
+  a checker, repair; constraint gives invention a ground
+  firm enough to be wrong on.
+ancestral_formalisms:
+  key_sources:
+    - "Hoare — An Axiomatic Basis for Computer Programming"
+    - "Clarke & Emerson — Model Checking"
+    - "Curry-Howard correspondence / type theory"
+    - "Ellis et al. — DreamCoder (program synthesis)"
+    - "Lean / SMT solvers — machine-checked proof"
+  inherited_lessons:
+    - "Plausible appearance and formal validity are different problems"
+    - "Constrained decoding can make invalid structures unreachable"
+    - "A verifier certifies only what its coverage can express"
+origin_conditions:
+  first_problem_statements: ["generate structures that survive a checker, not just the eye"]
+  first_representations: ["grammar", "type", "symbolic parse", "simulator state"]
+  first_invariants: ["legal parts", "valid joints", "no interpenetration", "reproducible build"]
+  first_bottlenecks: ["appearance-validity gap", "verifier soundness / coverage"]
+formal_matrix:
+  home_domains: ["formal methods", "program synthesis"]
+  adjacent_domains: ["CAD / constraint solving", "neuro-symbolic AI"]
+  primitive_objects: ["specs", "proofs", "parses"]
+  success_pressures: ["soundness", "coverage", "repair convergence"]
+epochs:
+  - period: "1969-1990"
+    stage: "logic and model checking"
+    primary_sources: ["Hoare", "Clarke & Emerson"]
+    dominant_questions: ["how is correctness established, not assumed?"]
+    influence_weight: 70
+  - period: "2018-present"
+    stage: "neuro-symbolic generate-and-check"
+    primary_sources: ["DreamCoder", "grammar-constrained decoding", "Lean"]
+    dominant_questions: ["how to couple open invention to a checkable spec?"]
+    influence_weight: 80
+construction_axis:
+  core_abstractions: ["generate -> parse -> validate -> repair", "grammar-constrained sampling"]
+  reusable_patterns: ["counterexample-guided refinement", "verifier-guided search"]
+risk_axis:
+  formal_risks: ["false validity from a weak verifier"]
+  mitigation_levers: ["coverage reporting", "counterexample search"]
+signature_construction_ecology:
+  proof_logic: "three levels: perceptual, structured, executable"
+  evaluation_logic: "pass rate per level; verifier coverage; repair convergence"
+  elegance_logic: "constraint as the shared world where a claim can be wrong"
+tagline: "#formal-methods #constrained-decoding #neuro-symbolic #verification"</pre></div>
+    <div class="echo"><div class="lbl">Formal echo</div>
+      <p>Build the chapter as a generation–verification loop — generate, parse to a symbolic representation, validate against a checker or simulator, repair — in the lineage of Hoare logic, model checking, and neuro-symbolic program synthesis. Separate three levels — perceptual plausibility, structured description, executable validity — and report pass rates at each, plus the verifier's own coverage. Use grammar-constrained decoding to make some invalid structures unreachable, and counterexample-guided refinement to converge. Argue that constraint does not cage invention but supplies the shared world where a claim can finally be wrong.</p>
+      <p class="tag">#formal-methods #constrained-decoding #verification</p>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="ch forge-rnd" id="ch9" style="--f:var(--rnd)">
+  <div class="ch-head">
+    <div class="ch-num">09</div>
+    <div>
+      <span class="badge">Research &amp; Development</span>
+      <h2>Misreading as Material</h2>
+      <p class="seed">Classification interprets people; the category is a choice pressed onto the world, and its confidence is a costume.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">R&amp;D lineage genome</div><pre class="genome">title: Misreading as Material
+seed: Automated classification labels a person with a
+  confidence that is a calibration artifact; materialize
+  the label so the boundary can be doubted and refused.
+ancestral_lineage:
+  key_sources:
+    - "Rosalind Picard — Affective Computing"
+    - "Lisa Feldman Barrett — How Emotions Are Made"
+    - "Buolamwini & Gebru — Gender Shades"
+    - "Crawford & Paglen — Excavating AI"
+    - "Jacobs & Wallach — Measurement and Fairness; Guo et al. — Calibration"
+  inherited_lessons:
+    - "Confidence is a calibration artifact, not truth"
+    - "Emotion categories are constructed, not read off the face"
+    - "Disaggregated audits expose error the aggregate hides"
+origin_conditions:
+  first_problem_statements: ["surface where an affect/identity classifier misreads a person"]
+  first_bottlenecks: ["invisible labels", "miscalibration", "ill-posed constructs"]
+  first_users_or_stakeholders: ["classified subjects", "auditors", "deploying institutions"]
+  first_constraints: ["consent", "construct validity", "downstream action"]
+domain_matrix:
+  home_domains: ["affective computing", "algorithmic auditing", "measurement"]
+  adjacent_domains: ["STS", "critical data studies"]
+  enabling_technologies: ["classifiers", "embeddings", "physical/interactive materialization"]
+  success_pressures: ["exposure", "construct validity", "contestability"]
+epochs:
+  - period: "1978-2010"
+    stage: "affect + facial coding"
+    primary_sources: ["FACS", "Affective Computing"]
+    dominant_questions: ["can inner states be read from signals?"]
+    influence_weight: 60
+  - period: "2018-present"
+    stage: "audit + constructed emotion"
+    primary_sources: ["Gender Shades", "Barrett", "Excavating AI"]
+    dominant_questions: ["whose category, pressed onto whom, with what effect?"]
+    influence_weight: 85
+opportunity_axis:
+  unmet_needs: ["make a confident misclassification perceptible and refusable"]
+  leverage_points: ["materialize the label as a tangible consequence"]
+  wedge_prototypes: ["an artifact attaching a questionable label to a physical output"]
+  adoption_barriers: ["institutional reliance on the label"]
+risk_axis:
+  epistemic_risks: ["treating exposure as remedy"]
+  mitigation_levers: ["error taxonomy", "disaggregated evaluation"]
+signature_program_ecology:
+  core_problem_logic: "classification interprets people; the category is a choice"
+  prototype_logic: "materialize the decision boundary so it can be doubted"
+  evaluation_logic: "split error: detection / classification / calibration / construct / deployment"
+tagline: "#affective-computing #algorithmic-audit #constructed-emotion #calibration"</pre></div>
+    <div class="echo"><div class="lbl">R&amp;D echo</div>
+      <p>Take automated classification of people as the subject: a pipeline that turns a face or voice into a label whose confidence is a calibration artifact, not truth. Draw the lineage through affective computing and FACS, then turn it with Barrett's constructed emotion and the Gender Shades audit tradition, reading the category as a choice pressed onto the world. Prototype the intervention as materialization — attach a questionable label to a tangible consequence so the decision boundary can be doubted and refused. Split error into detection, classification, calibration, construct, and deployment, and name the risk of mistaking exposure for remedy.</p>
+      <p class="tag">#algorithmic-audit #constructed-emotion #calibration</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="ch forge-lit" id="ch10" style="--f:var(--lit)">
+  <div class="ch-head">
+    <div class="ch-num">10</div>
+    <div>
+      <span class="badge">Literature / Academia</span>
+      <h2>Where Responsibility Goes</h2>
+      <p class="seed">Agency distributes across a seam; the pronoun migrates — "I made this," "the model did that" — and the guilt with it.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Literature lineage genome</div><pre class="genome">title: Where Responsibility Goes
+seed: Distributed action across a human-machine seam;
+  described precisely enough to keep responsibility from
+  thinning to zero.
+ancestral_thinkers:
+  key_sources:
+    - "Latour — Where Are the Missing Masses? (mediation, scripts)"
+    - "Suchman — Human-Machine Reconfigurations"
+    - "Nissenbaum — Accountability in a Computerized Society"
+    - "Elish — Moral Crumple Zones"
+    - "Matthias — The Responsibility Gap"
+  inherited_lessons:
+    - "Artifacts have politics; agency is distributed across humans and devices"
+    - "Plans are resources for situated action, not its cause"
+    - "Distributed action lets responsibility collect on the weakest human node"
+origin_conditions:
+  first_questions: ["who is responsible when action is shared with a machine?"]
+  first_conflicts: ["distributed agency vs located accountability", "praise vs blame asymmetry"]
+  first_methods: ["STS", "ethnography of use", "philosophy of action"]
+disciplinary_matrix:
+  home_fields: ["STS", "ethics of technology", "HCI"]
+  adjacent_fields: ["philosophy of action", "law"]
+  key_vocabularies: ["actant", "script", "many hands", "responsibility gap", "moral crumple zone"]
+epochs:
+  - period: "1985-2007"
+    stage: "ANT + situated action"
+    primary_sources: ["Latour", "Suchman", "Nissenbaum"]
+    dominant_questions: ["how is agency shared between people and machines?"]
+    influence_weight: 75
+  - period: "2016-present"
+    stage: "autonomous-system accountability"
+    primary_sources: ["Elish", "Matthias"]
+    dominant_questions: ["where does responsibility go when no one hand acts alone?"]
+    influence_weight: 85
+citation_axis:
+  core_citations: ["Latour", "Suchman", "Nissenbaum"]
+  shadow_citations: ["Serres — The Parasite (the third)", "Dennett — intentional stance"]
+  adversaries: ["single-author models of creation", "pure tool-instrumentalism"]
+signature_thesis_ecology:
+  problem_logic: "agency distributes across a seam; the pronoun relocates the guilt"
+  method_logic: "trace per-stage loci where a decision is made and could be logged"
+  intervention_logic: "describe shared agency precisely enough to preserve shared responsibility"
+tagline: "#actor-network #many-hands #responsibility-gap #moral-crumple-zone"</pre></div>
+    <div class="echo"><div class="lbl">Research echo</div>
+      <p>Study responsibility across the human–machine seam in the STS lineage: Latour's distributed agency and scripts, Suchman's situated action, Nissenbaum's problem of many hands, Elish's moral crumple zone. Show how generative work spreads action across initiating, generative, selective, interpretive, institutional, and consequential loci — and how the pronoun migrates ("I made this" / "the model did that") to relocate the blame. Borrow Serres's third as the figure that both enables and intercepts a relation. Argue that shared agency must be described, and logged, precisely enough to keep responsibility from thinning to zero.</p>
+      <p class="tag">#many-hands #responsibility-gap #moral-crumple-zone</p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="ch forge-lit" id="ch11" style="--f:var(--lit)">
+  <div class="ch-head">
+    <div class="ch-num">11</div>
+    <div>
+      <span class="badge">Literature / Academia</span>
+      <h2>Worldtext as Medium</h2>
+      <p class="seed">Every affordance arrives folded around its refusal; worldtext is offered as an operative concept, not a theory that closes.</p>
+    </div>
+  </div>
+  <div class="ch-body">
+    <div class="genome-wrap"><div class="lbl">Literature lineage genome</div><pre class="genome">title: Worldtext as Medium
+seed: Consolidate the case studies into medium-specific
+  claims; name each limit beside the mechanism that grants
+  the corresponding power, and refuse closure.
+ancestral_thinkers:
+  key_sources:
+    - "McLuhan — Understanding Media"
+    - "Kittler — Gramophone, Film, Typewriter"
+    - "N. Katherine Hayles — My Mother Was a Computer"
+    - "W. J. T. Mitchell — Picture Theory (imagetext)"
+    - "Wittgenstein — Culture and Value / Tractatus (limits)"
+  inherited_lessons:
+    - "A medium is a structured field of possibility, not a neutral conduit"
+    - "Inscription systems condition what can be thought and made"
+    - "The limit of the tool is where its honest account begins"
+origin_conditions:
+  first_questions: ["what becomes visible when generative AI is read as a medium?"]
+  first_conflicts: ["possibility vs its withdrawal", "progress vs the itch"]
+  first_methods: ["media theory", "medium-specific analysis", "philosophical remark"]
+disciplinary_matrix:
+  home_fields: ["media theory", "media archaeology"]
+  adjacent_fields: ["literary theory", "philosophy of language"]
+  key_vocabularies: ["medium", "inscription", "affordance", "limit", "worldtext"]
+epochs:
+  - period: "1964-1999"
+    stage: "medium theory"
+    primary_sources: ["McLuhan", "Kittler"]
+    dominant_questions: ["how does a medium condition perception and thought?"]
+    influence_weight: 70
+  - period: "2005-present"
+    stage: "posthuman synthesis"
+    primary_sources: ["Hayles", "generative-media theory"]
+    dominant_questions: ["what does worldtext name that prior concepts do not?"]
+    influence_weight: 85
+citation_axis:
+  core_citations: ["McLuhan", "Kittler", "Hayles", "Mitchell"]
+  shadow_citations: ["Wittgenstein", "Flusser"]
+  adversaries: ["tool-not-medium framings", "closure-by-theory"]
+signature_thesis_ecology:
+  problem_logic: "every affordance arrives folded around its refusal"
+  method_logic: "consolidate case studies into medium-specific claims"
+  intervention_logic: "offer worldtext as an operative concept, not a closed theory"
+tagline: "#medium-theory #kittler #posthuman #worldtext"</pre></div>
+    <div class="echo"><div class="lbl">Research echo</div>
+      <p>Close by consolidating the case studies into medium-specific claims, in the lineage of McLuhan, Kittler, and Hayles: a medium is a structured field of possibility, and every affordance here arrives folded around its refusal. Resist closure — offer worldtext as an operative concept, not a theory that completes the medium, and let Wittgenstein's remark stand where a system would be expected. Name each limit beside the mechanism that grants the corresponding power, and concede what the frame cannot dissolve. End not on a roadmap but on the fact the argument was built to avoid saying.</p>
+      <p class="tag">#medium-theory #kittler #worldtext</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <b>Worldtext: Generative AI as a Medium for Verbal and Visual Expression</b> · chapter lineages · Literature/Academia, Code/Math, and R&amp;D forges applied per best fit · lineage jukebox encoding
+</footer>
+
+</div>

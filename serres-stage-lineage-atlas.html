@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11100d">
+<title>The Third at the Door — Stage Lineage Atlas</title>
+<style>
+  :root{
+    --ink:#11100d;
+    --paper:#f2efe6;
+    --paper-2:#e8e2d4;
+    --line:#b8b09f;
+    --muted:#665f53;
+    --red:#a33423;
+    --blue:#214b67;
+    --green:#315a43;
+    --focus:#ffcc33;
+    --radius:0px;
+    --rail:280px;
+    --header:92px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;background:var(--paper)}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}
+  button,input{font:inherit}
+  button{color:inherit}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+  .skip{position:fixed;left:10px;top:-100px;z-index:100;background:var(--ink);color:var(--paper);padding:10px 14px}
+  .skip:focus{top:10px}
+  .mast{
+    position:sticky;top:0;z-index:30;min-height:var(--header);
+    display:grid;grid-template-columns:minmax(280px,1fr) auto;gap:24px;align-items:center;
+    padding:16px max(18px,env(safe-area-inset-right)) 16px max(18px,env(safe-area-inset-left));
+    background:var(--ink);color:var(--paper);border-bottom:1px solid #343128;
+  }
+  .mast h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(24px,3vw,42px);font-weight:500;line-height:.98;margin:0;letter-spacing:-.025em}
+  .mast p{margin:7px 0 0;color:#bdb6a8;font-size:12px;text-transform:uppercase;letter-spacing:.14em}
+  .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .search{min-width:220px;border:1px solid #5b5548;background:#171612;color:var(--paper);padding:10px 12px;border-radius:var(--radius)}
+  .search::placeholder{color:#8f887a}
+  .tool,.filter{border:1px solid #5b5548;background:#171612;color:var(--paper);padding:10px 12px;min-height:42px;cursor:pointer}
+  .tool[aria-pressed="true"],.filter[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .layout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:calc(100vh - var(--header))}
+  .rail{position:sticky;top:var(--header);height:calc(100vh - var(--header));overflow:auto;border-right:1px solid var(--line);background:var(--paper-2);padding:18px 0 40px}
+  .rail-title{padding:0 18px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted)}
+  .stage-link{width:100%;border:0;border-top:1px solid var(--line);background:transparent;text-align:left;padding:13px 18px;display:grid;grid-template-columns:32px 1fr;gap:10px;cursor:pointer}
+  .stage-link:last-child{border-bottom:1px solid var(--line)}
+  .stage-link:hover,.stage-link[aria-current="true"]{background:var(--ink);color:var(--paper)}
+  .stage-link .n{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--red)}
+  .stage-link[aria-current="true"] .n{color:#f0a996}
+  .stage-link strong{font-size:13px;line-height:1.18}
+  .stage-link small{display:block;margin-top:5px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;opacity:.72}
+  .main{min-width:0;padding:0 0 80px}
+  .intro{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(240px,.6fr);gap:28px;padding:clamp(28px,5vw,72px);border-bottom:1px solid var(--line)}
+  .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--red);font-weight:800}
+  .intro h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,6vw,78px);font-weight:500;line-height:.92;letter-spacing:-.04em;margin:12px 0 20px;max-width:950px}
+  .intro .lede{font-size:clamp(16px,2vw,23px);max-width:800px;margin:0;color:#2d2a24}
+  .legend{align-self:end;border-top:6px solid var(--ink);padding-top:14px}
+  .legend dl{margin:0;display:grid;gap:12px}
+  .legend div{display:grid;grid-template-columns:96px 1fr;gap:12px}
+  .legend dt{font-size:10px;text-transform:uppercase;letter-spacing:.13em;font-weight:800}
+  .legend dd{margin:0;font-size:12px;color:var(--muted)}
+  .stage{scroll-margin-top:calc(var(--header) + 10px);border-bottom:1px solid var(--line);padding:clamp(28px,5vw,72px);content-visibility:auto;contain-intrinsic-size:900px}
+  .stage.hidden{display:none}
+  .stage-head{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:18px;align-items:start}
+  .stage-no{font-family:Georgia,"Times New Roman",serif;font-size:64px;line-height:.8;color:var(--red)}
+  .stage h3{font-family:Georgia,"Times New Roman",serif;font-size:clamp(32px,4.7vw,68px);font-weight:500;line-height:.94;letter-spacing:-.035em;margin:0}
+  .chapter{margin-top:7px;font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+  .engine{border:1px solid currentColor;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;white-space:nowrap;font-weight:800}
+  .engine.literature{color:var(--red)}
+  .engine.formal{color:var(--blue)}
+  .engine.rd{color:var(--green)}
+  .seed{font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,2.3vw,31px);line-height:1.15;margin:28px 0 12px;max-width:1000px}
+  .thesis{max-width:900px;margin:0;color:var(--muted);font-size:15px}
+  .quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--line);margin:28px 0 0}
+  .quick{padding:18px;border-right:1px solid var(--line);min-width:0}
+  .quick:last-child{border-right:0}
+  .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.15em;font-weight:800;color:var(--muted);margin-bottom:9px}
+  .quick p{margin:0;font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid var(--line);padding:5px 7px;font-size:11px;background:rgba(255,255,255,.18)}
+  .epoch-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-top:0}
+  .epoch{padding:14px;border-right:1px solid var(--line);position:relative;min-height:128px}
+  .epoch:last-child{border-right:0}
+  .epoch time{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--red)}
+  .epoch strong{display:block;font-size:13px;line-height:1.15;margin:8px 0}
+  .epoch p{font-size:11px;color:var(--muted);margin:0 0 22px}
+  .weight{position:absolute;left:14px;right:14px;bottom:12px;height:4px;background:var(--line)}
+  .weight i{display:block;height:100%;background:var(--ink)}
+  .details{margin-top:22px;border-top:1px solid var(--line)}
+  details{border-bottom:1px solid var(--line)}
+  summary{list-style:none;cursor:pointer;padding:16px 0;display:grid;grid-template-columns:180px 1fr 24px;align-items:center;gap:18px}
+  summary::-webkit-details-marker{display:none}
+  summary strong{font-size:11px;text-transform:uppercase;letter-spacing:.15em}
+  summary span{font-size:13px;color:var(--muted)}
+  summary b{font-size:20px;font-weight:400;text-align:right}
+  details[open] summary b{transform:rotate(45deg)}
+  .detail-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:0 0 22px 198px}
+  .panel{border-left:4px solid var(--ink);padding:0 0 0 14px;min-width:0}
+  .panel h4{font-size:10px;text-transform:uppercase;letter-spacing:.14em;margin:0 0 8px}
+  .panel ul{margin:0;padding-left:17px;color:var(--muted);font-size:12px}
+  .panel li+li{margin-top:5px}
+  .logic{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .logic div{border-top:1px solid var(--line);padding-top:8px}
+  .logic dt{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+  .logic dd{margin:4px 0 0;font-size:12px;color:var(--muted)}
+  .migration{display:grid;gap:8px}
+  .route{display:grid;grid-template-columns:minmax(120px,1fr) 30px minmax(120px,1fr);gap:8px;align-items:center;border-bottom:1px dotted var(--line);padding:8px 0}
+  .route strong{font-size:12px}
+  .route i{font-style:normal;text-align:center;color:var(--red)}
+  .route p{grid-column:1/-1;margin:0;color:var(--muted);font-size:11px}
+  .echo{margin-top:24px;border:1px solid var(--ink);display:grid;grid-template-columns:165px minmax(0,1fr)}
+  .echo-label{background:var(--ink);color:var(--paper);padding:18px;font-size:10px;text-transform:uppercase;letter-spacing:.15em;font-weight:800;display:flex;flex-direction:column;justify-content:space-between;gap:20px}
+  .echo-label button{border:1px solid #686154;background:transparent;color:var(--paper);padding:8px;cursor:pointer;text-transform:uppercase;font-size:9px;letter-spacing:.12em}
+  .echo blockquote{margin:0;padding:22px;font-family:Georgia,"Times New Roman",serif;font-size:17px;line-height:1.45}
+  .tags{margin-top:16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted)}
+  .empty{display:none;padding:80px 28px;text-align:center}
+  .empty.show{display:block}
+  body.compact .thesis,body.compact .quick-grid,body.compact .epoch-strip,body.compact .details{display:none}
+  body.compact .stage{padding-top:28px;padding-bottom:28px}
+  body.compact .seed{margin-bottom:18px}
+  .footer{padding:28px clamp(28px,5vw,72px);display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em}
+  @media (max-width:1050px){
+    :root{--rail:230px}
+    .stage-head{grid-template-columns:60px minmax(0,1fr)}
+    .engine{grid-column:2;justify-self:start}
+    .stage-no{font-size:48px}
+    .detail-body{padding-left:0}
+    summary{grid-template-columns:150px 1fr 24px}
+  }
+  @media (max-width:780px){
+    :root{--header:150px}
+    .mast{grid-template-columns:1fr;gap:12px}
+    .tools{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+    .search{min-width:180px}
+    .layout{display:block}
+    .rail{position:sticky;top:var(--header);height:auto;z-index:20;border-right:0;border-bottom:1px solid var(--line);padding:0;display:flex;overflow:auto;scrollbar-width:none}
+    .rail::-webkit-scrollbar{display:none}
+    .rail-title{display:none}
+    .stage-link{min-width:170px;border-top:0;border-right:1px solid var(--line);padding:10px 12px;grid-template-columns:26px 1fr}
+    .stage-link:last-child{border-bottom:0}
+    .intro{grid-template-columns:1fr;padding:34px 18px}
+    .stage{padding:34px 18px;scroll-margin-top:calc(var(--header) + 68px)}
+    .stage-head{grid-template-columns:48px minmax(0,1fr);gap:10px}
+    .stage-no{font-size:40px}
+    .quick-grid{grid-template-columns:1fr}
+    .quick{border-right:0;border-bottom:1px solid var(--line)}
+    .quick:last-child{border-bottom:0}
+    .epoch-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}
+    .epoch{min-width:230px;scroll-snap-align:start}
+    .detail-body{grid-template-columns:1fr}
+    summary{grid-template-columns:110px 1fr 20px;gap:8px}
+    .echo{grid-template-columns:1fr}
+    .echo-label{display:flex;flex-direction:row;align-items:center}
+    .footer{padding:24px 18px;flex-direction:column}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  @media print{
+    .mast,.rail,.tools,.echo-label button{display:none!important}
+    .layout{display:block}.main{padding:0}.intro,.stage{padding:24px}
+    .details details{break-inside:avoid}.stage{break-after:page}
+    details>*{display:block!important}.detail-body{padding-left:0}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#atlas">Skip to atlas</a>
+<header class="mast">
+  <div>
+    <h1>The Third at the Door</h1>
+    <p>Serres stage lineage atlas · ten chapters · three analytic engines</p>
+  </div>
+  <div class="tools" aria-label="Atlas controls">
+    <input class="search" id="search" type="search" placeholder="Search stages, sources, concepts" aria-label="Search atlas">
+    <button class="filter" data-filter="all" aria-pressed="true">All</button>
+    <button class="filter" data-filter="literature" aria-pressed="false">Literature</button>
+    <button class="filter" data-filter="formal" aria-pressed="false">Formal</button>
+    <button class="filter" data-filter="rd" aria-pressed="false">R&amp;D</button>
+    <button class="tool" id="compact" aria-pressed="false">Compact</button>
+    <button class="tool" id="expand" aria-pressed="false">Expand all</button>
+  </div>
+</header>
+<div class="layout">
+  <nav class="rail" id="rail" aria-label="Stage navigation">
+    <div class="rail-title">Stages</div>
+  </nav>
+  <main class="main" id="atlas">
+    <section class="intro">
+      <div>
+        <div class="kicker">Worldtext → lineage</div>
+        <h2>Follow the third, not the hero.</h2>
+        <p class="lede">Each stage is assigned the lineage engine that best explains its operation: literary genealogy for inherited concepts, formal lineage for relational machinery, and R&amp;D lineage for systems that can be built and tested.</p>
+      </div>
+      <aside class="legend" aria-label="Lineage engine legend">
+        <dl>
+          <div><dt>Literature</dt><dd>Thinkers, texts, disciplines, archives, debates, and writing habits.</dd></div>
+          <div><dt>Formal</dt><dd>Representations, invariants, algorithms, proof styles, and failure modes.</dd></div>
+          <div><dt>R&amp;D</dt><dd>Prior art, bottlenecks, prototypes, evaluations, users, and deployment risks.</dd></div>
+        </dl>
+      </aside>
+    </section>
+    <div id="stages"></div>
+    <div class="empty" id="empty"><h2>No stage matches.</h2><p>Clear the search or choose another lineage engine.</p></div>
+    <footer class="footer"><span>Source reading: Michel Serres, “The Devil / On Love / The Worst Definition.”</span><span>Use J/K to move · Enter to open · / to search</span></footer>
+  </main>
+</div>
+<script>
+const stages = [
+{
+  n:"01", chapter:"On Love", title:"Love Between", engine:"literature", engineLabel:"Literature / Academia",
+  seed:"Love is neither pole but the exposed interval that lets opposed states touch without becoming identical.",
+  thesis:"Serres begins with Plato’s metaxy and converts Eros from a mythic intermediary into a general theory of liminal relation: poor, mobile, ingenious, and permanently lodged at the threshold.",
+  ancestry:["Plato — Symposium: Diotima’s account of Eros as daimon and intermediary","Aristophanes — divided beings and the desire for reunion","Greek metaxy — the middle as a philosophical position","Victor Turner — liminality as a later adjacent vocabulary","Michel Serres — The Parasite: mediation as unstable thirdness"],
+  questions:["What can exist between mutually exclusive categories?","Is the middle a substance, role, place, or operation?","Why does mediation arrive as poverty, cunning, and exposure?"],
+  conflicts:["god / mortal","knowledge / ignorance","inside / outside","resource / lack","included / excluded"],
+  fields:["ancient philosophy","literary theory","anthropology of liminality","semiotics","media theory"],
+  methods:["close reading","conceptual genealogy","topological translation","comparative vocabulary","allegorical systems analysis"],
+  objects:["doorway","bare feet","poverty","metaxy","threshold","Eros"],
+  epochs:[
+    {period:"c. 385 BCE",name:"Platonic intermediary",note:"Eros is articulated as a daimon between opposed states.",weight:100},
+    {period:"19th–20th c.",name:"Symbol and limen",note:"Ritual, symbolism, and boundary states become analytic objects.",weight:58},
+    {period:"1940s–70s",name:"Structure and channel",note:"Relations are redescribed as systems, positions, and transmissions.",weight:76},
+    {period:"1975–79",name:"Serresian parasite",note:"The intermediary acquires appetite, noise, and the power to turn.",weight:100}
+  ],
+  migrations:[
+    ["mythic daimon","relational operator","Eros ceases to be only a figure and becomes a repeatable structure."],
+    ["ritual threshold","communication channel","Liminality is recoded as the place where signals and parasites enter."],
+    ["middle position","included third","Classical exclusion becomes a computable ambiguity rather than a defect."]
+  ],
+  core:["Plato","Aristophanes","metaxy","liminality","Serres"], shadow:["Turner","van Gennep","Peirce","Bachelard"], adversaries:["strict binary logic","stable identity","pure interiority"], syntheses:["Platonic Eros + liminality","threshold architecture + information channel","mythic poverty + operational mediation"],
+  evidence:["Symposium 201d–212b as represented by Serres","threshold imagery","shoe removal","the vocabulary of neither/nor","Serres’s fuzzy-set analogy"],
+  logic:{problem:"Binary categories cannot explain how relation occurs.",method:"Read every neither/nor as evidence of an operational middle.",archive:"Dialogue, myth, threshold images, lexical distinctions.",conflict:"The mediator is necessary but never securely belongs.",intervention:"Replace the middle as compromise with the middle as active world-making force.",style:"Essayistic, philological, topological, recursive."},
+  risks:["Romanticizing liminality","Treating metaphor as formal equivalence","Flattening Plato into systems theory"],
+  tags:["threshold-eros","included-third","metaxy-machine","liminal-mediation"],
+  echo:"Write a chapter that begins with Diotima’s Eros but refuses to leave the intermediary as a mythic compromise. Track the doorway, bare feet, hunger, and cunning as an archive of what relation costs. Move from Plato through ritual liminality and semiotics into Serres’s claim that the middle is an operator with appetites. Test the concept against one contemporary interface whose value lies in connecting two parties while belonging to neither. Ask when the intermediary becomes visible, who feeds it, and what it excludes in order to connect. End by redefining mediation as a precarious role rather than a neutral channel. #threshold-eros #included-third #liminal-mediation"
+},
+{
+  n:"02", chapter:"On Love", title:"The Noisy Guest", engine:"literature", engineLabel:"Literature / Academia",
+  seed:"Alcibiades enters as lover, aristocrat, drunk, interruption, and hungry guest—the social body of the parasite.",
+  thesis:"The parasite is not introduced as an abstract evil but as a charismatic social role. Alcibiades converts status, desire, noise, and thirst into access to another’s table and discourse.",
+  ancestry:["Plato — Symposium: Alcibiades’ drunken entrance and praise of Socrates","Greek symposium — regulated speech, drinking, and hospitality","Diderot — Rameau’s Nephew: the brilliant dependent and social parasite","Mauss — gift and obligation as an adjacent account of asymmetrical exchange","Serres — parasite as guest, noise, and relation"],
+  questions:["How does charisma breach a regulated scene?","When does a guest become a parasite?","Can interruption itself function as payment?"],
+  conflicts:["invitation / intrusion","gift / extraction","praise / diversion","love / jealousy","prestige / dependence"],
+  fields:["classics","social theory","gift theory","performance studies","political anthropology"],
+  methods:["scene analysis","role decomposition","speech-act analysis","social topology","comparative character genealogy"],
+  objects:["ivy","violets","ribbons","flute","wine","host’s bed"],
+  epochs:[
+    {period:"Classical Athens",name:"Symposium protocol",note:"Hospitality, speech order, and drinking define legitimate participation.",weight:92},
+    {period:"18th c.",name:"Rameau’s dependent",note:"The parasite becomes a witty social intelligence living from unequal exchange.",weight:72},
+    {period:"1920s–60s",name:"Gift and performance",note:"Exchange is read through obligation, status, and enacted recognition.",weight:61},
+    {period:"1975–79",name:"Noise-bearing guest",note:"Serres unifies appetite, interruption, and social position.",weight:100}
+  ],
+  migrations:[
+    ["drunken lover","social parasite","Personal excess becomes a structural role within hospitality."],
+    ["ornamented entrance","signal attack","Flute, ribbons, and shouting seize the room’s attention budget."],
+    ["praise of Socrates","relational diversion","Speech functions as a tactic for rearranging desire."]
+  ],
+  core:["Plato","Alcibiades","Diderot","hospitality","gift"], shadow:["Mauss","Goffman","Bakhtin","Rameau"], adversaries:["neutral guesthood","pure generosity","speech without strategy"], syntheses:["symposium etiquette + performance theory","gift asymmetry + attention economy","character study + systems role"],
+  evidence:["the noisy arrival","thirst and drinking","interruption of praise","movement toward the host","jealous redirection"],
+  logic:{problem:"Hospitality lacks a clear point where reception becomes capture.",method:"Treat costume, sound, appetite, and seating as evidence of role activation.",archive:"Banquet scene, social comedy, gift theory, bodily performance.",conflict:"The guest needs the host but can dominate the host’s scene.",intervention:"Define parasitism as an access strategy rather than a fixed identity.",style:"Dramatic, sociological, performative, polemical."},
+  risks:["Moralizing dependence","Ignoring Alcibiades’ political and erotic complexity","Equating all uninvited presence with harm"],
+  tags:["noisy-guest","hospitality-breach","charismatic-parasite","attention-capture"],
+  echo:"Build a scholarly scene analysis in which Alcibiades’ entrance is treated as an access protocol rather than colorful characterization. Read ivy, ribbons, flute, thirst, rank, and jealousy as a coordinated social interface. Place Plato beside Diderot’s Rameau and gift theory, but keep the analysis fixed on what the guest does to the host’s distribution of attention, wine, and legitimacy. Distinguish dependence from parasitism by asking whether the entrant preserves, redirects, or exhausts the conditions of hospitality. Use the speech of praise as evidence that language can pay tribute while secretly rerouting relation. Conclude with a model of charismatic intrusion that can be tested against a modern platform, institution, or salon. #noisy-guest #hospitality-breach #attention-capture"
+},
+{
+  n:"03", chapter:"On Love", title:"Three on the Bed", engine:"formal", engineLabel:"Code / Math",
+  seed:"A three-node relation changes whenever one participant occupies the path between the other two.",
+  thesis:"The Alcibiades–Agathon–Socrates arrangement is a small formal machine: each node may become mediator, interceptor, object, or rival depending on seating, desire, and attention.",
+  ancestry:["Plato — Symposium 222c: the erotic triangle","Peirce — triadic relation as irreducible sign structure","Graph theory — nodes, directed edges, paths, and cuts","Game theory — strategic preference under changing positions","Serres — every member can become the third to the other two"],
+  questions:["How many role states can a three-person relation occupy?","When is a middle node a bridge versus a cut vertex?","Can desire and discourse be represented without reducing them to scalar preference?"],
+  conflicts:["bridge / blocker","lover / beloved","speaker / object","position / intention","symmetry / asymmetry"],
+  fields:["graph theory","formal semiotics","game theory","network analysis","computational narratology"],
+  methods:["directed hypergraph modeling","finite-state machines","role permutation","counterexample search","simulation"],
+  objects:["three nodes","directed desire edges","attention edges","seat order","cup channel","role labels"],
+  epochs:[
+    {period:"Antiquity",name:"Dramatic triangle",note:"Three persons generate unstable erotic and rhetorical adjacency.",weight:88},
+    {period:"1860s–1900s",name:"Triadic semiotics",note:"Relation becomes irreducible to dyadic pairs.",weight:72},
+    {period:"1930s–70s",name:"Graphs and games",note:"Paths, strategy, cuts, and equilibria formalize relational change.",weight:84},
+    {period:"Now",name:"Narrative simulator",note:"Roles can be encoded, stepped, tested, and visualized.",weight:96}
+  ],
+  migrations:[
+    ["seat order","topological state","Physical adjacency becomes a graph property."],
+    ["jealousy","edge redirection rule","Affective intention changes the target and weight of relations."],
+    ["third person","bridge/cut operator","The same node either enables or blocks traversal."]
+  ],
+  core:["triad","directed graph","hyperedge","cut vertex","state machine"], shadow:["Peirce","Heider balance theory","Simmel’s triad","Petri nets"], adversaries:["pairwise-only models","static character labels","equilibrium as default"], syntheses:["narratology + graph dynamics","desire edges + discourse edges","spatial seating + state transition"],
+  evidence:["three named participants","explicit requests to sit between","changing love relations","visibility and touch constraints","the rule of discourse"],
+  logic:{problem:"Pairwise edges miss the power created by occupying the interval.",method:"Represent each role assignment as a state and each speech or movement as a transition.",archive:"Dialogue sequence, spatial order, declared desires, inferred motives.",conflict:"The bridge that connects a pair can become the cut that separates it.",intervention:"Create a formal grammar of relational thirdness for narrative systems.",style:"Diagrammatic, constructive, testable, minimal."},
+  risks:["Overformalizing desire","Assuming inferred motives are observable state","State explosion when more agents enter"],
+  tags:["triadic-graph","bridge-or-cut","desire-state-machine","relational-permutation"],
+  echo:"Design a small formal system for the Alcibiades–Agathon–Socrates triangle. Encode persons as nodes, distinguish desire, attention, speech, and physical adjacency as separate edge types, and define a state transition for every request to move, praise, touch, or interrupt. Preserve the invariant that a node occupying the middle may alter the reachability of the other two without becoming identical to the relation it carries. Prove or test which configurations make the third a bridge, a cut vertex, a rival, or an object. Implement a visual simulator that exposes hidden motive as an uncertain annotation rather than ground truth. Evaluate it by asking whether the model predicts the scene’s reversals without flattening them into a single score. #triadic-graph #bridge-or-cut #desire-state-machine"
+},
+{
+  n:"04", chapter:"On Love", title:"The Matching Fragment", engine:"literature", engineLabel:"Literature / Academia",
+  seed:"The tessera is a broken object whose singular fit turns separation into memory, recognition, gratitude, and exchange.",
+  thesis:"Serres’s symbol is material before it is linguistic: a serrated fragment, a body, a border, or a continent whose form remembers the relation from which it was divided.",
+  ancestry:["Greek symbolon — matching token used for recognition","Plato — Aristophanes’ divided beings","Ancient tessera hospitalis — material memory of hospitality","Saussure and Peirce — later sign relations","Geology — continental fit as deep-time memorial form","Serres — symbol as map, quasi-object, and quasi-subject"],
+  questions:["What does a broken object remember?","Can identity be authenticated by fit rather than inscription?","Why does the successful symbol disappear behind its function?"],
+  conflicts:["fragment / whole","object / subject","memory / presence","map / territory","recognition / exchange"],
+  fields:["classics","material culture","semiotics","memory studies","historical geology"],
+  methods:["object biography","etymological genealogy","morphological comparison","spatial reading","material semiotics"],
+  objects:["tessera","wrinkle","body","hyphen","map","continental edge"],
+  epochs:[
+    {period:"Antiquity",name:"Token of recognition",note:"A divided object authenticates a prior relation through fit.",weight:100},
+    {period:"Classical myth",name:"Divided lovers",note:"Wholeness is imagined as reunion with a matching other.",weight:82},
+    {period:"19th–20th c.",name:"Sign and memory",note:"Meaning and identity are theorized through difference, trace, and material record.",weight:69},
+    {period:"1970s",name:"Fractal symbol-map",note:"Serres scales the token from body to geography and psyche.",weight:100}
+  ],
+  migrations:[
+    ["hospitality token","semiotic operator","Recognition becomes a general account of symbolic relation."],
+    ["broken fragment","body archive","Wrinkles and singular form become time-made tesserae."],
+    ["matching edges","world map","Continents and boundaries memorialize prior conjunctions."]
+  ],
+  core:["symbolon","tessera","Aristophanes","memory","stereospecificity"], shadow:["Warburg","Peirce","Benjamin","plate tectonics"], adversaries:["arbitrary sign alone","identity without material history","exchange without recognition"], syntheses:["classical token + material culture","body memory + morphology","semiotics + geology"],
+  evidence:["serrated fit","double recognition","hyphen or trait of union","wrinkles and folds","Africa–Americas analogy","map of Tenderness"],
+  logic:{problem:"Abstract sign theory forgets the material history that makes recognition possible.",method:"Follow forms that fit, carry, scar, and remember.",archive:"Tokens, bodies, maps, borders, literary geographies.",conflict:"The mediator must remain distinct long enough to make union possible, then tends to vanish.",intervention:"Rebuild symbolism as a material technology of relation.",style:"Morphological, baroque, associative, archaeological."},
+  risks:["Naturalizing political borders through tectonic analogy","Overextending stereospecificity","Treating fit as proof of ethical reciprocity"],
+  tags:["tessera-memory","material-symbol","fractal-recognition","map-as-bond"],
+  echo:"Write a material genealogy of the symbol beginning not with language but with the broken recognition token. Follow the tessera from hospitality practice through Aristophanes’ divided beings, bodily wrinkles, mapped tenderness, and the remembered fit of continents. Ask what kind of evidence a contour provides and when matching becomes recognition rather than projection. Use object biography and material semiotics to show how an artifact can be simultaneously credential, archive, quasi-subject, and map. Keep political borders distinct from geological seams so that resemblance does not become destiny. End by explaining why the most successful symbols erase themselves at the instant they complete the relation. #tessera-memory #material-symbol #fractal-recognition"
+},
+{
+  n:"05", chapter:"The Devil", title:"Symbol / Diabol", engine:"formal", engineLabel:"Code / Math",
+  seed:"One operator has two orientations: compose the separated terms or insert itself so that composition fails.",
+  thesis:"Serres extracts a minimal algebra from the Greek word-knot: sym-ballein gathers; dia-ballein throws apart. The third is not good or evil by identity but by operation.",
+  ancestry:["Greek symballein / diaballein — gathering and separating operations","Plato — Socrates’ wordplay at Symposium 222c","Boolean and many-valued logic — alternatives to excluded-middle simplification","Information theory — channel, interference, and error","Category theory — composition and broken composition as an adjacent formal vocabulary","Serres — symbol and Devil as transformations of the third"],
+  questions:["Can conjunction and separation share one typed operator?","What observable state distinguishes mediation from interception?","How should ambiguity be represented when the operation is not yet complete?"],
+  conflicts:["compose / decompose","include / exclude","signal / interference","operator / operand","white space / inscription"],
+  fields:["algebraic specification","logic","information theory","formal semantics","category-inspired modeling"],
+  methods:["typed operators","rewrite rules","truth tables","property testing","counterexample generation"],
+  objects:["pair","third","channel","composition","cut","blank position"],
+  epochs:[
+    {period:"Ancient Greek",name:"Lexical operator pair",note:"Shared roots hold together contrary relational actions.",weight:100},
+    {period:"Classical logic",name:"Excluded third",note:"Formal clarity is purchased by eliminating ambiguous middle states.",weight:70},
+    {period:"1948 onward",name:"Signal and noise",note:"Transmission and interference become measurable channel behaviors.",weight:88},
+    {period:"1970s–now",name:"Composable systems",note:"Mediation can be specified as functions, types, paths, and failures.",weight:93}
+  ],
+  migrations:[
+    ["wordplay","operator algebra","Etymology becomes a formal distinction between two transformations."],
+    ["excluded third","typed intermediate","The middle becomes explicit state rather than logical waste."],
+    ["moral Devil","failure mode","Evil is operationalized as separation, interception, and hidden cut."]
+  ],
+  core:["composition","separation","third operator","channel","typed ambiguity"], shadow:["many-valued logic","category theory","error-correcting codes","process algebra"], adversaries:["binary moral essence","untyped mediation","invisible channel assumptions"], syntheses:["philology + algebra","semiotics + channel theory","logical square + executable state machine"],
+  evidence:["sym/di lexical contrast","Socrates’ accusation","the blank place in the square","the third’s rotation","joining and separating effects"],
+  logic:{problem:"Systems call all intermediaries ‘connectors’ even when they obstruct composition.",method:"Type the third by its resulting transformation, not by its declared role.",archive:"Lexical roots, dialogue moves, logical diagrams, channel behavior.",conflict:"The same interface can preserve or destroy composability.",intervention:"Build a dual operator that makes conjunction and division equally inspectable.",style:"Austere, algebraic, executable, philological."},
+  risks:["False etymological certainty","Reducing ethics to topology","Confusing temporary delay with diabolical separation"],
+  tags:["symbol-diabol","dual-operator","typed-third","composition-failure"],
+  echo:"Specify a formal calculus with a typed third operator T(a,b). Give T at least two realizations: SYMBOL, which preserves a composable path between a and b, and DIABOL, which inserts a cut, diversion, or contradictory rewrite. Add an UNKNOWN state for incomplete or disputed evidence so the model does not force moral certainty too early. State invariants for identity, reversibility, resource transfer, and observability, then generate counterexamples where an apparent connector behaves as a separator. Implement the calculus as a tiny DSL with trace output showing who or what occupies the interval at each step. Test it on the Socrates–Agathon–Alcibiades sequence and one modern mediated system. #symbol-diabol #dual-operator #composition-failure"
+},
+{
+  n:"06", chapter:"The Devil", title:"When the Door Loses Direction", engine:"rd", engineLabel:"Research / Development",
+  seed:"A threshold that cannot distinguish entry from exit stops regulating flow; one parasite becomes crowd, depletion, and noise.",
+  thesis:"The banquet’s collapse is an R&D problem in boundary control. The door loses directionality, admission becomes replication, and the host lacks rate limits, resource accounting, or recovery states.",
+  ancestry:["Plato — the late-arriving crowd in the Symposium","Ross–Kermack–McKendrick — epidemic compartment models","Shannon — channel capacity and noise","Wiener — feedback and control","Queueing and distributed systems — overload, backpressure, and cascading failure","Security engineering — admission control and least privilege","Serres — parasite chain, inundation, and stock depletion"],
+  questions:["How does a single admitted disturbance become a population?","What threshold signals precede collapse?","Can a host preserve hospitality while enforcing recovery and exit?"],
+  conflicts:["openness / control","throughput / legibility","guest growth / host capacity","celebration / incident","local access / global failure"],
+  fields:["distributed systems","epidemiology","cybernetics","security engineering","human-computer interaction"],
+  methods:["agent-based simulation","load testing","event logging","fault injection","red teaming","participatory evaluation"],
+  objects:["door state","arrival rate","departure rate","noise budget","wine stock","attention stock","crowd density"],
+  epochs:[
+    {period:"Classical scene",name:"Unregulated admission",note:"A leaving body opens a path for an entering crowd.",weight:87},
+    {period:"1920s–50s",name:"Population and channel",note:"Spread, capacity, noise, and feedback become formal variables.",weight:92},
+    {period:"1960s–2000s",name:"Overload engineering",note:"Queues, backpressure, access control, and recovery structure systems.",weight:89},
+    {period:"Now",name:"Threshold simulator",note:"Hospitality can be tested as a bounded, observable, recoverable protocol.",weight:100}
+  ],
+  migrations:[
+    ["open door","admission-control state","Architecture becomes a runtime policy with direction and capacity."],
+    ["reveling crowd","replicating workload","Social multiplication becomes measurable load and contagion."],
+    ["global din","observability collapse","Noise is treated as loss of actionable state, not merely loudness."],
+    ["wine depletion","resource exhaustion","The feast becomes a system with finite stocks and no backpressure."]
+  ],
+  core:["rate limit","backpressure","capacity","replication","recovery state"], shadow:["SIR models","circuit breakers","zero trust","chaos engineering"], adversaries:["frictionless growth","unbounded openness","success measured only by throughput"], syntheses:["hospitality + security","epidemic modeling + attention systems","cybernetics + interface recovery"],
+  evidence:["entry during another’s exit","loss of valve function","movement to the center","multiplication analogy","stock depletion","noise destroying order"],
+  logic:{problem:"The host cannot detect when welcomed flow becomes self-amplifying occupation.",method:"Instrument direction, rate, replication, resource use, and intelligibility.",archive:"Event traces, crowd states, resource ledgers, threshold transitions.",conflict:"Hospitality requires permeability, but survival requires bounded permeability.",intervention:"Prototype a recoverable host protocol rather than a permanently closed gate.",style:"Operational, test-driven, ecological, adversarial."},
+  risks:["Turning hospitality into securitization","Treating people as packets or pathogens","Optimizing order at the expense of legitimate assembly"],
+  tags:["directional-threshold","hospitality-protocol","noise-budget","recoverable-host"],
+  echo:"Build a threshold simulator for a host system that must welcome guests without losing direction, capacity, or recovery. Model arrivals, departures, replication, resource draw, and noise as separate observables; do not reduce the crowd to a single load number. Prototype three door policies—open, gated, and adaptive—and test them under normal use, charismatic intrusion, and self-amplifying arrival. Define success as preserved hospitality plus legible state, explicit warning, recoverable degradation, and a real exit path. Include a red-team mode that exploits simultaneous entry and departure, hidden replication, and attention exhaustion. Evaluate the system with both reliability metrics and human judgments about dignity, exclusion, and control. #directional-threshold #hospitality-protocol #recoverable-host"
+},
+{
+  n:"07", chapter:"The Devil", title:"Dawn and the Cold Survivor", engine:"literature", engineLabel:"Literature / Academia",
+  seed:"After noise subsides, the shared cup joins comedy and tragedy while Socrates preserves himself by remaining distinct.",
+  thesis:"The dawn scene stages a conflict between symbolic fusion and philosophical individuation. Serres reads Socratic wakefulness not simply as virtue but as a strategy of separation.",
+  ancestry:["Plato — Symposium ending: Socrates, Agathon, and Aristophanes at dawn","Aristophanes — comic symbol of reunited halves","Greek tragedy and comedy — paired theatrical forms","Nietzsche — tragedy as a later adversarial theater lineage","Philosophies of individuation — self-knowledge and distinction","Serres — cold-hearted philosophy and the excluded third"],
+  questions:["What survives after collective intoxication?","Does wakefulness prove truth or merely endurance?","Why must philosophy distinguish itself from theater and shared affect?"],
+  conflicts:["communion / individuation","comedy / tragedy","sleep / vigilance","theater / philosophy","same / separate"],
+  fields:["classics","philosophy of theater","subject formation","ritual studies","critical theory"],
+  methods:["ending analysis","genre comparison","polemic reconstruction","ritual temporality","character-as-institution reading"],
+  objects:["cup","cock crow","sleeping bodies","dawn","gymnasium","Socratic body"],
+  epochs:[
+    {period:"Classical Athens",name:"Dawn dialogue",note:"Comedy, tragedy, and philosophy remain after the feast’s collapse.",weight:100},
+    {period:"19th c.",name:"Tragic philosophy",note:"Theater and philosophy are rejoined and contested in modern thought.",weight:54},
+    {period:"20th c.",name:"Subject and institution",note:"Individuation is read as discipline, distinction, and power.",weight:70},
+    {period:"1970s",name:"Serresian accusation",note:"Socrates’ survival becomes a morally ambiguous technology of separation.",weight:100}
+  ],
+  migrations:[
+    ["passing cup","temporary collective subject","Shared object creates a momentary sameness among speakers."],
+    ["falling asleep","genre fusion","Comedy and tragedy become one at the point of exhaustion."],
+    ["Socratic wakefulness","institutional distinction","Philosophy secures rarity by refusing the common sleep."],
+    ["gymnasium exit","maintenance protocol","The individuated body is cleaned, trained, and made effective."]
+  ],
+  core:["Socrates","Agathon","Aristophanes","tragedy/comedy","individuation"], shadow:["Nietzsche","Foucault","Simondon","ritual communion"], adversaries:["philosophical innocence","theater as mere entertainment","self-knowledge without exclusion"], syntheses:["genre theory + subject formation","ritual cup + quasi-object","philosophical endurance + bodily discipline"],
+  evidence:["clockwise cup passing","cock crow","the two sleepers","Socrates leaving unscathed","gymnasium and self-care"],
+  logic:{problem:"The canonical ending celebrates philosophical endurance without pricing its separations.",method:"Read survival, sleep, and bodily routine as institutional operations.",archive:"Dialogue ending, theater genres, ritual objects, philosophical self-care.",conflict:"Communion dissolves distinction; philosophy survives by restoring it.",intervention:"Turn the victorious survivor into an object of ethical scrutiny.",style:"Polemical, theatrical, genealogical, bodily."},
+  risks:["Collapsing Socrates into Serres’s caricature","Treating sleep as intellectual defeat","Overstating theater/philosophy opposition"],
+  tags:["dawn-individuation","cold-survivor","cup-communion","philosophy-as-separation"],
+  echo:"Re-read the ending of the Symposium from the standpoint of those who sleep. Follow the cup as a quasi-object that briefly joins comedy, tragedy, host, and philosopher, then ask why Socrates alone must emerge intact. Place genre theory beside accounts of individuation and bodily discipline, treating the gymnasium as part of philosophy’s apparatus rather than an incidental destination. Test Serres’s accusation that philosophy becomes rare by excluding the common state it has traversed. Preserve the possibility that wakefulness is both achievement and violence. Conclude by naming the institutional cost of a knowledge practice that proves itself through solitary survival. #dawn-individuation #cold-survivor #philosophy-as-separation"
+},
+{
+  n:"08", chapter:"The Worst Definition", title:"The Arrow Without Return", engine:"formal", engineLabel:"Code / Math",
+  seed:"Ulysses converts relation into a one-way trajectory: alignment, transmission, proof, then irreversible separation among bodies.",
+  thesis:"The arrow through the axes is the anti-symbol: a perfectly directed relation whose success removes reciprocity. It replaces exchange with proof and proof with lethal restoration.",
+  ancestry:["Homer — Odyssey: bow contest, aligned axes, slaughter of the suitors","Euclidean line and ballistic trajectory — directed spatial relation","Thermodynamics — irreversibility and the arrow of time","Eddington — explicit ‘arrow of time’ vocabulary as an adjacent lineage","Landauer — physical cost of irreversible information operations","Serres — the worst definition of relation as arrow, axe, and no return"],
+  questions:["What changes when a relation has no return path?","Can successful transmission be ethically catastrophic?","How should a model distinguish proof, control, and killing when they share geometry?"],
+  conflicts:["reversible / irreversible","exchange / execution","line / network","proof / violence","restoration / massacre"],
+  fields:["formal systems","thermodynamics","information theory","ballistics","epic studies"],
+  methods:["directed graph analysis","reachability","reversibility tests","energy accounting","counterfactual modeling"],
+  objects:["bow","arrow","aligned axes","directed path","corpses","household state"],
+  epochs:[
+    {period:"Archaic epic",name:"Contest and recognition",note:"The shot proves the returning sovereign’s identity and capacity.",weight:100},
+    {period:"Classical geometry",name:"Directed line",note:"Relation is idealized as a clean path through aligned apertures.",weight:52},
+    {period:"19th–20th c.",name:"Irreversibility",note:"Time, entropy, and computation expose the cost of no return.",weight:86},
+    {period:"1970s",name:"Worst definition",note:"Serres reads the successful line as separation and carnage.",weight:100}
+  ],
+  migrations:[
+    ["identity test","directed proof","The physical feat authenticates the absent ruler."],
+    ["directed proof","control event","Recognition immediately becomes sovereignty over the scene."],
+    ["control event","irreversible kill chain","The path continues into bodies with no reciprocal channel."],
+    ["epic restoration","systems critique","Order is evaluated by the violence required to reinstate it."]
+  ],
+  core:["directed edge","irreversibility","reachability","kill chain","state restoration"], shadow:["Eddington","Landauer","one-way functions","control theory"], adversaries:["transmission equals communication","efficiency as sufficient success","restoration without cost"], syntheses:["epic geometry + information irreversibility","proof system + sovereignty","state reset + violence accounting"],
+  evidence:["single arrow","lined-up axes","no possible return","corpses","end of the Odyssey"],
+  logic:{problem:"Formal success metrics ignore what a successful one-way operation destroys.",method:"Attach state loss and return-path tests to every directed transformation.",archive:"Epic sequence, geometry, thermodynamic analogy, execution chain.",conflict:"The cleanest transmission may be the most violent relation.",intervention:"Make irreversibility and destroyed alternatives first-class outputs.",style:"Linear, severe, forensic, counterfactual."},
+  risks:["Anachronistically importing modern computation into Homer","Equating all directionality with violence","Ignoring the suitors’ own occupation and harms"],
+  tags:["arrow-without-return","irreversible-relation","violent-proof","state-reset-cost"],
+  echo:"Formalize the bow-and-axes episode as a sequence of irreversible state transitions. Represent the shot as a directed path with an identity-proof function, then extend the trace into the slaughter so the model cannot stop at successful alignment. Define a return-path invariant and make its failure visible at each step: object, authority, body, and household. Compare the scene with thermodynamic and computational accounts of irreversibility only as analytic lenses, not historical causes. Build counterfactual branches in which recognition restores authority without converting every remaining relation into a kill chain. Evaluate the model by whether it records destroyed possibilities as carefully as achieved goals. #arrow-without-return #irreversible-relation #state-reset-cost"
+},
+{
+  n:"09", chapter:"The Worst Definition", title:"The Book Eats Its Author", engine:"rd", engineLabel:"Research / Development",
+  seed:"The concept under study expands across examples until the book itself becomes the host it describes.",
+  thesis:"The closing pages stage a recursive failure of containment. Noise, hunger, animals, disease, and violence cease to be examples inside the theory and become the operating environment of the book.",
+  ancestry:["Serres — The Parasite as self-implicating philosophical apparatus","Derrida — supplement and iterability as adjacent recursive vocabularies","Borges — books and classifications that alter their worlds","Cybernetics — observer included within the observed system","Second-order cybernetics — self-reference and reflexive observation","Software observability — systems instrumenting their own failure","Media ecology — medium transformed by what it carries"],
+  questions:["How does a model detect that its object has colonized its categories?","What counts as a safe stopping condition for recursive interpretation?","Can a book expose its own capture without pretending to stand outside it?"],
+  conflicts:["observer / system","example / environment","description / enactment","containment / overflow","completion / infection"],
+  fields:["second-order cybernetics","media theory","reflexive methodology","software observability","metafiction studies"],
+  methods:["self-instrumentation","provenance tracing","concept-drift detection","recursive audit","reader testing"],
+  objects:["book","page","white space","censor’s ink","animal swarm","noise field","authorial ‘I’"],
+  epochs:[
+    {period:"Literary modernity",name:"Self-aware book",note:"Texts increasingly stage the instability of their own frames.",weight:58},
+    {period:"1940s–70s",name:"Observer in system",note:"Cybernetics turns reflexivity into a methodological problem.",weight:87},
+    {period:"1975–79",name:"Parasite overflow",note:"Serres discovers the book behaving as its own theory predicts.",weight:100},
+    {period:"Now",name:"Instrumented interpretation",note:"Recursive models can log drift, capture, and failure of containment.",weight:96}
+  ],
+  migrations:[
+    ["examples of evil","global semantic environment","The archive stops illustrating the concept and begins saturating it."],
+    ["author as analyst","author as host","The observer becomes a resource consumed by the inquiry."],
+    ["book as container","book as active system","Pages, blanks, and sequence acquire state and failure modes."],
+    ["completion","separation event","Finishing becomes an operational exit rather than mere closure."]
+  ],
+  core:["self-reference","concept drift","observer inclusion","semantic saturation","stopping condition"], shadow:["second-order cybernetics","Borges","Derrida","observability engineering"], adversaries:["view from nowhere","clean separation of theory and object","infinite recursion without exit"], syntheses:["metafiction + system telemetry","reflexive ethnography + concept-drift audit","media ecology + failure analysis"],
+  evidence:["the parasite overflows the pages","the book is recognized as a book of Evil","white covered by ink","the concept becomes separate from the author","completion dates"],
+  logic:{problem:"An inquiry may reproduce the very pattern it analyzes while lacking a signal for capture.",method:"Log category expansion, source recursion, affective load, and shifts in the observer’s position.",archive:"Drafts, revisions, citations, metaphors, omissions, reader responses.",conflict:"Reflexivity can reveal capture but can also feed endless recursion.",intervention:"Create an audit layer that can declare saturation, uncertainty, and exit.",style:"Recursive, forensic, self-implicating, operational."},
+  risks:["Psychologizing textual recursion","Treating every repeated motif as system capture","Building audits that become new forms of endless overhead"],
+  tags:["recursive-book","observer-as-host","concept-drift","semantic-overflow"],
+  echo:"Prototype a reflexive writing environment that detects when a concept begins to colonize the archive, the prose, and the author’s interpretive choices. Track repeated metaphors, source concentration, category expansion, affective intensity, and the disappearance of counterexamples. Do not label recursion as failure automatically; distinguish productive self-implication from semantic saturation that makes every object look the same. Provide an audit view showing which claims remain source-grounded, which are analogical, and which emerged only because the book’s vocabulary began feeding on itself. Add a stopping condition, a recovery path, and an explicit export that lets the work become separate from its maker. Evaluate the tool on Serres’s closing movement and on one contemporary AI-assisted research workflow. #recursive-book #observer-as-host #concept-drift"
+},
+{
+  n:"10", chapter:"High Seas", title:"The Insect Leaves", engine:"literature", engineLabel:"Literature / Academia",
+  seed:"The parasite finally crosses outward through the creaking door; completion appears as expulsion, calm, and another beginning.",
+  thesis:"The final image reverses the opening threshold. What entered the banquet as noisy guest leaves the writer’s room as insect, allowing the book to become a separate artifact and the world to reopen as high seas.",
+  ancestry:["Serres — autobiographical closing image in Venice","Kafka — The Metamorphosis as an adjacent insect-body archive","Lucretius — material swerves and open seas within Serres’s broader philosophical atmosphere","Threshold and exorcism narratives — departure as release","Publication theory — the work separates from its maker","Maritime imagery — open water as post-system possibility"],
+  questions:["What kind of event is completion?","Can an idea leave without being destroyed?","Why does calm require the parasite to become visibly separate?"],
+  conflicts:["interior / exterior","author / work","insect / concept","ending / beginning","quiet / suppressed return"],
+  fields:["literary endings","autobiographical theory","animal studies","book history","phenomenology of creation"],
+  methods:["final-image analysis","motif reversal","threshold comparison","artifact biography","affective reading"],
+  objects:["insect","creaking door","Venetian room","May morning","quiet","high seas"],
+  epochs:[
+    {period:"Ancient–modern",name:"Threshold departure",note:"Expulsion and crossing mark release, banishment, or transformation.",weight:55},
+    {period:"1915",name:"Kafka’s insect",note:"The insect becomes a figure for estrangement between body, household, and meaning.",weight:63},
+    {period:"1975–79",name:"Serres’s separation",note:"The parasite becomes external enough for the book to end.",weight:100},
+    {period:"After completion",name:"High-seas opening",note:"The ending clears a field for another beginning without resolving the system forever.",weight:82}
+  ],
+  migrations:[
+    ["banquet entrance","writerly exit","The threshold motif reverses direction at the book’s end."],
+    ["social parasite","horrible insect","A relational role acquires an animal body and visible separateness."],
+    ["book completion","artifact independence","The work leaves the author’s interior and begins its own circulation."],
+    ["quiet room","high seas","Local release opens an unbounded future rather than a sealed conclusion."]
+  ],
+  core:["insect","door","Venice","completion","high seas"], shadow:["Kafka","Lucretius","book history","exorcism narrative"], adversaries:["closure as total mastery","author as permanent owner","quiet as absence of consequence"], syntheses:["animal figure + publication event","threshold reversal + artifact biography","ending theory + maritime openness"],
+  evidence:["slow departure","creaking door","May morning","quiet and serenity","the statement that something had begun","high seas"],
+  logic:{problem:"A recursive work needs an ending that does not pretend the concept has been defeated.",method:"Read the final threshold against every earlier entrance and middle position.",archive:"Closing image, door motif, animal metamorphosis, composition dates.",conflict:"Separation creates relief but also releases the work into new hosts.",intervention:"Define completion as a transfer of custody rather than conceptual victory.",style:"Compressed, imagistic, autobiographical, maritime."},
+  risks:["Overidentifying the insect with Kafka","Treating expulsion as simple cure","Ignoring what circulation after publication may reproduce"],
+  tags:["insect-exit","threshold-reversal","artifact-separation","high-seas-beginning"],
+  echo:"Write the ending as a reversal of every earlier threshold. Compare Alcibiades entering the banquet, the crowd entering during an exit, and the insect leaving the Venetian room, asking what changes when the parasite finally has a visible exterior. Use Kafka only as an adjacent resonance, not as a source that explains the image away. Treat completion as an artifact-biography event in which custody passes from author to book, room to world, interior disturbance to public circulation. Preserve the uncertainty of whether expulsion solves anything or merely relocates the relation. End on the high seas as an open topology: calm without final closure, separation without immunity, beginning after the book. #insect-exit #threshold-reversal #high-seas-beginning"
+}
+];
+
+const rail = document.getElementById('rail');
+const root = document.getElementById('stages');
+const empty = document.getElementById('empty');
+const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const list = arr => `<ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+const chips = arr => `<div class="chips">${arr.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`;
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+function render(){
+  rail.querySelectorAll('.stage-link').forEach(el=>el.remove());
+  root.innerHTML='';
+  stages.forEach((s,idx)=>{
+    const id = `stage-${s.n}`;
+    const btn = document.createElement('button');
+    btn.className='stage-link'; btn.dataset.target=id; btn.dataset.engine=s.engine;
+    btn.innerHTML=`<span class="n">${s.n}</span><span><strong>${esc(s.title)}</strong><small>${esc(s.chapter)}</small></span>`;
+    btn.addEventListener('click',()=>document.getElementById(id).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
+    rail.appendChild(btn);
+    const article = document.createElement('article');
+    article.className='stage'; article.id=id; article.dataset.engine=s.engine;
+    article.dataset.search = JSON.stringify(s).toLowerCase();
+    article.innerHTML=`
+      <header class="stage-head">
+        <div class="stage-no">${s.n}</div>
+        <div><h3>${esc(s.title)}</h3><div class="chapter">${esc(s.chapter)}</div></div>
+        <div class="engine ${s.engine}">${esc(s.engineLabel)}</div>
+      </header>
+      <p class="seed">${esc(s.seed)}</p>
+      <p class="thesis">${esc(s.thesis)}</p>
+      <div class="quick-grid">
+        <div class="quick"><div class="eyebrow">Ancestral core</div><p>${s.core.map(esc).join(' · ')}</p></div>
+        <div class="quick"><div class="eyebrow">Primary conflict</div><p>${s.conflicts.map(esc).join(' / ')}</p></div>
+        <div class="quick"><div class="eyebrow">Methods</div>${chips(s.methods.slice(0,5))}</div>
+      </div>
+      <div class="epoch-strip" aria-label="Lineage epochs">
+        ${s.epochs.map(e=>`<div class="epoch"><time>${esc(e.period)}</time><strong>${esc(e.name)}</strong><p>${esc(e.note)}</p><div class="weight" title="Influence weight ${e.weight}"><i style="width:${e.weight}%"></i></div></div>`).join('')}
+      </div>
+      <div class="details">
+        ${detail('Full ancestry','Sources and inherited lessons',`
+          <div class="panel"><h4>Key sources</h4>${list(s.ancestry)}</div>
+          <div class="panel"><h4>Governing questions</h4>${list(s.questions)}</div>`)}
+        ${detail('Disciplinary matrix','Fields, evidence, methods, objects',`
+          <div class="panel"><h4>Fields</h4>${chips(s.fields)}</div>
+          <div class="panel"><h4>Archive / objects</h4>${chips(s.objects)}</div>
+          <div class="panel"><h4>Evidence stack</h4>${list(s.evidence)}</div>
+          <div class="panel"><h4>Risks</h4>${list(s.risks)}</div>`)}
+        ${detail('Migration map','How the idea changes domains',`
+          <div class="panel" style="grid-column:1/-1"><div class="migration">${s.migrations.map(m=>`<div class="route"><strong>${esc(m[0])}</strong><i>→</i><strong>${esc(m[1])}</strong><p>${esc(m[2])}</p></div>`).join('')}</div></div>`)}
+        ${detail('Citation axis','Core, shadow, adversary, synthesis',`
+          <div class="panel"><h4>Shadow citations</h4>${chips(s.shadow)}</div>
+          <div class="panel"><h4>Adversaries</h4>${chips(s.adversaries)}</div>
+          <div class="panel" style="grid-column:1/-1"><h4>Possible syntheses</h4>${list(s.syntheses)}</div>`)}
+        ${detail('Signature ecology','Problem, method, archive, conflict, intervention',`
+          <div class="panel" style="grid-column:1/-1"><dl class="logic">${Object.entries(s.logic).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></div>`)}
+      </div>
+      <div class="echo">
+        <div class="echo-label"><span>${s.engine==='formal'?'Formal echo':s.engine==='rd'?'R&D echo':'Research echo'}</span><button data-copy="${idx}">Copy prompt</button></div>
+        <blockquote>${esc(s.echo)}</blockquote>
+      </div>
+      <div class="tags">${s.tags.map(t=>'#'+t).join(' ')}</div>`;
+    root.appendChild(article);
+  });
+  root.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click', async()=>{
+    const text=stages[Number(btn.dataset.copy)].echo;
+    try{await navigator.clipboard.writeText(text); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy prompt',1200)}catch{btn.textContent='Select text'}
+  }));
+}
+function detail(title,subtitle,body){return `<details><summary><strong>${esc(title)}</strong><span>${esc(subtitle)}</span><b>+</b></summary><div class="detail-body">${body}</div></details>`}
+render();
+
+let activeFilter='all';
+function applyFilters(){
+  const q=document.getElementById('search').value.trim().toLowerCase(); let count=0;
+  document.querySelectorAll('.stage').forEach(el=>{
+    const show=(activeFilter==='all'||el.dataset.engine===activeFilter)&&(!q||el.dataset.search.includes(q));
+    el.classList.toggle('hidden',!show); if(show) count++;
+  });
+  document.querySelectorAll('.stage-link').forEach(el=>{
+    const stage=document.getElementById(el.dataset.target); el.hidden=stage.classList.contains('hidden');
+  });
+  empty.classList.toggle('show',count===0);
+}
+document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{
+  activeFilter=btn.dataset.filter;
+  document.querySelectorAll('.filter').forEach(x=>x.setAttribute('aria-pressed',x===btn?'true':'false'));
+  applyFilters();
+}));
+document.getElementById('search').addEventListener('input',applyFilters);
+document.getElementById('compact').addEventListener('click',e=>{
+  const on=document.body.classList.toggle('compact'); e.currentTarget.setAttribute('aria-pressed',on); e.currentTarget.textContent=on?'Full view':'Compact';
+});
+document.getElementById('expand').addEventListener('click',e=>{
+  const details=[...document.querySelectorAll('details')]; const shouldOpen=details.some(d=>!d.open); details.forEach(d=>d.open=shouldOpen);
+  e.currentTarget.setAttribute('aria-pressed',shouldOpen); e.currentTarget.textContent=shouldOpen?'Collapse all':'Expand all';
+});
+
+const observer=new IntersectionObserver(entries=>{
+  const visible=entries.filter(x=>x.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+  if(!visible)return;
+  document.querySelectorAll('.stage-link').forEach(x=>x.setAttribute('aria-current',x.dataset.target===visible.target.id?'true':'false'));
+  history.replaceState(null,'','#'+visible.target.id);
+},{rootMargin:'-22% 0px -60% 0px',threshold:[0,.15,.5]});
+document.querySelectorAll('.stage').forEach(x=>observer.observe(x));
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='/' && document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('search').focus();return}
+  if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName))return;
+  const visible=[...document.querySelectorAll('.stage:not(.hidden)')]; if(!visible.length)return;
+  const current=visible.findIndex(x=>x.getBoundingClientRect().top>=0); let target;
+  if(e.key.toLowerCase()==='j') target=visible[Math.min(visible.length-1,current<0?0:current+1)];
+  if(e.key.toLowerCase()==='k') target=visible[Math.max(0,current<=0?0:current-1)];
+  if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth'})}
+});
+
+if(location.hash&&document.querySelector(location.hash)) setTimeout(()=>document.querySelector(location.hash).scrollIntoView(),50);
+</script>
+</body>
+</html>

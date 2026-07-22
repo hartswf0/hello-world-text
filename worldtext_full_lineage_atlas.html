@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Worldtext: Eleven Full Lineages</title>
+<style>
+:root {
+  --bg:#f4f2ed; --paper:#fbfaf7; --ink:#171717; --muted:#616161;
+  --line:#b8b4aa; --accent:#244c66; --soft:#e7e3da; --max:1180px;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#121313; --paper:#191a1a; --ink:#f1efe9; --muted:#aaa79f;
+    --line:#494a47; --accent:#8cc4e7; --soft:#262725; }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height:1.55;
+}
+a { color:var(--accent); text-underline-offset:3px; }
+.wrap { width:min(calc(100% - 28px),var(--max)); margin:auto; }
+header { padding:64px 0 34px; border-bottom:1px solid var(--line); }
+.kicker,.eyebrow { margin:0 0 7px; font-size:.72rem; letter-spacing:.14em; font-weight:800; color:var(--accent); }
+h1 { max-width:850px; margin:0; font-family:Georgia,serif; font-size:clamp(2.5rem,7vw,6.8rem); line-height:.92; letter-spacing:-.055em; }
+.deck { max-width:760px; margin:24px 0 0; font-family:Georgia,serif; font-size:clamp(1.05rem,2vw,1.35rem); }
+.controls { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+button {
+  appearance:none; border:1px solid var(--ink); border-radius:0; background:transparent;
+  color:var(--ink); font:inherit; font-size:.78rem; font-weight:800; letter-spacing:.08em;
+  padding:10px 13px; cursor:pointer;
+}
+button:hover,button:focus-visible { background:var(--ink); color:var(--paper); outline:none; }
+.note { margin-top:20px; max-width:850px; color:var(--muted); font-size:.9rem; }
+.overview { padding:34px 0 46px; }
+h2,h3,h4,p { margin-top:0; }
+h2 { font-family:Georgia,serif; font-size:clamp(2rem,5vw,4.3rem); line-height:.95; letter-spacing:-.04em; margin-bottom:4px; }
+h3 { font-size:.82rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
+h4 { font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:6px; }
+.table-wrap { overflow:auto; border:1px solid var(--line); }
+table { width:100%; border-collapse:collapse; min-width:760px; background:var(--paper); }
+th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--line); padding:12px 14px; }
+th { font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+td { font-size:.88rem; }
+tbody tr:last-child td { border-bottom:0; }
+.chapter { background:var(--paper); border-top:1px solid var(--ink); margin:0 0 28px; }
+.chapter-head { display:grid; grid-template-columns:52px 1fr auto; gap:16px; padding:26px; align-items:start; }
+.chapter-number { font-family:ui-monospace,monospace; font-weight:800; font-size:1.1rem; }
+.subtitle { margin:5px 0 0; color:var(--muted); font-family:Georgia,serif; font-style:italic; font-size:1.05rem; }
+.top-link { font-size:.7rem; font-weight:800; letter-spacing:.1em; }
+.seed { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(220px,.8fr); gap:20px; padding:0 26px 26px 94px; }
+.seed>p:first-child { font-family:Georgia,serif; font-size:1.22rem; line-height:1.38; margin:0; }
+.engine-note { border-left:3px solid var(--accent); padding-left:13px; font-size:.84rem; }
+.engine-note span { display:block; color:var(--muted); margin-top:3px; }
+.why { grid-column:1/-1; margin:0; color:var(--muted); font-size:.9rem; }
+details { border-top:1px solid var(--line); }
+summary {
+  cursor:pointer; list-style:none; padding:15px 26px 15px 94px;
+  font-size:.74rem; font-weight:800; letter-spacing:.12em;
+}
+summary::-webkit-details-marker { display:none; }
+summary::after { content:" +"; color:var(--accent); }
+details[open] summary::after { content:" −"; }
+.detail-body { padding:0 26px 28px 94px; }
+.block { border-top:1px solid var(--line); padding:23px 0; }
+.block ul { padding-left:20px; margin-bottom:0; }
+.block li { margin-bottom:7px; }
+.origin-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.origin-grid ul { font-size:.9rem; }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:34px; }
+.facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border-top:1px solid var(--line); }
+.fact { padding:13px 15px 13px 0; border-bottom:1px solid var(--line); }
+.fact:nth-child(odd) { border-right:1px solid var(--line); padding-right:18px; }
+.fact:nth-child(even) { padding-left:18px; }
+.fact span { display:block; color:var(--accent); font-size:.72rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; }
+.fact p { margin:4px 0 0; font-size:.9rem; }
+.weight { display:inline-grid; place-items:center; width:34px; height:34px; border:1px solid var(--ink); font-weight:800; }
+.echo { border:2px solid var(--ink); padding:22px; margin:24px 0; }
+.echo>p:last-child { font-family:Georgia,serif; font-size:1.08rem; margin:0; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; }
+.chip { border:1px solid var(--line); padding:5px 8px; font:700 .72rem ui-monospace,monospace; }
+.check { margin:18px 0 0; color:var(--muted); font-size:.67rem; letter-spacing:.1em; }
+footer { padding:38px 0 60px; color:var(--muted); font-size:.85rem; border-top:1px solid var(--line); }
+@media (max-width:720px) {
+  header { padding-top:38px; }
+  .chapter-head { grid-template-columns:36px 1fr; padding:20px 16px; }
+  .top-link { display:none; }
+  .seed,.detail-body { padding-left:16px; padding-right:16px; }
+  .seed { grid-template-columns:1fr; }
+  .why { grid-column:auto; }
+  summary { padding-left:16px; }
+  .origin-grid,.two,.facts { grid-template-columns:1fr; }
+  .fact:nth-child(odd) { border-right:0; padding-right:0; }
+  .fact:nth-child(even) { padding-left:0; }
+}
+@media print {
+  :root { --bg:#fff; --paper:#fff; --ink:#000; --muted:#333; --line:#999; --accent:#000; }
+  body { font-size:9.5pt; }
+  .controls,.top-link { display:none !important; }
+  header { padding:24px 0 15px; }
+  h1 { font-size:34pt; }
+  .overview { padding:18px 0; }
+  .chapter { break-before:page; margin:0; }
+  details { display:block; }
+  details>summary { display:none; }
+  details>.detail-body { display:block !important; }
+  .echo { break-inside:avoid; }
+  table { min-width:0; }
+}
+</style>
+</head>
+<body id="top">
+<header>
+  <div class="wrap">
+    <p class="kicker">WORLDTEXT LINEAGE ATLAS · ELEVEN CHAPTERS</p>
+    <h1>The Inherited Machinery of the Argument</h1>
+    <p class="deck">A compact full-lineage reconstruction of each chapter: ancestors, origin conditions, weighted epochs, migrations, evidence, formal pressures, intervention logic, and one generative research echo.</p>
+    <div class="controls">
+      <button type="button" id="expand">EXPAND ALL</button>
+      <button type="button" id="collapse">COLLAPSE ALL</button>
+      <button type="button" onclick="window.print()">PRINT / SAVE PDF</button>
+    </div>
+    <p class="note">These are interpretive intellectual and technical lineages, not claims that every named source directly influenced the manuscript. The primary encoder for each chapter was selected from the supplied Literature / Academia, Code &amp; Math, and R&amp;D lineage systems.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="overview">
+    <p class="eyebrow">ENCODER MAP</p>
+    <h3>Which lineage best fits each chapter</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>No.</th><th>Chapter</th><th>Primary lineage</th><th>Lineage seed</th></tr></thead>
+        <tbody><tr><td>01</td><td><a href='#chapter-1'>The Worldtext Problem</a></td><td>Literature / Academia</td><td>Generative abundance converts production scarcity into selection scarcity: one visible sample stands in for an uninspectable distribution.</td></tr><tr><td>02</td><td><a href='#chapter-2'>The Genealogy</a></td><td>Literature / Academia</td><td>Text ceases merely to describe an object and becomes an operative address that helps produce, traverse, and alter what it names.</td></tr><tr><td>03</td><td><a href='#chapter-3'>The Method</a></td><td>Code &amp; Math</td><td>A prompt is an incomplete specification completed by learned priors; controlled perturbation and captured run state reveal what remains invariant or drifts.</td></tr><tr><td>04</td><td><a href='#chapter-4'>Composition</a></td><td>Code &amp; Math</td><td>Text-to-image composition is a joint-constraint problem in which locally plausible objects often survive while relations, causality, cardinality, and identity fail.</td></tr><tr><td>05</td><td><a href='#chapter-5'>Assembly Is Sampling</a></td><td>Code &amp; Math</td><td>Generative editing replaces a fixed corpus with a resamplable distribution, turning montage into stochastic search through an expanding derivation graph.</td></tr><tr><td>06</td><td><a href='#chapter-6'>The World That Remembers</a></td><td>Code &amp; Math</td><td>A persistent world is not a sequence of similar images but a state-transition system that externally carries facts, identities, and consequences across generation calls.</td></tr><tr><td>07</td><td><a href='#chapter-7'>Legible Mechanisms</a></td><td>Research &amp; Development</td><td>A persuasive generative artifact needs deployable lineage infrastructure that records enough of its partial history to support doubt, audit, attribution, and repair.</td></tr><tr><td>08</td><td><a href='#chapter-8'>Legal Worlds</a></td><td>Code &amp; Math</td><td>A world becomes legally buildable only when perceptual output is translated into symbolic structure and tested against explicit constraints by a verifier with known coverage.</td></tr><tr><td>09</td><td><a href='#chapter-9'>Misreading as Material</a></td><td>Literature / Academia</td><td>Classification does not discover inner states in signals; it constructs categories, operationalizes them through decision boundaries, and attaches material consequences to uncertain interpretations.</td></tr><tr><td>10</td><td><a href='#chapter-10'>Where Responsibility Goes</a></td><td>Literature / Academia</td><td>Agency is distributed across initiation, generation, selection, authorization, interpretation, and harm, while pronouns and incomplete records selectively relocate responsibility.</td></tr><tr><td>11</td><td><a href='#chapter-11'>Worldtext as Medium</a></td><td>Literature / Academia</td><td>Every worldtext affordance arrives coupled to a mechanism-specific refusal; understanding the medium means locating each power’s operational boundary without promising closure.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  
+    <article class="chapter" id="chapter-1">
+      <div class="chapter-head">
+        <div class="chapter-number">01</div>
+        <div>
+          <p class="eyebrow">CHAPTER 1 · LITERATURE / ACADEMIA</p>
+          <h2>The Worldtext Problem</h2>
+          <p class="subtitle">More Than the Eye</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Generative abundance converts production scarcity into selection scarcity: one visible sample stands in for an uninspectable distribution.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Literature / Academia
+        <span>Secondary pressure: Formal systems</span></div>
+        <p class="why">The chapter is fundamentally a media-philosophical problem about representation, attention, possible worlds, and the politics of selection; probability supplies its formal undertow.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Jorge Luis Borges — “The Library of Babel”: total textual possibility as existential blindness.</li><li>G. W. Leibniz — possible worlds: actuality as one realized selection among alternatives.</li><li>Claude Shannon — information theory: uncertainty and distributions become measurable structures.</li><li>Herbert Simon — bounded rationality: abundance produces a scarcity of attention.</li><li>Nelson Goodman — Ways of Worldmaking: worlds are made through symbolic operations.</li><li>Umberto Eco — The Open Work: interpretive multiplicity without complete survey.</li><li>Lev Manovich — database logic: selection replaces fixed sequence as a dominant cultural form.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>How can one sample represent a field?</li><li>When does abundance become opacity?</li><li>What changes when choosing becomes the main creative labor?</li></ul></div><div><h4>Conflicts</h4><ul><li>sample / distribution</li><li>scarcity / abundance</li><li>production / curation</li><li>freedom / blindness</li></ul></div><div><h4>Scenes</h4><ul><li>the library without an edge</li><li>the search-results page</li><li>the reroll button</li><li>the contact sheet no one can finish</li></ul></div><div><h4>Methods</h4><ul><li>media genealogy</li><li>conceptual analysis</li><li>interface criticism</li><li>sampling experiments</li><li>attention-budget studies</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1940s–1960s</td><td><strong>Information and bounded choice</strong><br><span>Shannon, Borges, Simon</span></td><td>Possibility becomes a field; attention becomes the limiting resource.</td><td><span class='weight'>88</span></td></tr><tr><td>1970s–1990s</td><td><strong>Open texts and worldmaking</strong><br><span>Eco, Goodman, Deleuze</span></td><td>Multiplicity moves from interpretation toward ontology and production.</td><td><span class='weight'>91</span></td></tr><tr><td>1990s–2010s</td><td><strong>Database culture and algorithmic curation</strong><br><span>Manovich, search and recommendation systems</span></td><td>The cultural problem shifts from making objects to navigating candidate sets.</td><td><span class='weight'>86</span></td></tr><tr><td>2020s</td><td><strong>Generative distributions</strong><br><span>foundation models and diffusion systems</span></td><td>Every request becomes a draw; the unseen neighborhood becomes part of the work.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>possible worlds → information distributions: metaphysical plurality becomes operational sampling.</li><li>open work → database culture: interpretive openness becomes navigable combinatorics.</li><li>database selection → generative curation: the archive no longer precedes editing; it appears in response to it.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Paired prompt runs, sample neighborhoods, discarded candidates, selection times, interface defaults, and maker diaries recording what could not be inspected.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Home fields</span><p>media theory; information theory; aesthetics; HCI</p></div><div class='fact'><span>Key vocabulary</span><p>worldtext; latent field; sample; distribution; attention; curation; neighborhood</p></div><div class='fact'><span>Archives / objects</span><p>prompt histories; reroll sets; contact sheets; recommendation interfaces; generation logs</p></div><div class='fact'><span>Explanatory pressure</span><p>join existential abundance to a measurable attention bottleneck</p></div><div class='fact'><span>Adversaries</span><p>the single-output fallacy; novelty metrics that ignore the unseen field</p></div><div class='fact'><span>Possible synthesis</span><p>Borges + Simon + Shannon + Manovich as a theory of generative selection</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>A point impersonates the field that produced it.</p></div><div class='fact'><span>Method logic</span><p>Reconstruct the hidden neighborhood around visible outputs, then measure where attention fails.</p></div><div class='fact'><span>Scale logic</span><p>micro choice → meso interface → macro political economy of abundance</p></div><div class='fact'><span>Epistemic logic</span><p>knowledge requires a sampling budget and an account of what remained unseen.</p></div><div class='fact'><span>Political logic</span><p>curation power belongs to whoever controls exposure, ranking, and stopping.</p></div><div class='fact'><span>Intervention logic</span><p>make the field, lineage, and cost of selection perceptible without pretending to reveal everything.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Write a media-theoretical intervention that begins with a single generated image and reconstructs the absent field it is allowed to represent. Read Borges beside Herbert Simon and Shannon, then move through database culture to contemporary generative interfaces. Treat attention as the scarce material, rerolling as a labor practice, and selection as an act of governance. Use prompt logs, discarded outputs, and stopping decisions as primary evidence. End by proposing a bounded-inspection protocol that makes absence explicit rather than claiming exhaustive visibility.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#possible-worlds</span><span class="chip">#attention-scarcity</span><span class="chip">#sampling-culture</span><span class="chip">#database-aesthetics</span><span class="chip">#curatorial-governance</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-2">
+      <div class="chapter-head">
+        <div class="chapter-number">02</div>
+        <div>
+          <p class="eyebrow">CHAPTER 2 · LITERATURE / ACADEMIA</p>
+          <h2>The Genealogy</h2>
+          <p class="subtitle">The Object That Flinches</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Text ceases merely to describe an object and becomes an operative address that helps produce, traverse, and alter what it names.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Literature / Academia
+        <span>Secondary pressure: Software studies</span></div>
+        <p class="why">The chapter tracks a conceptual migration across textuality, hypertext, performativity, cybertext, and software: a genealogy is more revealing than a purely technical account.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>J. L. Austin — performative utterances: words can enact rather than merely report.</li><li>Roland Barthes — readerly and writerly texts: reading redistributes authorship.</li><li>Vannevar Bush — Memex: reading becomes associative traversal.</li><li>Ted Nelson — hypertext: textual sequence becomes a navigable structure.</li><li>Espen Aarseth — Cybertext: reading includes nontrivial operational labor.</li><li>N. Katherine Hayles — materiality of inscription: textual meaning depends on its technical embodiment.</li><li>Vilém Flusser and Alexander Galloway — technical images and protocol: symbolic surfaces become programmed operations.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>When does a sign become an instruction?</li><li>Who reads whom when language conditions generation?</li><li>What is lost when the reader cannot remain outside the object?</li></ul></div><div><h4>Conflicts</h4><ul><li>reference / operation</li><li>reader / writer</li><li>interpretation / execution</li><li>distance / participation</li></ul></div><div><h4>Scenes</h4><ul><li>the codex margin</li><li>the hypertext link</li><li>the command line</li><li>the prompt box</li><li>the image that changes when described</li></ul></div><div><h4>Methods</h4><ul><li>genealogy</li><li>close reading</li><li>software studies</li><li>interface archaeology</li><li>operative experiments</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1950s–1970s</td><td><strong>Performativity and open textuality</strong><br><span>Austin, Barthes, Eco</span></td><td>Language and reading become acts rather than passive reception.</td><td><span class='weight'>83</span></td></tr><tr><td>1940s–1990s</td><td><strong>Hypertext and traversal</strong><br><span>Bush, Nelson, Landow</span></td><td>Sequence becomes navigable; the reader acquires procedural agency.</td><td><span class='weight'>88</span></td></tr><tr><td>1990s–2010s</td><td><strong>Cybertext and software studies</strong><br><span>Aarseth, Hayles, Manovich, Galloway</span></td><td>Text becomes a machine whose rules shape possible readings.</td><td><span class='weight'>94</span></td></tr><tr><td>2020s</td><td><strong>Cross-conditioned worldtexts</strong><br><span>multimodal generative systems</span></td><td>Description enters production and the stable distance of interpretation collapses.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>statement → speech act: language gains causal force.</li><li>page → traversal system: reading becomes navigation through programmed possibility.</li><li>cybertext → generative worldtext: the operator does not only traverse the object but perturbs its production.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Comparative interfaces, revision histories, word-image perturbation studies, hypertext maps, and moments where a descriptive change alters the generated referent.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Home fields</span><p>literary theory; media archaeology; software studies; digital rhetoric</p></div><div class='fact'><span>Key vocabulary</span><p>performativity; traversal; inscription; protocol; cross-conditioning; operative language</p></div><div class='fact'><span>Archives / objects</span><p>codices; hypertexts; interactive fiction; command interfaces; prompt-image pairs</p></div><div class='fact'><span>Explanatory pressure</span><p>explain how symbolic interpretation becomes technical intervention</p></div><div class='fact'><span>Adversaries</span><p>content-only readings; the belief that prompts are external captions</p></div><div class='fact'><span>Possible synthesis</span><p>Austin + Aarseth + Hayles as a theory of language that operates worlds</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>The object changes under the act that claims merely to read it.</p></div><div class='fact'><span>Method logic</span><p>Trace operations hidden inside acts of description and interpretation.</p></div><div class='fact'><span>Scale logic</span><p>word → interface gesture → generative apparatus</p></div><div class='fact'><span>Epistemic logic</span><p>to understand the text is to reconstruct what it lets an operator do.</p></div><div class='fact'><span>Political logic</span><p>operability reallocates authorship while concealing who designed the available actions.</p></div><div class='fact'><span>Intervention logic</span><p>name worldtext as an interpretable, editable, multi-state, explorable object.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Construct a genealogy of operative reading from Austin’s speech acts and Barthes’s writerly text through Bush, Nelson, Aarseth, Hayles, and software studies. Use one multimodal generation sequence as the contemporary archive: show how a phrase first appears to describe an image, then alters its production, then changes the operator’s subsequent language. Distinguish reference, traversal, execution, and cross-conditioning at every stage. Ask what critical distance survives when interpretation is also an input channel. The intervention should define worldtext as the object that is read by being operated and operated by being read.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#operative-language</span><span class="chip">#cybertext-lineage</span><span class="chip">#reader-writer-collapse</span><span class="chip">#protocol-reading</span><span class="chip">#worldtext-genealogy</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-3">
+      <div class="chapter-head">
+        <div class="chapter-number">03</div>
+        <div>
+          <p class="eyebrow">CHAPTER 3 · CODE &amp; MATH</p>
+          <h2>The Method</h2>
+          <p class="subtitle">Thick Prompting</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>A prompt is an incomplete specification completed by learned priors; controlled perturbation and captured run state reveal what remains invariant or drifts.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Code &amp; Math
+        <span>Secondary pressure: Experimental method</span></div>
+        <p class="why">The chapter’s core claims concern representation, reproducibility, experimental control, confounding, and perturbation. Its strongest lineage is formal and methodological.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>R. A. Fisher — experimental design: isolate effects through controlled variation.</li><li>George Box — models and iterative experimentation: useful approximations must be tested, not worshiped.</li><li>Bayesian inference — priors complete underdetermined evidence.</li><li>Software configuration management — reproducibility depends on versions, state, and dependency capture.</li><li>D’Amour et al. — underspecification in machine learning: many models satisfy the same observed objective while behaving differently.</li><li>Prompt programming and in-context learning — natural language becomes a soft control surface.</li><li>Reproducibility and model-card traditions — claims require documented conditions and limitations.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Which parts of an output come from the instruction and which from priors?</li><li>What survives a one-variable change?</li><li>What must be captured for a claim to be rerun?</li></ul></div><div><h4>Representations</h4><ul><li>run tuple (model, prompt, seed, parameters, output)</li><li>perturbation graph</li><li>difference matrix</li><li>failure taxonomy</li></ul></div><div><h4>Invariants</h4><ul><li>one independent variable changes per comparison</li><li>run metadata remains fixed</li><li>evaluation target is declared before inspection</li></ul></div><div><h4>Bottlenecks</h4><ul><li>model nondeterminism</li><li>version drift</li><li>confounded prompt edits</li><li>subjective similarity judgments</li></ul></div><div><h4>Failed</h4><ul><li>prompt folklore without logs</li><li>single-run interpretation</li><li>seed worship that ignores model and version changes</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1920s–1970s</td><td><strong>Designed experiments</strong><br><span>Fisher, Box</span></td><td>Causal claims depend on controlled perturbation and explicit error.</td><td><span class='weight'>86</span></td></tr><tr><td>1970s–2000s</td><td><strong>Reproducible computation</strong><br><span>version control, literate programming, configuration capture</span></td><td>The experimental object expands to include code, dependencies, and environment.</td><td><span class='weight'>82</span></td></tr><tr><td>2010s</td><td><strong>ML credibility and underspecification</strong><br><span>benchmarking, model cards, D’Amour et al.</span></td><td>Equivalent scores conceal divergent internal and downstream behavior.</td><td><span class='weight'>95</span></td></tr><tr><td>2020s</td><td><strong>Prompt-based control</strong><br><span>foundation-model interfaces</span></td><td>Natural-language specifications become experiments whose missing clauses are filled by priors.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>natural-language instruction → experimental variable: prompting becomes testable rather than mystical.</li><li>seed-only reproducibility → full run capture: the reproducible unit becomes the entire configuration.</li><li>output critique → perturbation catalog: interpretation becomes a structured study of compliance, drift, substitution, and failure.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Run records, parameter manifests, controlled prompt families, blinded comparisons, inter-rater agreement, and longitudinal reruns across model versions.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Primitive objects</span><p>prompt clauses; seeds; parameter vectors; outputs; annotations</p></div><div class='fact'><span>Transformation rules</span><p>perturb one clause; hold configuration; rerun; compare; classify</p></div><div class='fact'><span>Success pressures</span><p>reproducibility; interpretability; low confounding; useful failure categories</p></div><div class='fact'><span>Proof / evaluation logic</span><p>replication across seeds, raters, and model versions; preregistered comparisons</p></div><div class='fact'><span>Risks</span><p>API drift; hidden safety layers; cherry-picked outputs; semantic confounds; evaluator fatigue</p></div><div class='fact'><span>Mitigations</span><p>content hashes; environment manifests; pairwise blinded review; perturbation budgets; automatic diff summaries</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>The model completes missing intention from priors acquired elsewhere.</p></div><div class='fact'><span>Representation logic</span><p>The irreducible unit is the run tuple, not the prose prompt.</p></div><div class='fact'><span>Invariant logic</span><p>Only the designated variable may change within a comparison.</p></div><div class='fact'><span>Method logic</span><p>Perturb, rerun, compare, classify, and preserve the complete lineage.</p></div><div class='fact'><span>Evaluation logic</span><p>Measure compliance, drift, substitution, brittleness, and reproducibility.</p></div><div class='fact'><span>Intervention logic</span><p>Turn prompting into an auditable experimental practice.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Design a thick-prompting laboratory around the run tuple (model, conditioning, seed, parameters, output). Represent a prompt as clauses in a perturbation graph, then change exactly one clause per experimental family while holding the rest of the configuration fixed. Borrow Fisher’s discipline of controlled comparison, Box’s iterative skepticism, and the ML literature on underspecification. Build a reproducible recorder, a blinded pairwise evaluator, and a taxonomy for invariant, brittle, substituted, and failed properties. Test the system across seeds and model versions, explicitly treating version drift and hidden platform mediation as threats to validity.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#controlled-perturbation</span><span class="chip">#run-reproducibility</span><span class="chip">#underspecification</span><span class="chip">#prompt-experiments</span><span class="chip">#failure-taxonomy</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-4">
+      <div class="chapter-head">
+        <div class="chapter-number">04</div>
+        <div>
+          <p class="eyebrow">CHAPTER 4 · CODE &amp; MATH</p>
+          <h2>Composition</h2>
+          <p class="subtitle">The Writable Image</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Text-to-image composition is a joint-constraint problem in which locally plausible objects often survive while relations, causality, cardinality, and identity fail.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Code &amp; Math
+        <span>Secondary pressure: Visual culture</span></div>
+        <p class="why">The binding gap is best understood through representations, constraints, attention, scene graphs, and generate-check-repair loops, while visual theory explains why local plausibility remains persuasive.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Gotthold Ephraim Lessing — Laocoön: media differ in how they organize spatial and temporal relations.</li><li>W. J. T. Mitchell — word–image relations exceed simple illustration.</li><li>Anne Treisman — feature integration: binding attributes into coherent objects is a distinct problem.</li><li>Scene graphs and visual relationship detection — images represented as objects, attributes, and relations.</li><li>CLIP and contrastive vision-language models — language and images share a learned alignment space.</li><li>Diffusion models and classifier-free guidance — images emerge through iterative stochastic denoising under conditioning.</li><li>ControlNet, masks, and spatial conditioning — auxiliary structures attempt to stabilize composition.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Why do correct parts fail to compose into a correct whole?</li><li>Which relations are most brittle?</li><li>How can a writable image expose its unmet constraints?</li></ul></div><div><h4>Representations</h4><ul><li>typed scene graph</li><li>constraint set</li><li>mask stack</li><li>identity ledger</li><li>render–parse comparison</li></ul></div><div><h4>Invariants</h4><ul><li>object count</li><li>attribute ownership</li><li>spatial relation</li><li>identity persistence</li><li>causal direction</li></ul></div><div><h4>Bottlenecks</h4><ul><li>attention binding</li><li>relational complexity</li><li>text encoder compression</li><li>weak spatial grounding</li></ul></div><div><h4>Failed</h4><ul><li>longer prompts as universal cure</li><li>negative prompts without explicit structure</li><li>judging only surface plausibility</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1760s–1980s</td><td><strong>Word–image distinction and binding</strong><br><span>Lessing, semiotics, Treisman</span></td><td>Composition is recognized as a problem of relations, not only elements.</td><td><span class='weight'>77</span></td></tr><tr><td>1990s–2010s</td><td><strong>Structured vision</strong><br><span>object detection, scene graphs, visual relationships</span></td><td>Images become parsable into entities and predicates.</td><td><span class='weight'>88</span></td></tr><tr><td>2010s–early 2020s</td><td><strong>Joint embedding and generative synthesis</strong><br><span>CLIP, GANs, diffusion</span></td><td>Language steers appearance through learned statistical alignment.</td><td><span class='weight'>96</span></td></tr><tr><td>2020s</td><td><strong>Controllable generation</strong><br><span>guidance, masks, adapters, ControlNet</span></td><td>External structure is reintroduced to repair weak relational control.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>ekphrasis → conditioning: words move from representing images to helping produce them.</li><li>bag of attributes → scene graph: compositional meaning is relocated into explicit relations.</li><li>single-pass generation → generate-parse-repair: authorship becomes iterative constraint management.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Prompt-scene graphs, generated image sets, relation-level annotations, parse mismatches, repair histories, and complexity-stratified pass rates.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Primitive objects</span><p>entities; attributes; predicates; masks; latent states</p></div><div class='fact'><span>Transformation rules</span><p>encode → denoise → parse → compare → repair</p></div><div class='fact'><span>Success pressures</span><p>joint satisfaction; spatial fidelity; identity preservation; editable control</p></div><div class='fact'><span>Evaluation logic</span><p>object, attribute, relation, count, and causality pass rates reported separately</p></div><div class='fact'><span>Risks</span><p>parser agreement mistaken for truth; constraint conflicts; overfitting to benchmark grammars</p></div><div class='fact'><span>Mitigations</span><p>human adjudication; counterexample suites; explicit uncertainty; layered control signals</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>The model satisfies visible nouns and adjectives while dropping the relations that made the described world itself.</p></div><div class='fact'><span>Representation logic</span><p>Encode the requested image as a typed graph, not a prose string alone.</p></div><div class='fact'><span>Invariant logic</span><p>Every required entity, attribute, relation, count, and identity must remain inspectable.</p></div><div class='fact'><span>Method logic</span><p>Generate, parse, compare to constraints, localize failure, and repair.</p></div><div class='fact'><span>Evaluation logic</span><p>Separate local plausibility from global consistency.</p></div><div class='fact'><span>Intervention logic</span><p>Make the binding gap editable rather than mystifying.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Build a writable-image compositor that compiles prose into a typed scene graph of entities, attributes, cardinalities, spatial predicates, and causal relations. Condition a diffusion model with text, masks, and spatial controls, then parse each result back into the same graph and compute relation-level failures. Draw on Treisman’s binding problem, scene-graph vision, and contemporary controllable generation, but refuse surface plausibility as the sole metric. Add a repair loop that targets only failed predicates while protecting already satisfied invariants. Evaluate performance as relational complexity rises and publish separate pass rates for objects, attributes, counts, identity, space, and causality.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#binding-gap</span><span class="chip">#scene-graph-composition</span><span class="chip">#generate-check-repair</span><span class="chip">#relational-fidelity</span><span class="chip">#writable-image</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-5">
+      <div class="chapter-head">
+        <div class="chapter-number">05</div>
+        <div>
+          <p class="eyebrow">CHAPTER 5 · CODE &amp; MATH</p>
+          <h2>Assembly Is Sampling</h2>
+          <p class="subtitle">The River That Refills</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Generative editing replaces a fixed corpus with a resamplable distribution, turning montage into stochastic search through an expanding derivation graph.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Code &amp; Math
+        <span>Secondary pressure: Film and media theory</span></div>
+        <p class="why">The chapter joins montage theory to sampling algorithms, search, state machines, and provenance. The decisive problem is how to steer an expanding formal space without losing legibility.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Lev Kuleshov and Sergei Eisenstein — montage: meaning emerges through selection and juxtaposition.</li><li>Dziga Vertov — the archive and apparatus as active constructors of cinematic reality.</li><li>Lev Manovich — database cinema: sequence is selected from a structured collection.</li><li>Monte Carlo methods — approximate exploration through repeated sampling.</li><li>Markov-chain and sequential decision models — current state shapes the next draw.</li><li>Evolutionary search and quality-diversity algorithms — candidate populations are generated, selected, and mutated.</li><li>Mixed-initiative creativity research — humans and systems alternate proposal, evaluation, and revision.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>What is editing when material is generated during the edit?</li><li>How does a maker know where a sequence came from?</li><li>When should sampling stop?</li></ul></div><div><h4>Representations</h4><ul><li>derivation DAG</li><li>candidate pool</li><li>state machine</li><li>selection ledger</li><li>attention budget</li></ul></div><div><h4>Invariants</h4><ul><li>every accepted shot has a parent lineage</li><li>selection criteria are recorded</li><li>sampling budget is bounded</li><li>sequence order is recoverable</li></ul></div><div><h4>Bottlenecks</h4><ul><li>combinatorial explosion</li><li>path dependence</li><li>opaque memory</li><li>curator fatigue</li></ul></div><div><h4>Failed</h4><ul><li>infinite rerolling</li><li>flat galleries without lineage</li><li>final sequences detached from rejected alternatives</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1910s–1930s</td><td><strong>Montage as constructive selection</strong><br><span>Kuleshov, Eisenstein, Vertov</span></td><td>Editing is understood as the production of meaning through ordered cuts.</td><td><span class='weight'>82</span></td></tr><tr><td>1960s–2000s</td><td><strong>Database and nonlinear editing</strong><br><span>digital NLEs, Manovich</span></td><td>The archive becomes addressable, searchable, and recombinable.</td><td><span class='weight'>88</span></td></tr><tr><td>1940s–2010s</td><td><strong>Sampling and search</strong><br><span>Monte Carlo, evolutionary computation</span></td><td>Selection navigates spaces too large for exhaustive inspection.</td><td><span class='weight'>90</span></td></tr><tr><td>2020s</td><td><strong>Generative assembly</strong><br><span>video and image generation pipelines</span></td><td>The corpus is created in response to editorial decisions and refills behind them.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>fixed footage → addressable database: editing gains random access.</li><li>database → distribution: unseen material can be produced on demand.</li><li>timeline → derivation graph: the work includes the branches, rejections, and state transitions that made the cut.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Variant families, edit histories, branch graphs, time-to-selection logs, rejected-shot clusters, and comparisons between fixed-corpus and resamplable editing.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Primitive objects</span><p>shots; variants; states; branches; scores; selections</p></div><div class='fact'><span>Transformation rules</span><p>draw → inspect → select/reject → mutate conditioning → redraw</p></div><div class='fact'><span>Success pressures</span><p>narrative coherence; diversity; bounded search; recoverable lineage</p></div><div class='fact'><span>Evaluation logic</span><p>sequence quality plus reconstructability, search cost, and discarded-branch visibility</p></div><div class='fact'><span>Risks</span><p>selection bias; endless search; accidental coherence; hidden auto-ranking</p></div><div class='fact'><span>Mitigations</span><p>sampling budgets; branch summaries; explicit stop rules; state visualization; reversible decisions</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>The archive expands faster than the editor can understand it.</p></div><div class='fact'><span>Representation logic</span><p>Assembly is a stochastic state machine recorded as a derivation graph.</p></div><div class='fact'><span>Invariant logic</span><p>Every visible cut retains its generative and editorial ancestry.</p></div><div class='fact'><span>Method logic</span><p>Sample under budget, summarize branches, expose state, and preserve reversibility.</p></div><div class='fact'><span>Evaluation logic</span><p>Judge both the sequence and the legibility of how it came to be.</p></div><div class='fact'><span>Intervention logic</span><p>Build an editor that makes steering visible while the river refills.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Design a generative editing engine in which each shot is a node in a derivation DAG rather than an isolated file. Combine montage theory with Monte Carlo search and mixed-initiative creativity: the system proposes bounded variant sets, the maker selects or rejects, and each decision updates the next sampling distribution. Record criteria, state changes, rejected branches, and stopping conditions. Visualize both the linear cut and the expanding search history, allowing any accepted choice to be reversed without erasing its descendants. Evaluate narrative coherence together with search cost, branch diversity, curator fatigue, and reconstructability.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#generative-montage</span><span class="chip">#derivation-graph</span><span class="chip">#bounded-sampling</span><span class="chip">#mixed-initiative-editing</span><span class="chip">#legible-search</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-6">
+      <div class="chapter-head">
+        <div class="chapter-number">06</div>
+        <div>
+          <p class="eyebrow">CHAPTER 6 · CODE &amp; MATH</p>
+          <h2>The World That Remembers</h2>
+          <p class="subtitle">The Stranger I Marry Each Morning</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>A persistent world is not a sequence of similar images but a state-transition system that externally carries facts, identities, and consequences across generation calls.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Code &amp; Math
+        <span>Secondary pressure: Narrative systems</span></div>
+        <p class="why">The chapter is centered on state, persistence, identity, event history, and causal consistency. These are formal architecture problems with narrative consequences.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Finite-state machines and Markov models — worlds represented as states and transitions.</li><li>David Harel — statecharts: hierarchical and concurrent state made legible.</li><li>Database transactions and event sourcing — current state is reconstructed from durable events.</li><li>Version control — identity persists through diffs, branches, and merges.</li><li>Object-oriented identity and the Memento pattern — objects preserve recoverable state.</li><li>Memory-augmented neural networks and retrieval systems — external memory supplements bounded model context.</li><li>World-model research — agents predict transitions inside compressed environment representations.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Which facts constitute the same world?</li><li>How should consequences persist?</li><li>What happens when stored memory conflicts with a new generation?</li></ul></div><div><h4>Representations</h4><ul><li>world-state schema</li><li>event log</li><li>identity registry</li><li>scene graph</li><li>constraint ledger</li><li>context compiler</li></ul></div><div><h4>Invariants</h4><ul><li>stable entity IDs</li><li>monotonic consequences unless explicitly reversed</li><li>causal ordering</li><li>declared uncertainty</li><li>conflict visibility</li></ul></div><div><h4>Bottlenecks</h4><ul><li>context limits</li><li>stale retrieval</li><li>contradictory memories</li><li>state growth</li><li>implicit identity drift</li></ul></div><div><h4>Failed</h4><ul><li>repeating prose summaries</li><li>visual similarity as continuity</li><li>letting the model silently overwrite the past</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1930s–1970s</td><td><strong>State and transition formalisms</strong><br><span>automata, Markov models</span></td><td>Continuity becomes a relation between explicit states.</td><td><span class='weight'>82</span></td></tr><tr><td>1970s–2000s</td><td><strong>Persistent software systems</strong><br><span>databases, transactions, statecharts, version control</span></td><td>Facts, events, and identities become durable and recoverable.</td><td><span class='weight'>92</span></td></tr><tr><td>2000s–2010s</td><td><strong>Interactive narrative and world models</strong><br><span>game engines, planning, learned dynamics</span></td><td>State persistence becomes the condition of consequence in simulated worlds.</td><td><span class='weight'>87</span></td></tr><tr><td>2020s</td><td><strong>External memory for generative systems</strong><br><span>RAG, memory agents, long-context models</span></td><td>The model’s apparent world is only as stable as the context assembled around each call.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>similar scene → same state: continuity is redefined as preserved facts.</li><li>summary memory → event ledger: the past becomes reconstructable rather than rhetorically restated.</li><li>context injection → state compiler: only relevant facts are selected, checked, and supplied for each generation.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>State snapshots, event logs, generated scenes, contradiction reports, identity tests, and counterfactual continuations with and without external memory.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Primitive objects</span><p>entities; facts; events; constraints; references; timestamps</p></div><div class='fact'><span>Transformation rules</span><p>assert → validate → commit → retrieve → compile context → generate → reconcile</p></div><div class='fact'><span>Success pressures</span><p>causal consistency; identity stability; bounded context; recoverability</p></div><div class='fact'><span>Evaluation logic</span><p>continuity tests, contradiction rate, consequence persistence, and identity drift</p></div><div class='fact'><span>Risks</span><p>false memory; privacy leakage; stale state; irreversible corruption; runaway storage</p></div><div class='fact'><span>Mitigations</span><p>typed facts; provenance; conflict resolution; snapshots; retention policies; human override</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>Stateless generation supplies the next plausible moment instead of the same world.</p></div><div class='fact'><span>Representation logic</span><p>World = typed state plus ordered events plus identity constraints.</p></div><div class='fact'><span>Invariant logic</span><p>A committed consequence persists until an explicit event changes it.</p></div><div class='fact'><span>Method logic</span><p>Compile relevant state into context, generate, parse changes, and reconcile them against the ledger.</p></div><div class='fact'><span>Evaluation logic</span><p>Test causal continuity rather than visual resemblance alone.</p></div><div class='fact'><span>Intervention logic</span><p>Treat memory as the constitutive infrastructure of worldhood.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Architect a persistent generative world around an event-sourced state ledger. Give every entity a durable identity, every change a typed event, and every consequence an explicit rule for persistence or reversal. Before each generation, compile only the relevant state and constraints into context; afterward, parse proposed changes and reconcile them against causal order, identity, and prior commitments. Draw on statecharts, database transactions, version control, and memory-augmented models. Evaluate the system with contradiction suites, delayed-consequence tests, identity stress tests, and counterfactual branches, while keeping conflict and uncertainty visible to the operator.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#event-sourced-worlds</span><span class="chip">#stateful-generation</span><span class="chip">#identity-persistence</span><span class="chip">#causal-memory</span><span class="chip">#world-ledger</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-7">
+      <div class="chapter-head">
+        <div class="chapter-number">07</div>
+        <div>
+          <p class="eyebrow">CHAPTER 7 · RESEARCH &amp; DEVELOPMENT</p>
+          <h2>Legible Mechanisms</h2>
+          <p class="subtitle">Provenance</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>A persuasive generative artifact needs deployable lineage infrastructure that records enough of its partial history to support doubt, audit, attribution, and repair.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Research &amp; Development
+        <span>Secondary pressure: Archival theory and data infrastructure</span></div>
+        <p class="why">Provenance becomes meaningful only when translated from archival principle into interoperable logs, manifests, user interfaces, governance thresholds, and operational adoption.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Archival diplomatics — authenticity established through records, custody, and document relations.</li><li>Forensic chain of custody — evidence remains contestable only when handling is documented.</li><li>Version control and build systems — artifacts inherit inspectable dependency and revision graphs.</li><li>Scientific reproducibility — claims require methods, materials, and transformations to be recorded.</li><li>W3C PROV and data-lineage systems — entities, activities, and agents represented in interoperable graphs.</li><li>Model Cards and Datasheets for Datasets — system and dataset histories become documentation obligations.</li><li>Content credentials, signed manifests, and software bills of materials — provenance enters deployment and supply-chain security.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Problems</h4><ul><li>seamless outputs conceal heterogeneous contributions</li><li>sampling and human selection are incompletely logged</li><li>users cannot tell what can be reconstructed</li></ul></div><div><h4>Bottlenecks</h4><ul><li>instrumentation overhead</li><li>privacy and trade-secret conflicts</li><li>incompatible schemas</li><li>false confidence from partial records</li></ul></div><div><h4>Failed</h4><ul><li>flat metadata panels</li><li>unsigned self-reporting</li><li>logs no human can interpret</li><li>provenance treated as binary presence/absence</li></ul></div><div><h4>Stakeholders</h4><ul><li>makers</li><li>auditors</li><li>publishers</li><li>affected communities</li><li>platform operators</li><li>regulators</li></ul></div><div><h4>Constraints</h4><ul><li>storage cost</li><li>latency</li><li>privacy</li><li>security</li><li>interoperability</li><li>human comprehension</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>pre-digital–1980s</td><td><strong>Custody and documentary authenticity</strong><br><span>archives, law, forensics</span></td><td>Trust depends on recorded relations among object, handler, and institution.</td><td><span class='weight'>77</span></td></tr><tr><td>1980s–2000s</td><td><strong>Versioned software and data lineage</strong><br><span>source control, build graphs, databases</span></td><td>Artifacts become reconstructable dependency networks.</td><td><span class='weight'>88</span></td></tr><tr><td>2010s</td><td><strong>Responsible documentation</strong><br><span>model cards, datasheets, reproducibility checklists</span></td><td>Technical systems acquire narrative accounts of scope and limitation.</td><td><span class='weight'>92</span></td></tr><tr><td>2020s</td><td><strong>Signed generative provenance</strong><br><span>content credentials, manifests, AI supply-chain tooling</span></td><td>Lineage becomes an interoperability, authenticity, and contestability problem.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>document custody → computational dependency graph: provenance scales from objects to pipelines.</li><li>complete record ideal → reconstructability score: partial lineage is measured rather than denied.</li><li>backend logging → contestability interface: records are translated into decisions ordinary users can question.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Pipeline traces, manifests, content hashes, user selection events, reconstruction exercises, red-team tampering, and interviews with auditors and creators.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Unmet needs</span><p>know which stages are logged; locate missing edges; distinguish story from run record</p></div><div class='fact'><span>Leverage points</span><p>automatic instrumentation; signed stage manifests; human-selection capture; comprehensible lineage views</p></div><div class='fact'><span>Wedge prototype</span><p>a provenance viewer that computes reconstructability and reveals the first unlogged consequential decision</p></div><div class='fact'><span>Evaluation</span><p>edge coverage; tamper evidence; reconstruction success; audit time; user calibration of trust</p></div><div class='fact'><span>Adoption barriers</span><p>workflow friction; liability fears; vendor lock-in; privacy exposure; schema fragmentation</p></div><div class='fact'><span>Scale path</span><p>local creative tool → platform API → cross-platform manifest and audit service</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Core problem logic</span><p>Smoothness increases persuasion while swallowing the history required for doubt.</p></div><div class='fact'><span>Hypothesis logic</span><p>Contestability improves when consequential stages are logged, signed, and translated into a legible graph.</p></div><div class='fact'><span>Prototype logic</span><p>Instrument one generative workflow end to end, then expose missing edges rather than hiding them.</p></div><div class='fact'><span>Risk logic</span><p>A partial record can become a misleading certificate of completeness.</p></div><div class='fact'><span>Iteration logic</span><p>Use failed reconstructions and user misunderstandings to prioritize the next captured edge.</p></div><div class='fact'><span>Intervention logic</span><p>Set a practical threshold at which an artifact becomes sufficiently reconstructable to contest.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Develop a provenance system that treats lineage as partial by construction rather than as a binary certificate. Instrument instruction, retrieval, model version, seed, parameters, automated transforms, human selections, and publication events; sign what can be signed and mark what cannot be recovered. Represent the result as an entity–activity–agent graph inspired by archival custody, W3C PROV, version control, and content credentials. Build a viewer that separates the maker’s narrative from the run record and computes a reconstructability score weighted by consequential missing edges. Test tamper resistance, reconstruction success, audit time, privacy cost, and whether users calibrate trust more accurately instead of merely trusting the badge.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#provenance-infrastructure</span><span class="chip">#reconstructability</span><span class="chip">#contestable-artifacts</span><span class="chip">#signed-lineage</span><span class="chip">#audit-interface</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-8">
+      <div class="chapter-head">
+        <div class="chapter-number">08</div>
+        <div>
+          <p class="eyebrow">CHAPTER 8 · CODE &amp; MATH</p>
+          <h2>Legal Worlds</h2>
+          <p class="subtitle">Constraint and Verification</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>A world becomes legally buildable only when perceptual output is translated into symbolic structure and tested against explicit constraints by a verifier with known coverage.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Code &amp; Math
+        <span>Secondary pressure: Design and formal methods</span></div>
+        <p class="why">The distinction between looking valid and being valid belongs directly to type systems, grammars, solvers, model checking, simulation, and proof obligations.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Formal grammars — valid structures generated from explicit production rules.</li><li>C. A. R. Hoare and Edsger Dijkstra — program correctness expressed through assertions and disciplined construction.</li><li>Curry–Howard correspondence and type systems — propositions become types and valid constructions become proofs.</li><li>SAT/SMT solving — complex constraint sets become mechanically checkable.</li><li>Model checking — finite systems are exhaustively tested against temporal properties.</li><li>CAD, physics simulation, and digital twins — geometry must survive executable material constraints.</li><li>Grammar-constrained and neuro-symbolic generation — learned proposal is coupled to symbolic validity.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Which claims can the checker actually validate?</li><li>How is an image parsed into executable structure?</li><li>How should a failed candidate be repaired?</li></ul></div><div><h4>Representations</h4><ul><li>abstract syntax tree</li><li>typed scene graph</li><li>constraint set</li><li>solver model</li><li>simulation state</li><li>proof report</li></ul></div><div><h4>Invariants</h4><ul><li>well-typed structure</li><li>resource bounds</li><li>connectivity</li><li>collision and support rules</li><li>declared verifier coverage</li></ul></div><div><h4>Bottlenecks</h4><ul><li>perception-to-symbol translation</li><li>solver complexity</li><li>incomplete physics</li><li>specification errors</li></ul></div><div><h4>Failed</h4><ul><li>visual inspection as validation</li><li>opaque pass/fail badges</li><li>unbounded verifier claims</li><li>regeneration without localized repair</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>1950s–1980s</td><td><strong>Formal language and program correctness</strong><br><span>grammars, Hoare logic, Dijkstra</span></td><td>Validity becomes a property of explicit structure and proof obligations.</td><td><span class='weight'>88</span></td></tr><tr><td>1970s–2000s</td><td><strong>Automated constraint solving</strong><br><span>SAT, SMT, model checking</span></td><td>Large rule systems become mechanically testable within bounded domains.</td><td><span class='weight'>94</span></td></tr><tr><td>1980s–2010s</td><td><strong>Executable design</strong><br><span>CAD, simulation, digital engineering</span></td><td>Visual form is coupled to material, geometric, and operational constraints.</td><td><span class='weight'>89</span></td></tr><tr><td>2020s</td><td><strong>Neuro-symbolic generate-and-check</strong><br><span>constrained decoding, learned proposals, verifier loops</span></td><td>Generative systems propose candidates while formal tools reject or repair them.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>image → symbolic parse: plausibility is translated into testable claims.</li><li>generator → generator-plus-verifier: invention and judgment become separate modules.</li><li>global rejection → localized repair: failed constraints identify where regeneration should intervene.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Generated candidates, symbolic parses, solver traces, simulation failures, counterexamples, repaired outputs, and coverage reports.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Primitive objects</span><p>symbols; types; constraints; proofs; counterexamples; repair patches</p></div><div class='fact'><span>Transformation rules</span><p>generate → parse → type-check → solve/simulate → counterexample → repair</p></div><div class='fact'><span>Success pressures</span><p>soundness; coverage; tractability; explainable failure; executable validity</p></div><div class='fact'><span>Evaluation logic</span><p>three-level pass rates for perception, symbolic structure, and execution</p></div><div class='fact'><span>Risks</span><p>unsound parser; incomplete specification; verifier gaming; combinatorial blowup</p></div><div class='fact'><span>Mitigations</span><p>coverage declarations; adversarial counterexamples; independent simulators; proof-carrying outputs</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>The eye accepts structures whose hidden relations cannot work.</p></div><div class='fact'><span>Representation logic</span><p>Convert surfaces into typed executable descriptions.</p></div><div class='fact'><span>Invariant logic</span><p>Every required rule must be represented and checked within an explicit coverage boundary.</p></div><div class='fact'><span>Method logic</span><p>Separate proposal, parsing, validation, counterexample generation, and repair.</p></div><div class='fact'><span>Evaluation logic</span><p>Report where failure enters: perception, translation, constraint, or execution.</p></div><div class='fact'><span>Intervention logic</span><p>Give invention a shared world in which it can be demonstrably wrong.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Create a generate–parse–validate–repair architecture for legal worlds. Let a learned model propose a surface, compile that surface into a typed symbolic structure, and test it with grammar checks, SMT constraints, and domain simulation. Borrow from Hoare logic, model checking, CAD, and neuro-symbolic systems, but require the verifier to publish its coverage and blind spots. Return counterexamples that localize failed relations and drive targeted repair rather than indiscriminate regeneration. Evaluate perceptual plausibility, parse fidelity, symbolic validity, and executable success as separate layers, including adversarial cases designed to fool the checker.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#formal-worlds</span><span class="chip">#generate-and-verify</span><span class="chip">#constraint-solving</span><span class="chip">#proof-carrying-design</span><span class="chip">#verifier-coverage</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-9">
+      <div class="chapter-head">
+        <div class="chapter-number">09</div>
+        <div>
+          <p class="eyebrow">CHAPTER 9 · LITERATURE / ACADEMIA</p>
+          <h2>Misreading as Material</h2>
+          <p class="subtitle">The Label in a Costume</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Classification does not discover inner states in signals; it constructs categories, operationalizes them through decision boundaries, and attaches material consequences to uncertain interpretations.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Literature / Academia
+        <span>Secondary pressure: Critical technical practice</span></div>
+        <p class="why">The chapter’s center is not classifier mechanics alone but the genealogy and politics of categories, the interpretation of persons, and the transformation of labels into consequences.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Michel Foucault — classification and examination as technologies of discipline.</li><li>Ian Hacking — “making up people”: classifications help produce the kinds they name.</li><li>Geoffrey Bowker and Susan Leigh Star — categories embed infrastructures, exclusions, and residual cases.</li><li>Stuart Hall — representation actively constructs meaning rather than reflecting it.</li><li>Donna Haraway — situated knowledge challenges the view from nowhere.</li><li>Joy Buolamwini and Timnit Gebru — Gender Shades: intersectional auditing exposes uneven error.</li><li>Ruha Benjamin, Virginia Eubanks, and Louise Amoore — automated judgment as racialized, institutional, and ethical ordering.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Who designed the category?</li><li>What evidence is mistaken for an inner state?</li><li>When does a label become contestable?</li></ul></div><div><h4>Conflicts</h4><ul><li>signal / interpretation</li><li>category / person</li><li>confidence / truth</li><li>visibility / consequence</li></ul></div><div><h4>Scenes</h4><ul><li>the anthropometric archive</li><li>the police file</li><li>the benchmark spreadsheet</li><li>the emotion dashboard</li><li>the gumball dispensed for a misread face</li></ul></div><div><h4>Methods</h4><ul><li>genealogy of classification</li><li>critical audit</li><li>ethnography</li><li>counterfactual testing</li><li>materialization and refusal</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>nineteenth–mid twentieth century</td><td><strong>Administrative classification</strong><br><span>statistics, policing, medicine, colonial archives</span></td><td>Institutions stabilize populations through categories and records.</td><td><span class='weight'>84</span></td></tr><tr><td>1950s–2000s</td><td><strong>Pattern recognition</strong><br><span>signal processing, psychometrics, computer vision</span></td><td>Classification is reframed as technical inference from measurable features.</td><td><span class='weight'>80</span></td></tr><tr><td>2010s</td><td><strong>Algorithmic accountability</strong><br><span>fairness research, Gender Shades, critical data studies</span></td><td>Error is shown to be unevenly distributed and institutionally consequential.</td><td><span class='weight'>96</span></td></tr><tr><td>2020s</td><td><strong>Materialized inference</strong><br><span>emotion AI, biometric systems, speculative design</span></td><td>Invisible labels are made tangible so their assumptions and harms can be refused.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>administrative category → learned decision boundary: institutional judgment is naturalized as model output.</li><li>accuracy aggregate → subgroup audit: performance is disaggregated across bodies and contexts.</li><li>dashboard label → material consequence: classification is studied where it touches access, treatment, and self-understanding.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Labeling manuals, confusion matrices, subgroup results, decision thresholds, interface screenshots, policy workflows, and embodied accounts of being misread.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Home fields</span><p>critical data studies; STS; media studies; feminist theory; HCI</p></div><div class='fact'><span>Key vocabulary</span><p>taxonomy; boundary; calibration; situatedness; performativity; refusal</p></div><div class='fact'><span>Archives / objects</span><p>training labels; benchmark taxonomies; biometric interfaces; policy documents; affected-person testimony</p></div><div class='fact'><span>Explanatory pressure</span><p>connect technical error to the social construction and institutional use of categories</p></div><div class='fact'><span>Adversaries</span><p>confidence-as-truth; universal emotion taxonomies; fairness reduced to one metric</p></div><div class='fact'><span>Possible synthesis</span><p>Hacking + Bowker/Star + Hall + intersectional auditing</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>A modeling choice is pressed onto a person and returned as if found there.</p></div><div class='fact'><span>Method logic</span><p>Trace the category from historical taxonomy through data labeling, boundary construction, interface display, and consequence.</p></div><div class='fact'><span>Scale logic</span><p>feature → label → workflow → institution → lived effect</p></div><div class='fact'><span>Epistemic logic</span><p>confidence measures model behavior, not access to another person’s interiority.</p></div><div class='fact'><span>Political logic</span><p>power enters through who defines categories and who must live under them.</p></div><div class='fact'><span>Intervention logic</span><p>materialize the inference so its boundary, uncertainty, and consequence become contestable.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Trace one apparently simple label—such as happy, risky, attentive, or suspicious—from its historical taxonomy through annotation guidelines, feature extraction, decision boundary, interface display, and institutional consequence. Read Foucault, Hacking, Bowker and Star, Hall, and intersectional audit work beside the system’s technical documentation. Treat confidence as a property of calibration rather than proof of inner truth. Combine subgroup testing with interviews and a material intervention that makes the label physically or procedurally consequential in public view. Ask not only whether the classifier is wrong, but what kind of person and institution its category helps produce.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#classification-politics</span><span class="chip">#situated-inference</span><span class="chip">#materialized-labels</span><span class="chip">#confidence-not-truth</span><span class="chip">#refusal-design</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-10">
+      <div class="chapter-head">
+        <div class="chapter-number">10</div>
+        <div>
+          <p class="eyebrow">CHAPTER 10 · LITERATURE / ACADEMIA</p>
+          <h2>Where Responsibility Goes</h2>
+          <p class="subtitle">The Grammar Where Guilt Hides</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Agency is distributed across initiation, generation, selection, authorization, interpretation, and harm, while pronouns and incomplete records selectively relocate responsibility.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Literature / Academia
+        <span>Secondary pressure: STS and governance</span></div>
+        <p class="why">The chapter asks how action is narrated and governed across sociotechnical seams. STS, moral philosophy, discourse analysis, and institutional process tracing are the strongest lineage.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Max Weber — ethics of responsibility: action must answer for foreseeable consequences.</li><li>Hannah Arendt — responsibility persists amid bureaucracy and collective systems.</li><li>J. L. Austin and Erving Goffman — utterance, footing, and pronoun position shape attributed agency.</li><li>Bruno Latour — action is distributed across human and nonhuman actors.</li><li>Lucy Suchman — situated action resists clean plans and singular authors.</li><li>Madeleine Elish — the moral crumple zone: humans absorb blame for complex automated systems.</li><li>Responsibility-gap and distributed-morality debates — automation complicates attribution without dissolving obligation.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Who initiated, selected, authorized, and benefited?</li><li>Why does praise invite ‘I’ while harm invokes ‘the model’?</li><li>Who bears effects without participating in authorship?</li></ul></div><div><h4>Conflicts</h4><ul><li>distributed agency / concentrated harm</li><li>shared making / shared answering</li><li>pronoun / process</li><li>authorship / authorization</li></ul></div><div><h4>Scenes</h4><ul><li>the prompt box</li><li>the approval meeting</li><li>the publication button</li><li>the incident review</li><li>the person facing the result alone</li></ul></div><div><h4>Methods</h4><ul><li>actor-network mapping</li><li>process tracing</li><li>discourse and pronoun analysis</li><li>responsibility matrices</li><li>institutional ethnography</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>early–mid twentieth century</td><td><strong>Bureaucracy and moral responsibility</strong><br><span>Weber, Arendt</span></td><td>Responsibility is tested against organizations that divide labor and obedience.</td><td><span class='weight'>82</span></td></tr><tr><td>1960s–1990s</td><td><strong>Speech, footing, and situated action</strong><br><span>Austin, Goffman, Suchman</span></td><td>Agency is located in performed positions and local interaction.</td><td><span class='weight'>84</span></td></tr><tr><td>1980s–2010s</td><td><strong>Distributed sociotechnical agency</strong><br><span>Latour, STS, distributed cognition</span></td><td>Action becomes an effect of heterogeneous relations rather than a single will.</td><td><span class='weight'>94</span></td></tr><tr><td>2010s–2020s</td><td><strong>Automation and responsibility gaps</strong><br><span>moral crumple zones, AI governance</span></td><td>Attribution asymmetry becomes an operational feature of automated institutions.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>individual intention → distributed action: authorship no longer explains the whole act.</li><li>distributed action → stage-specific obligation: responsibility is assigned to powers, choices, and foreseeable effects.</li><li>technical pipeline → grammatical alibi: pronoun shifts reveal how institutions claim success and externalize harm.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>Per-stage logs, decision rights, model outputs, human selections, deployment approvals, benefit flows, public explanations, and downstream effects.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Home fields</span><p>STS; moral philosophy; discourse studies; law and governance; HCI</p></div><div class='fact'><span>Key vocabulary</span><p>agency; authorization; attribution; footing; deniability; moral crumple zone</p></div><div class='fact'><span>Archives / objects</span><p>prompt logs; review records; approval chains; public statements; incident reports; affected-person testimony</p></div><div class='fact'><span>Explanatory pressure</span><p>retain distributed causation without allowing responsibility to evaporate</p></div><div class='fact'><span>Adversaries</span><p>single-author romanticism; ‘the algorithm did it’; blame assigned only to the final operator</p></div><div class='fact'><span>Possible synthesis</span><p>Latourian distribution plus Weberian answerability plus Goffmanian grammar</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>Labor is divided more cleanly than answerability.</p></div><div class='fact'><span>Method logic</span><p>Map every stage, power, decision, knowledge condition, benefit, and experienced effect.</p></div><div class='fact'><span>Scale logic</span><p>utterance → workflow → institution → public consequence</p></div><div class='fact'><span>Epistemic logic</span><p>attribution requires both process records and analysis of how the act is narrated.</p></div><div class='fact'><span>Political logic</span><p>deniability is produced where authority and logging are asymmetrically distributed.</p></div><div class='fact'><span>Intervention logic</span><p>replace the pronoun alibi with stage-specific attributable provenance and obligation.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Analyze one generative artifact as a distributed act rather than a single authored object. Reconstruct who initiated, configured, generated, selected, authorized, published, benefited, interpreted, and bore the effects, then compare that process map with the pronouns used in praise, marketing, apology, and incident review. Read Weber and Arendt beside Latour, Suchman, Goffman, and the moral-crumple-zone literature. Build a responsibility matrix based on decision power, knowledge, benefit, capacity to intervene, and exposure to harm. The intervention should preserve distributed causation while identifying stage-specific obligations that cannot be escaped by saying either “I made this” or “the model did that.”</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#distributed-agency</span><span class="chip">#pronoun-alibi</span><span class="chip">#stage-specific-duty</span><span class="chip">#moral-crumple-zone</span><span class="chip">#accountability-grammar</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+    <article class="chapter" id="chapter-11">
+      <div class="chapter-head">
+        <div class="chapter-number">11</div>
+        <div>
+          <p class="eyebrow">CHAPTER 11 · LITERATURE / ACADEMIA</p>
+          <h2>Worldtext as Medium</h2>
+          <p class="subtitle">Possibilities and Limits</p>
+        </div>
+        <a class="top-link" href="#top">TOP</a>
+      </div>
+
+      <div class="seed">
+        <p>Every worldtext affordance arrives coupled to a mechanism-specific refusal; understanding the medium means locating each power’s operational boundary without promising closure.</p>
+        <div class="engine-note"><strong>Primary encoder:</strong> Literature / Academia
+        <span>Secondary pressure: Philosophy of technology</span></div>
+        <p class="why">The final chapter synthesizes the preceding mechanisms into a philosophy of media limits. Its lineage is philosophical, genealogical, and therapeutic rather than solutionist.</p>
+      </div>
+
+      <details>
+        <summary>OPEN FULL LINEAGE</summary>
+        <div class="detail-body">
+          <section class="block">
+            <h3>Ancestral lineage</h3>
+            <ul><li>Immanuel Kant — critique as inquiry into the conditions and limits of possible experience.</li><li>Ludwig Wittgenstein — philosophical therapy returns us to recurring confusions rather than constructing total theory.</li><li>Martin Heidegger — technology discloses worlds while concealing its own mode of ordering.</li><li>Norbert Wiener and Gregory Bateson — feedback and difference define systems through relations and limits.</li><li>Marshall McLuhan — a medium’s form reorganizes perception and action beyond its content.</li><li>Gilbert Simondon and Don Ihde — technical objects and human–technology relations have specific modes of mediation.</li><li>Donna Haraway and Langdon Winner — situated knowledge and political artifacts prevent neutral, universal accounts.</li></ul>
+          </section>
+
+          <section class="block">
+            <h3>Origin conditions</h3>
+            <div class="origin-grid"><div><h4>Questions</h4><ul><li>Which mechanism grants each affordance?</li><li>What refusal is inseparable from that mechanism?</li><li>What kind of instrument remains expressive, operable, contestable, and accountable?</li></ul></div><div><h4>Conflicts</h4><ul><li>possibility / withdrawal</li><li>power / refusal</li><li>progress / recurrence</li><li>instrument / total theory</li></ul></div><div><h4>Scenes</h4><ul><li>the tree that will not bend</li><li>the checker that misses a rule</li><li>the memory re-supplied each morning</li><li>the smooth artifact with a swallowed past</li></ul></div><div><h4>Methods</h4><ul><li>critical synthesis</li><li>limit analysis</li><li>comparative mechanism mapping</li><li>philosophy of technology</li><li>design propositions without closure</li></ul></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Epochs of formation</h3>
+            <div class='table-wrap'><table><thead><tr><th>Period</th><th>Formation</th><th>Intellectual shift</th><th>Weight</th></tr></thead><tbody><tr><td>eighteenth–early twentieth century</td><td><strong>Critique and conditions of possibility</strong><br><span>Kant, Wittgenstein</span></td><td>Philosophy locates boundaries rather than claiming unconstrained access.</td><td><span class='weight'>81</span></td></tr><tr><td>1940s–1970s</td><td><strong>Cybernetics and media environments</strong><br><span>Wiener, Bateson, McLuhan</span></td><td>Capabilities are understood through feedback, relation, and environmental transformation.</td><td><span class='weight'>91</span></td></tr><tr><td>1950s–2000s</td><td><strong>Technical mediation</strong><br><span>Heidegger, Simondon, Ihde, Winner</span></td><td>Technologies disclose, shape, and politicize worlds.</td><td><span class='weight'>93</span></td></tr><tr><td>2020s</td><td><strong>Generative media limits</strong><br><span>world models, multimodal systems, governance debates</span></td><td>Readability, writability, memory, verification, and accountability expose paired refusals.</td><td><span class='weight'>100</span></td></tr></tbody></table></div>
+          </section>
+
+          <section class="block two">
+            <div>
+              <h3>Migration map</h3>
+              <ul><li>universal theory → situated mechanism: each limit is tied to how a specific capacity works.</li><li>affordance list → affordance/refusal pair: power and withdrawal are treated as one operation.</li><li>solutionism → contestable instrumentation: design aims for better conditions of inquiry rather than final closure.</li></ul>
+            </div>
+            <div>
+              <h3>Evidence stack</h3>
+              <p>A comparative matrix pairing each capability with its enabling mechanism, characteristic failure, affected party, and possible counter-instrument.</p>
+            </div>
+          </section>
+
+          <section class="block">
+            <h3>Lineage axis</h3>
+            <div class="facts"><div class='fact'><span>Home fields</span><p>media philosophy; philosophy of technology; STS; critical design</p></div><div class='fact'><span>Key vocabulary</span><p>affordance; refusal; mediation; boundary; situatedness; contestability</p></div><div class='fact'><span>Archives / objects</span><p>the ten preceding chapter mechanisms; interfaces; logs; verification reports; memory stores; responsibility maps</p></div><div class='fact'><span>Explanatory pressure</span><p>synthesize without erasing mechanism-specific differences</p></div><div class='fact'><span>Adversaries</span><p>totalizing theories; frictionless-solution rhetoric; limits treated as temporary bugs</p></div><div class='fact'><span>Possible synthesis</span><p>Kantian critique + Wittgensteinian therapy + media ecology + situated design</p></div></div>
+          </section>
+
+          <section class="block">
+            <h3>Signature ecology</h3>
+            <div class="facts"><div class='fact'><span>Problem logic</span><p>The medium’s gifts are folded around refusals produced by the same mechanisms.</p></div><div class='fact'><span>Method logic</span><p>For each affordance, locate its stop, trace who encounters it, and design a contestable response.</p></div><div class='fact'><span>Scale logic</span><p>mechanism → interface → institution → recurring human desire</p></div><div class='fact'><span>Epistemic logic</span><p>understanding means knowing the boundary and the conditions under which it moves.</p></div><div class='fact'><span>Political logic</span><p>limits distribute power because some actors can externalize them onto others.</p></div><div class='fact'><span>Intervention logic</span><p>build instruments that are more operable yet contestable, expressive yet accountable, without claiming final resolution.</p></div></div>
+          </section>
+
+          <section class="echo">
+            <p class="eyebrow">RESEARCH / FORMAL / R&amp;D ECHO</p>
+            <p>Compose a limit atlas for worldtext by pairing each affordance—readability, writability, navigability, generativity, procedurality, relationality, and accountability—with the mechanism that enables it and the refusal that mechanism necessarily introduces. Read Kantian critique and Wittgensteinian therapy beside Wiener, McLuhan, Heidegger, Simondon, Ihde, Haraway, and Winner. Use the preceding chapters as the archive: sampling, binding, state, provenance, verification, classification, and distributed responsibility. For each pair, identify who gains power, who receives the limit, what evidence makes the boundary visible, and what counter-instrument could improve contestability without promising mastery. End not with a solution but with the recurring scene of opening the system again and asking for a world despite knowing where it stops.</p>
+          </section>
+
+          <section class="tags">
+            <span class="chip">#affordance-refusal</span><span class="chip">#media-limits</span><span class="chip">#situated-critique</span><span class="chip">#contestable-instruments</span><span class="chip">#no-final-closure</span>
+          </section>
+
+          <p class="check">LINEAGE FULL · EPOCHS WEIGHTED · INTERVENTION CLEAR · RISKS LOCATED · TAGS PRESENT</p>
+        </div>
+      </details>
+    </article>
+    
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Source architecture:</strong> PRIME Literature / Academia Lineage Jukebox, PRIME Code &amp; Math Lineage Forge, and PRIME Research &amp; Development Lineage Forge.</p>
+    <p>Compiled 2026-07-21 as one self-contained, mobile-first, print-ready HTML document. No external libraries or network assets are required.</p>
+  </div>
+</footer>
+
+<script>
+const all = [...document.querySelectorAll('details')];
+document.getElementById('expand').addEventListener('click', () => all.forEach(d => d.open = true));
+document.getElementById('collapse').addEventListener('click', () => all.forEach(d => d.open = false));
+</script>
+</body>
+</html>

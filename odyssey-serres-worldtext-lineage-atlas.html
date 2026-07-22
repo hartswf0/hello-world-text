@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>The Odyssey as Parasitic Worldtext — Lineage Atlas</title>
+<style>
+:root {
+  --bg:#f3f0e8;
+  --paper:#fffdf7;
+  --ink:#151515;
+  --muted:#65625b;
+  --line:#151515;
+  --accent:#a3231d;
+  --soft:#e7e1d4;
+  --max:1180px;
+}
+[data-theme="dark"] {
+  --bg:#101010;
+  --paper:#171717;
+  --ink:#f1ede2;
+  --muted:#aaa59a;
+  --line:#f1ede2;
+  --accent:#ff6b5f;
+  --soft:#272727;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.5;
+}
+button,input,select { font:inherit; color:inherit; }
+a { color:inherit; }
+header {
+  border-bottom:2px solid var(--line);
+  background:var(--paper);
+}
+.header-inner {
+  max-width:var(--max);
+  margin:auto;
+  padding:clamp(22px,5vw,64px) clamp(16px,3vw,32px);
+}
+.eyebrow {
+  margin:0 0 12px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:.76rem;
+  font-weight:800;
+  color:var(--accent);
+}
+h1 {
+  margin:0;
+  max-width:900px;
+  font-size:clamp(2.2rem,7vw,6.4rem);
+  line-height:.9;
+  letter-spacing:-.065em;
+}
+.dek {
+  max-width:760px;
+  margin:22px 0 0;
+  font-size:clamp(1rem,2vw,1.28rem);
+  color:var(--muted);
+}
+.theory {
+  max-width:var(--max);
+  margin:auto;
+  padding:24px clamp(16px,3vw,32px);
+  border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(250px,.6fr);
+  gap:24px;
+}
+.theory h2,.controls h2 {
+  margin:0 0 8px;
+  font-size:.82rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.formula {
+  border:1px solid var(--line);
+  padding:16px;
+  background:var(--paper);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.88rem;
+}
+.controls {
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:color-mix(in srgb, var(--paper) 94%, transparent);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(12px);
+}
+.controls-inner {
+  max-width:var(--max);
+  margin:auto;
+  padding:12px clamp(16px,3vw,32px);
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) auto auto auto;
+  gap:8px;
+}
+input,select,button {
+  min-height:44px;
+  border:1px solid var(--line);
+  background:var(--paper);
+  padding:0 12px;
+  border-radius:0;
+}
+button { cursor:pointer; font-weight:700; }
+button:hover,button:focus-visible,select:focus-visible,input:focus-visible {
+  outline:3px solid var(--accent);
+  outline-offset:2px;
+}
+.layout {
+  max-width:var(--max);
+  margin:auto;
+  display:grid;
+  grid-template-columns:240px minmax(0,1fr);
+  gap:28px;
+  padding:28px clamp(16px,3vw,32px) 80px;
+}
+.index {
+  position:sticky;
+  top:82px;
+  align-self:start;
+  max-height:calc(100vh - 110px);
+  overflow:auto;
+  border-right:1px solid var(--line);
+  padding-right:16px;
+}
+.index h2 {
+  margin:0 0 12px;
+  font-size:.76rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.index a {
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:8px;
+  padding:7px 0;
+  text-decoration:none;
+  border-top:1px solid var(--soft);
+  font-size:.83rem;
+}
+.index a:hover { color:var(--accent); }
+.index span { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--muted); }
+.scene-list { min-width:0; }
+.scene-card {
+  scroll-margin-top:84px;
+  border-top:2px solid var(--line);
+}
+.scene-card:last-child { border-bottom:2px solid var(--line); }
+.scene-card[hidden] { display:none; }
+details { background:var(--paper); }
+summary {
+  list-style:none;
+  cursor:pointer;
+  display:grid;
+  grid-template-columns:52px minmax(0,1fr) auto;
+  gap:14px;
+  align-items:center;
+  padding:18px 16px;
+}
+summary::-webkit-details-marker { display:none; }
+summary::after {
+  content:"+";
+  grid-column:3;
+  grid-row:1;
+  font-size:1.3rem;
+  font-weight:800;
+  margin-left:8px;
+}
+details[open] summary::after { content:"–"; }
+.scene-number {
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--accent);
+  font-weight:800;
+}
+.scene-title {
+  font-size:clamp(1.15rem,2.2vw,1.8rem);
+  font-weight:800;
+  letter-spacing:-.025em;
+}
+.mode {
+  grid-column:2;
+  justify-self:start;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  border:1px solid var(--line);
+  padding:3px 7px;
+}
+.scene-body {
+  border-top:1px solid var(--line);
+  padding:18px 16px 28px 82px;
+}
+.seed {
+  margin:0 0 22px;
+  font-size:clamp(1.05rem,2vw,1.35rem);
+  font-weight:650;
+  max-width:820px;
+}
+.lineage-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:28px;
+}
+.scene-body h3 {
+  margin:0 0 8px;
+  font-size:.76rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--accent);
+}
+.scene-body ul {
+  margin:0;
+  padding-left:18px;
+}
+.scene-body li { margin:.42rem 0; }
+.migration,.echo {
+  margin-top:22px;
+  padding-top:16px;
+  border-top:1px solid var(--soft);
+}
+.echo p,.migration p { margin:0; max-width:880px; }
+.echo p { font-family:ui-serif,Georgia,serif; font-size:1.05rem; }
+.empty {
+  display:none;
+  border:1px solid var(--line);
+  padding:28px;
+  background:var(--paper);
+}
+footer {
+  max-width:var(--max);
+  margin:auto;
+  border-top:1px solid var(--line);
+  padding:24px clamp(16px,3vw,32px) 48px;
+  color:var(--muted);
+  font-size:.84rem;
+}
+@media (max-width:820px) {
+  .theory,.layout { grid-template-columns:1fr; }
+  .index { display:none; }
+  .controls-inner { grid-template-columns:1fr 1fr; }
+  .controls-inner input { grid-column:1 / -1; }
+  summary { grid-template-columns:38px minmax(0,1fr) auto; padding:15px 12px; }
+  .scene-body { padding:16px 12px 24px; }
+  .lineage-grid { grid-template-columns:1fr; gap:20px; }
+}
+@media (max-width:520px) {
+  .controls-inner { grid-template-columns:1fr; }
+  .controls-inner input { grid-column:auto; }
+  h1 { font-size:3.25rem; }
+  .mode { grid-column:2; }
+}
+@media print {
+  :root {
+    --bg:#fff; --paper:#fff; --ink:#000; --muted:#444; --line:#000; --accent:#000; --soft:#bbb;
+  }
+  .controls,.index { display:none !important; }
+  .layout { display:block; padding:0; }
+  header,.theory,footer { max-width:none; }
+  .scene-card { break-inside:avoid; }
+  details:not([open]) > *:not(summary) { display:block !important; }
+  summary::after { display:none; }
+  .scene-body { padding-left:54px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <p class="eyebrow">Homer × Michel Serres × Worldtext</p>
+    <h1>The Odyssey as Parasitic Lineage Atlas</h1>
+    <p class="dek">Twenty-four scenes, each traced through the scholarly, formal, or research-and-development lineage that best explains its operation as a writable worldtext.</p>
+  </div>
+</header>
+
+<section class="theory" aria-labelledby="theory-title">
+  <div>
+    <h2 id="theory-title">Theory of the program</h2>
+    <p>This atlas does not summarize episodes. It assigns each scene the lineage that most clearly exposes its inherited problem, operational mechanism, migration into contemporary systems, and research intervention. Literature lineages are used for interpretive and historical problems; code/math lineages for formal, security, control, and verification problems; R&amp;D lineages for deployment, governance, trust, and institutional design.</p>
+  </div>
+  <div class="formula">scene → lineage → inherited operation → migration → research echo</div>
+</section>
+
+<div class="controls" aria-label="Atlas controls">
+  <div class="controls-inner">
+    <input id="search" type="search" placeholder="Search scene, source, concept…" aria-label="Search atlas">
+    <select id="mode" aria-label="Filter lineage mode">
+      <option value="">All lineage modes</option>
+      <option>Literature / Academia Lineage</option>
+      <option>Code / Math Lineage</option>
+      <option>R&amp;D Lineage</option>
+    </select>
+    <button id="toggle-all" type="button">Expand all</button>
+    <button id="theme" type="button">Dark</button>
+  </div>
+</div>
+
+<main class="layout">
+  <nav class="index" aria-label="Scene index">
+    <h2>Scenes</h2>
+    <a href="#scene-01" data-jump="01"><span>01</span>The Trojan Horse</a><a href="#scene-02" data-jump="02"><span>02</span>Ismarus and the Cicones</a><a href="#scene-03" data-jump="03"><span>03</span>The Lotus-Eaters</a><a href="#scene-04" data-jump="04"><span>04</span>Polyphemus</a><a href="#scene-05" data-jump="05"><span>05</span>Aeolus and the Bag of Winds</a><a href="#scene-06" data-jump="06"><span>06</span>The Laestrygonians</a><a href="#scene-07" data-jump="07"><span>07</span>Circe</a><a href="#scene-08" data-jump="08"><span>08</span>The Underworld</a><a href="#scene-09" data-jump="09"><span>09</span>The Sirens</a><a href="#scene-10" data-jump="10"><span>10</span>Scylla and Charybdis</a><a href="#scene-11" data-jump="11"><span>11</span>The Cattle of Helios</a><a href="#scene-12" data-jump="12"><span>12</span>Calypso</a><a href="#scene-13" data-jump="13"><span>13</span>Nausicaa and the Threshold</a><a href="#scene-14" data-jump="14"><span>14</span>Alcinous’s Feast</a><a href="#scene-15" data-jump="15"><span>15</span>The Phaeacian Ship</a><a href="#scene-16" data-jump="16"><span>16</span>Ithaca Under the Suitors</a><a href="#scene-17" data-jump="17"><span>17</span>The Beggar Returns</a><a href="#scene-18" data-jump="18"><span>18</span>Argos</a><a href="#scene-19" data-jump="19"><span>19</span>Eurycleia and the Scar</a><a href="#scene-20" data-jump="20"><span>20</span>Penelope’s Weaving</a><a href="#scene-21" data-jump="21"><span>21</span>The Bow Contest</a><a href="#scene-22" data-jump="22"><span>22</span>The Slaughter of the Suitors</a><a href="#scene-23" data-jump="23"><span>23</span>Penelope’s Bed Test</a><a href="#scene-24" data-jump="24"><span>24</span>The Final Peace</a>
+  </nav>
+
+  <section class="scene-list" aria-label="Scene lineages">
+    
+    <article id="scene-01" class="scene-card" data-mode="Code / Math Lineage" data-search="the trojan horse code / math lineage a trusted surface carries an executable interior across the boundary built to exclude it. virgil — aeneid, book ii: the city reads the gift and imports its own breach alan turing — stored-program computation: behavior resides inside representation ken thompson — reflections on trusting trust: the trusted tool can conceal the corrupting instruction saltzer and schroeder — least privilege, complete mediation, and boundary failure michel serres — the parasite as guest, organism, and noise inside a channel separate visible interface from executable interior. treat provenance failure as an operational vulnerability, not merely a mistaken interpretation. model admission as a state transition that can transfer agency to the admitted object.">
+      <details open>
+        <summary>
+          <span class="scene-number">01</span>
+          <span class="scene-title">The Trojan Horse</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A trusted surface carries an executable interior across the boundary built to exclude it.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Virgil — Aeneid, Book II: the city reads the gift and imports its own breach</li><li>Alan Turing — stored-program computation: behavior resides inside representation</li><li>Ken Thompson — Reflections on Trusting Trust: the trusted tool can conceal the corrupting instruction</li><li>Saltzer and Schroeder — least privilege, complete mediation, and boundary failure</li><li>Michel Serres — the parasite as guest, organism, and noise inside a channel</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Separate visible interface from executable interior.</li><li>Treat provenance failure as an operational vulnerability, not merely a mistaken interpretation.</li><li>Model admission as a state transition that can transfer agency to the admitted object.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Epic gift → parasitic container → Trojan malware → supply-chain and model-provenance problem.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Design the Horse as an inspectable security worldtext. Render the artifact, its declared purpose, hidden payload, admission votes, warnings, and derivation graph. Let the reader perturb one condition—inspection depth, sacred status, trust score, or gate policy—and observe when the city survives. The intervention should expose the exact point where symbolic legitimacy outruns executable validity.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-02" class="scene-card" data-mode="R&amp;D Lineage" data-search="ismarus and the cicones r&amp;d lineage a successful intervention becomes catastrophic when extraction continues after the mission’s valid exit point. homer — odyssey, book ix: victory, looting, delay, and counterattack clausewitz — friction and the political limits of military action john boyd — ooda loops and tempo as survival mission-command doctrine — intent, disciplined initiative, and exit criteria michel serres — the host reorganizes and becomes the final interrupter success criteria must include a bounded exit condition. local abundance can corrupt shared operational intent. hosts retain latent networks that may reorganize faster than an occupying force expects.">
+      <details open>
+        <summary>
+          <span class="scene-number">02</span>
+          <span class="scene-title">Ismarus and the Cicones</span>
+          <span class="mode mode-r-d-lineage">R&amp;D Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A successful intervention becomes catastrophic when extraction continues after the mission’s valid exit point.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book IX: victory, looting, delay, and counterattack</li><li>Clausewitz — friction and the political limits of military action</li><li>John Boyd — OODA loops and tempo as survival</li><li>Mission-command doctrine — intent, disciplined initiative, and exit criteria</li><li>Michel Serres — the host reorganizes and becomes the final interrupter</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Success criteria must include a bounded exit condition.</li><li>Local abundance can corrupt shared operational intent.</li><li>Hosts retain latent networks that may reorganize faster than an occupying force expects.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Raid narrative → command failure → mission creep → bounded operations and shutdown design.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Build Ismarus as an operational lineage page about mission creep. Show the original objective, the command to leave, the crew’s competing incentives, the host’s reinforcement network, and the cost curve of every additional minute. Make the key research question whether an operation can remain successful after its termination condition is ignored. The prototype should compare narrative victory with measurable survival.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-03" class="scene-card" data-mode="Literature / Academia Lineage" data-search="the lotus-eaters literature / academia lineage a hospitable substance edits memory and desire until the world’s prior objective no longer appears binding. homer — odyssey, book ix: ingestion as abandonment of nostos plato — pharmakon as remedy and poison jacques derrida — the pharmakon’s undecidable operation bernard stiegler — technics, memory, and the industrial capture of attention addiction and affect studies — desire as conditioned rather than sovereign memory is an infrastructure of agency. present desire cannot be interpreted apart from the conditions that manufactured it. a world can end through motivational drift without any body dying.">
+      <details open>
+        <summary>
+          <span class="scene-number">03</span>
+          <span class="scene-title">The Lotus-Eaters</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A hospitable substance edits memory and desire until the world’s prior objective no longer appears binding.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book IX: ingestion as abandonment of nostos</li><li>Plato — pharmakon as remedy and poison</li><li>Jacques Derrida — the pharmakon’s undecidable operation</li><li>Bernard Stiegler — technics, memory, and the industrial capture of attention</li><li>Addiction and affect studies — desire as conditioned rather than sovereign</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Memory is an infrastructure of agency.</li><li>Present desire cannot be interpreted apart from the conditions that manufactured it.</li><li>A world can end through motivational drift without any body dying.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Mythic plant → pharmakon → technical memory → attention economy and preference manipulation.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Read the lotus as a medium that rewrites the continuity conditions of the self. Compare the expressed wish to remain with the earlier commitments, relations, and memories that made return meaningful. Build a thick account of coercive rescue: when does preserving an earlier self justify overriding a present one? Keep the scene unresolved between refuge, addiction, colonization of desire, and legitimate alternate life.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-04" class="scene-card" data-mode="Literature / Academia Lineage" data-search="polyphemus literature / academia lineage hospitality collapses into reciprocal predation while cunning survives by inhabiting the host’s blind spot. homer — odyssey, book ix: xenia, cannibalism, naming, and escape marcel detienne and jean-pierre vernant — metis as oblique intelligence émile benveniste — hospitality, hostis, guest, enemy, and reciprocal obligation jacques derrida — unconditional hospitality and its impossibility michel serres — the parasitic relation as an irreversible arrow host, guest, predator, and parasite are relational roles, not stable identities. naming can both erase provenance and reactivate accountability. interfaces fail where they inspect expected surfaces but ignore concealed attachments.">
+      <details >
+        <summary>
+          <span class="scene-number">04</span>
+          <span class="scene-title">Polyphemus</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">Hospitality collapses into reciprocal predation while cunning survives by inhabiting the host’s blind spot.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book IX: xenia, cannibalism, naming, and escape</li><li>Marcel Detienne and Jean-Pierre Vernant — metis as oblique intelligence</li><li>Émile Benveniste — hospitality, hostis, guest, enemy, and reciprocal obligation</li><li>Jacques Derrida — unconditional hospitality and its impossibility</li><li>Michel Serres — the parasitic relation as an irreversible arrow</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Host, guest, predator, and parasite are relational roles, not stable identities.</li><li>Naming can both erase provenance and reactivate accountability.</li><li>Interfaces fail where they inspect expected surfaces but ignore concealed attachments.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Xenia crisis → metis → hostis/hostility → access-control exploit → identity-provenance problem.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Construct Polyphemus as a scene where hospitality law, cave topology, animal routine, and naming protocol collide. Track every role reversal: intruder to guest, host to predator, sheep to vehicle, Nobody to named offender. The intervention should ask whether Odysseus’s final self-disclosure restores ethical identity or merely reopens the channel of punishment. Make the sheep’s underside the decisive interface.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-05" class="scene-card" data-mode="Code / Math Lineage" data-search="aeolus and the bag of winds code / math lineage a correctly functioning container fails because its state, authority, and activation conditions are socially illegible. homer — odyssey, book x: sealed winds, mistrust, and reversal david parnas — information hiding and modular design capability-security traditions — authority as possession of explicit rights human-computer interaction — visibility of system status and explanatory interfaces michel serres — noise stored within the message-bearing object encapsulation without legibility produces suspicion. an interface can be mechanically secure and socially brittle. state secrecy becomes a failure when collaborators must preserve the state without understanding it.">
+      <details >
+        <summary>
+          <span class="scene-number">05</span>
+          <span class="scene-title">Aeolus and the Bag of Winds</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A correctly functioning container fails because its state, authority, and activation conditions are socially illegible.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book X: sealed winds, mistrust, and reversal</li><li>David Parnas — information hiding and modular design</li><li>Capability-security traditions — authority as possession of explicit rights</li><li>Human-computer interaction — visibility of system status and explanatory interfaces</li><li>Michel Serres — noise stored within the message-bearing object</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Encapsulation without legibility produces suspicion.</li><li>An interface can be mechanically secure and socially brittle.</li><li>State secrecy becomes a failure when collaborators must preserve the state without understanding it.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Mythic bag → encapsulated state → capability object → opaque AI control surface.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Formalize the wind bag as a stateful object with owner, contents, seal, permissions, and failure transition. Test whether disclosure, shared custody, tamper evidence, or explanation prevents opening without destroying the gift’s function. The research target is not perfect secrecy but legible control: how much must users know to preserve a system they cannot inspect directly?</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-06" class="scene-card" data-mode="Code / Math Lineage" data-search="the laestrygonians code / math lineage a space that looks protective becomes lethal when topology, clustering, and hostile jurisdiction combine. homer — odyssey, book x: enclosed harbor as kill zone graph theory — bottlenecks, articulation points, and constrained paths network security — attack surfaces and chokepoint control operations research — fleet placement and survivability under uncertainty urban and defensive design — enclosure as refuge or trap safety is relational, not geometric in isolation. clustering increases efficiency while magnifying correlated failure. one exterior node can preserve the possibility of system recovery.">
+      <details >
+        <summary>
+          <span class="scene-number">06</span>
+          <span class="scene-title">The Laestrygonians</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A space that looks protective becomes lethal when topology, clustering, and hostile jurisdiction combine.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book X: enclosed harbor as kill zone</li><li>Graph theory — bottlenecks, articulation points, and constrained paths</li><li>Network security — attack surfaces and chokepoint control</li><li>Operations research — fleet placement and survivability under uncertainty</li><li>Urban and defensive design — enclosure as refuge or trap</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Safety is relational, not geometric in isolation.</li><li>Clustering increases efficiency while magnifying correlated failure.</li><li>One exterior node can preserve the possibility of system recovery.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Harbor geography → graph topology → correlated risk → resilient distributed architecture.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Model the harbor as a directed graph with one narrow exit, elevated attack nodes, and clustered vessels. Compare the visually safest configuration with the configuration that maximizes escapeability. The scene should become a formal lesson in correlated risk: when does shared shelter turn every local failure into total system loss? Preserve Odysseus’s exterior ship as the minimal redundant node.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-07" class="scene-card" data-mode="Literature / Academia Lineage" data-search="circe literature / academia lineage the meal becomes an interface that executes a new body, while counter-conditioning renegotiates the host’s power. homer — odyssey, book x: food, transformation, resistance, and oath ovid — metamorphoses: identity as mutable form judith butler — performativity and the production of intelligible bodies donna haraway — companion species and unstable human/animal boundaries pharmakon traditions — ingestion as cure, code, and capture bodily categories are produced through operations, not merely revealed. the same host can be captor, lover, healer, and guide across changing conditions. counter-power often works by inserting a rival operation into the same channel.">
+      <details >
+        <summary>
+          <span class="scene-number">07</span>
+          <span class="scene-title">Circe</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">The meal becomes an interface that executes a new body, while counter-conditioning renegotiates the host’s power.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book X: food, transformation, resistance, and oath</li><li>Ovid — Metamorphoses: identity as mutable form</li><li>Judith Butler — performativity and the production of intelligible bodies</li><li>Donna Haraway — companion species and unstable human/animal boundaries</li><li>Pharmakon traditions — ingestion as cure, code, and capture</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Bodily categories are produced through operations, not merely revealed.</li><li>The same host can be captor, lover, healer, and guide across changing conditions.</li><li>Counter-power often works by inserting a rival operation into the same channel.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Enchanting meal → metamorphosis → performative body → biointerface and algorithmic classification.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Treat Circe’s table as a programmable body interface. Trace the lineage from metamorphosis to performativity and from pharmakon to countermeasure. The research intervention should retain the companions’ memory of coercion after bodily restoration, refusing the easy reset in which successful repair erases the prior violation. Ask what kind of hospitality remains possible after the host has rewritten the guest.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-08" class="scene-card" data-mode="Literature / Academia Lineage" data-search="the underworld literature / academia lineage the dead become an archive whose records require sacrifice, ordering, and a gatekeeper before they can speak. homer — odyssey, book xi: blood as a medium of archival activation jacques derrida — archive fever: authority, custody, and the archive’s death drive achille mbembe — necropolitics and the governance of death saidiya hartman — critical fabulation and the limits of the archive media archaeology — dead media, storage, retrieval, and technical resurrection archives do not speak without interfaces and access rules. retrieval order is an exercise of power. named provenance does not eliminate uncertainty, silence, or missing worlds.">
+      <details >
+        <summary>
+          <span class="scene-number">08</span>
+          <span class="scene-title">The Underworld</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">The dead become an archive whose records require sacrifice, ordering, and a gatekeeper before they can speak.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XI: blood as a medium of archival activation</li><li>Jacques Derrida — Archive Fever: authority, custody, and the archive’s death drive</li><li>Achille Mbembe — necropolitics and the governance of death</li><li>Saidiya Hartman — critical fabulation and the limits of the archive</li><li>Media archaeology — dead media, storage, retrieval, and technical resurrection</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Archives do not speak without interfaces and access rules.</li><li>Retrieval order is an exercise of power.</li><li>Named provenance does not eliminate uncertainty, silence, or missing worlds.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Necromantic ritual → archive theory → media archaeology → retrieval-augmented memory system.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Build the underworld as a contested archival interface rather than a catalogue of ghosts. Every shade should have a source, access condition, claim type, uncertainty, and withheld remainder. Center Odysseus as the operator who allocates the scarce resource that makes records speak. The intervention should ask what kinds of dead remain inaudible because no living gatekeeper spends the medium required to retrieve them.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-09" class="scene-card" data-mode="Code / Math Lineage" data-search="the sirens code / math lineage a receiver redesigns authority so dangerous information can be heard without being allowed to steer the system. homer — odyssey, book xii: signal reception under binding norbert wiener — cybernetics, control, and feedback claude shannon — signal, channel, noise, and receiver design jon elster — ulysses contracts and rational precommitment security engineering — privilege separation and fail-safe defaults reception, interpretation, command, and movement need not belong to one agent. a prior self can constrain a later compromised self. persuasion strength is not evidence of truth.">
+      <details >
+        <summary>
+          <span class="scene-number">09</span>
+          <span class="scene-title">The Sirens</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A receiver redesigns authority so dangerous information can be heard without being allowed to steer the system.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XII: signal reception under binding</li><li>Norbert Wiener — cybernetics, control, and feedback</li><li>Claude Shannon — signal, channel, noise, and receiver design</li><li>Jon Elster — Ulysses contracts and rational precommitment</li><li>Security engineering — privilege separation and fail-safe defaults</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Reception, interpretation, command, and movement need not belong to one agent.</li><li>A prior self can constrain a later compromised self.</li><li>Persuasion strength is not evidence of truth.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Siren song → cybernetic channel → commitment device → adversarial media architecture.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Formalize the ship as a control system with separated sensory, decision, and motor privileges. Let users reassign who can hear, command, row, or override, then test whether the system crosses the channel. The core problem is not censorship but safe exposure: how can a world preserve access to dangerous knowledge without letting persuasive force become executive authority?</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-10" class="scene-card" data-mode="Code / Math Lineage" data-search="scylla and charybdis code / math lineage no valid path exists; the system must choose which failure it is willing to make real. homer — odyssey, book xii: bounded sacrifice versus catastrophic risk john von neumann and oskar morgenstern — expected utility john rawls — decision under uncertainty and the position of the least advantaged robust optimization — decisions that survive model error moral uncertainty and algorithmic triage — optimization with incommensurable harms passing one success metric can conceal unacceptable losses elsewhere. uncertainty does not distribute harm neutrally. withholding the decision model from affected people is itself part of the event.">
+      <details >
+        <summary>
+          <span class="scene-number">10</span>
+          <span class="scene-title">Scylla and Charybdis</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">No valid path exists; the system must choose which failure it is willing to make real.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XII: bounded sacrifice versus catastrophic risk</li><li>John von Neumann and Oskar Morgenstern — expected utility</li><li>John Rawls — decision under uncertainty and the position of the least advantaged</li><li>Robust optimization — decisions that survive model error</li><li>Moral uncertainty and algorithmic triage — optimization with incommensurable harms</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Passing one success metric can conceal unacceptable losses elsewhere.</li><li>Uncertainty does not distribute harm neutrally.</li><li>Withholding the decision model from affected people is itself part of the event.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Mythic double bind → decision theory → robust optimization → accountable triage systems.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Represent the strait as a multi-objective optimization problem whose outputs remain humanly legible. Show predicted loss, catastrophic tail risk, uncertainty, affected persons, and who selected the objective function. Reject any interface that reports only that the ship survived. The research intervention should make the sacrificed crew visible as agents, not scalar cost.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-11" class="scene-card" data-mode="R&amp;D Lineage" data-search="the cattle of helios r&amp;d lineage a hard constraint fails when prolonged scarcity makes compliance materially unbearable and enforcement remains delayed. homer — odyssey, book xii: taboo, hunger, violation, and sanction elinor ostrom — governance of common-pool resources safety engineering — operating envelopes and constraint degradation behavioral economics — scarcity, tunneling, and present bias resilience research — brittle rules under prolonged stress rules must be evaluated under the conditions most likely to break them. known consequences do not guarantee compliance when survival is at stake. delayed enforcement can intensify rationalization rather than deterrence.">
+      <details >
+        <summary>
+          <span class="scene-number">11</span>
+          <span class="scene-title">The Cattle of Helios</span>
+          <span class="mode mode-r-d-lineage">R&amp;D Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A hard constraint fails when prolonged scarcity makes compliance materially unbearable and enforcement remains delayed.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XII: taboo, hunger, violation, and sanction</li><li>Elinor Ostrom — governance of common-pool resources</li><li>Safety engineering — operating envelopes and constraint degradation</li><li>Behavioral economics — scarcity, tunneling, and present bias</li><li>Resilience research — brittle rules under prolonged stress</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Rules must be evaluated under the conditions most likely to break them.</li><li>Known consequences do not guarantee compliance when survival is at stake.</li><li>Delayed enforcement can intensify rationalization rather than deterrence.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Sacred taboo → resource governance → safety envelope → stress-tested institutional design.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Turn the cattle episode into a governance stress test. Track food reserves, weather duration, warning repetition, surveillance, dissent, and perceived alternatives. The prototype should distinguish ignorance from necessity, opportunism, and collective rationalization. Ask whether a rule without emergency procedure is a law or merely a future catastrophe.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-12" class="scene-card" data-mode="Literature / Academia Lineage" data-search="calypso literature / academia lineage care becomes captivity when the host preserves the guest’s body while controlling time, relation, and exit. homer — odyssey, books v and vii: suspended nostos emmanuel levinas — the dwelling, welcome, and relation to the other jacques derrida — hospitality, sovereignty, and the power to set conditions feminist classical scholarship — calypso, gendered divinity, and unequal judgment carceral studies — benevolent confinement and dependency hospitality without a meaningful exit is possession. biological continuity can coexist with narrative erasure. care must be read through control over movement and futurity.">
+      <details >
+        <summary>
+          <span class="scene-number">12</span>
+          <span class="scene-title">Calypso</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">Care becomes captivity when the host preserves the guest’s body while controlling time, relation, and exit.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Books V and VII: suspended nostos</li><li>Emmanuel Levinas — the dwelling, welcome, and relation to the other</li><li>Jacques Derrida — hospitality, sovereignty, and the power to set conditions</li><li>Feminist classical scholarship — Calypso, gendered divinity, and unequal judgment</li><li>Carceral studies — benevolent confinement and dependency</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Hospitality without a meaningful exit is possession.</li><li>Biological continuity can coexist with narrative erasure.</li><li>Care must be read through control over movement and futurity.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Enchanted island → conditional hospitality → benevolent confinement → platform lock-in and dependency.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Read Calypso’s island as an apparently perfect state with no authorized transition. Compare comfort, immortality, intimacy, isolation, and the right to leave. The intervention should not reduce Calypso to villain or Odysseus to passive victim; instead, map how care and captivity occupy the same infrastructure. Make exit the decisive measure of hospitality.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-13" class="scene-card" data-mode="R&amp;D Lineage" data-search="nausicaa and the threshold r&amp;d lineage a dangerous-looking stranger becomes admissible through distance, speech, clothing, and staged trust calibration. homer — odyssey, book vi: encounter, supplication, and presentation edward t. hall — proxemics and culturally coded distance erving goffman — presentation of self and interaction order trust-calibration research — uncertainty, confidence, and progressive disclosure trauma-informed and safety-centered design — preserving agency under ambiguity trust should be staged rather than demanded. appearance is a weak proxy for intent. the person who mediates entry may bear reputational and physical risk unseen by the beneficiary.">
+      <details >
+        <summary>
+          <span class="scene-number">13</span>
+          <span class="scene-title">Nausicaa and the Threshold</span>
+          <span class="mode mode-r-d-lineage">R&amp;D Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A dangerous-looking stranger becomes admissible through distance, speech, clothing, and staged trust calibration.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book VI: encounter, supplication, and presentation</li><li>Edward T. Hall — proxemics and culturally coded distance</li><li>Erving Goffman — presentation of self and interaction order</li><li>Trust-calibration research — uncertainty, confidence, and progressive disclosure</li><li>Trauma-informed and safety-centered design — preserving agency under ambiguity</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Trust should be staged rather than demanded.</li><li>Appearance is a weak proxy for intent.</li><li>The person who mediates entry may bear reputational and physical risk unseen by the beneficiary.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Supplication scene → interaction ritual → trust interface → progressive identity disclosure.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Prototype Nausicaa’s encounter as a progressive-access interface. Make distance, gesture, clothing, escort structure, and identity disclosure adjustable, then show how each changes perceived threat and social cost. Center Nausicaa’s risk rather than treating her as a frictionless onboarding mechanism. The aim is a humane threshold that neither equates strangeness with danger nor erases vulnerability.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-14" class="scene-card" data-mode="Literature / Academia Lineage" data-search="alcinous’s feast literature / academia lineage the guest converts suffering into narrative currency, paying for transport with a persuasive reconstruction of his own history. homer — odyssey, books viii–xiii: embedded narration and phaeacian hospitality marcel mauss — gift, obligation, and return gérard genette — narrative levels, order, duration, and voice walter ong — orality, memory, and performance paul ricoeur — narrative identity and the emplotment of experience story can function as payment without becoming equivalent exchange. a coherent account is not the same as a complete run record. the teller’s authority grows from participation while remaining shaped by self-justification.">
+      <details >
+        <summary>
+          <span class="scene-number">14</span>
+          <span class="scene-title">Alcinous’s Feast</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">The guest converts suffering into narrative currency, paying for transport with a persuasive reconstruction of his own history.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Books VIII–XIII: embedded narration and Phaeacian hospitality</li><li>Marcel Mauss — gift, obligation, and return</li><li>Gérard Genette — narrative levels, order, duration, and voice</li><li>Walter Ong — orality, memory, and performance</li><li>Paul Ricoeur — narrative identity and the emplotment of experience</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Story can function as payment without becoming equivalent exchange.</li><li>A coherent account is not the same as a complete run record.</li><li>The teller’s authority grows from participation while remaining shaped by self-justification.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Heroic tale → gift economy → narratology → provenance-aware storytelling.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Build Alcinous’s feast as a lineage graph between hospitality, bardic performance, emotional disclosure, gifts, and transport. Separate Odysseus’s story from the operation record it claims to represent. Let readers inspect omissions, witnesses, causal attributions, and the material value exchanged for narrative. The intervention should ask when a persuasive self-account becomes sufficient grounds for institutional support.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-15" class="scene-card" data-mode="R&amp;D Lineage" data-search="the phaeacian ship r&amp;d lineage a frictionless transport experience externalizes its political cost onto the infrastructure that made it possible. homer — odyssey, book xiii: autonomous passage and divine sanction infrastructure studies — invisible systems and unevenly distributed maintenance platform studies — seamless user experience and hidden operator burden automation research — human passivity inside highly capable systems regulatory studies — innovation colliding with incumbent jurisdiction successful delivery can conceal downstream institutional harm. the beneficiary is not the only relevant user. automation redistributes agency rather than eliminating it.">
+      <details >
+        <summary>
+          <span class="scene-number">15</span>
+          <span class="scene-title">The Phaeacian Ship</span>
+          <span class="mode mode-r-d-lineage">R&amp;D Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A frictionless transport experience externalizes its political cost onto the infrastructure that made it possible.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XIII: autonomous passage and divine sanction</li><li>Infrastructure studies — invisible systems and unevenly distributed maintenance</li><li>Platform studies — seamless user experience and hidden operator burden</li><li>Automation research — human passivity inside highly capable systems</li><li>Regulatory studies — innovation colliding with incumbent jurisdiction</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Successful delivery can conceal downstream institutional harm.</li><li>The beneficiary is not the only relevant user.</li><li>Automation redistributes agency rather than eliminating it.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Magical ship → autonomous logistics → platform infrastructure → regulatory externality.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Treat the Phaeacian voyage as a service blueprint. Map passenger experience, operator labor, automated navigation, divine regulator, delayed sanction, and policy retreat. The prototype should display who benefits, who bears risk, and which costs remain invisible at the moment of successful delivery. Make seamlessness itself contestable.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-16" class="scene-card" data-mode="Literature / Academia Lineage" data-search="ithaca under the suitors literature / academia lineage repeated hospitality becomes occupation when guests preserve legitimate appearances while consuming the host’s capacity to continue. homer — odyssey, books i–xxii: suitors, oikos, inheritance, and stalled sovereignty michel serres — rats’ meals and parasitic cascades aristotle — oikos, property, and household governance hannah arendt — public action, private necessity, and political absence political economy of rent extraction — value captured without production occupation can emerge through repetition rather than invasion. legitimate social signs can shield structurally destructive conduct. absence produces a governance vacuum filled by claims that feed on uncertainty.">
+      <details >
+        <summary>
+          <span class="scene-number">16</span>
+          <span class="scene-title">Ithaca Under the Suitors</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">Repeated hospitality becomes occupation when guests preserve legitimate appearances while consuming the host’s capacity to continue.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Books I–XXII: suitors, oikos, inheritance, and stalled sovereignty</li><li>Michel Serres — rats’ meals and parasitic cascades</li><li>Aristotle — oikos, property, and household governance</li><li>Hannah Arendt — public action, private necessity, and political absence</li><li>Political economy of rent extraction — value captured without production</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Occupation can emerge through repetition rather than invasion.</li><li>Legitimate social signs can shield structurally destructive conduct.</li><li>Absence produces a governance vacuum filled by claims that feed on uncertainty.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Household feast → parasitic cascade → rent extraction → institutional capture.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Render Ithaca as a live resource ledger and legitimacy map. Every feast should decrement livestock, labor, time, political authority, and Penelope’s room to act. Preserve the suitors’ formal status as guests so the reader can see exactly how legality and viability diverge. The central question is when a host system acquires the right to rename its guests as occupiers.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-17" class="scene-card" data-mode="R&amp;D Lineage" data-search="the beggar returns r&amp;d lineage the displaced owner enters his own system through a low-privilege role to audit loyalties before reclaiming authority. homer — odyssey, books xiii–xxi: disguise, testing, and staged disclosure zero-trust security — verify continuously, assume no stable perimeter red-team practice — adversarial testing from inside the system ethnographic fieldwork — participant observation and situated knowledge identity and access management — claims, credentials, and graduated privilege low privilege can produce high informational access. testing people through deception creates evidence and ethical debt. authority must be reassembled across recognition, allies, artifacts, and force.">
+      <details >
+        <summary>
+          <span class="scene-number">17</span>
+          <span class="scene-title">The Beggar Returns</span>
+          <span class="mode mode-r-d-lineage">R&amp;D Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">The displaced owner enters his own system through a low-privilege role to audit loyalties before reclaiming authority.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Books XIII–XXI: disguise, testing, and staged disclosure</li><li>Zero-trust security — verify continuously, assume no stable perimeter</li><li>Red-team practice — adversarial testing from inside the system</li><li>Ethnographic fieldwork — participant observation and situated knowledge</li><li>Identity and access management — claims, credentials, and graduated privilege</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Low privilege can produce high informational access.</li><li>Testing people through deception creates evidence and ethical debt.</li><li>Authority must be reassembled across recognition, allies, artifacts, and force.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Beggar disguise → covert audit → red teaming → zero-trust identity restoration.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Design the return as a zero-trust audit of the household. Show every false biography, disclosure, loyalty test, privilege change, and piece of evidence collected. The system should let the reader compare what Odysseus learns against the manipulation required to learn it. Ask when covert testing protects a damaged institution and when it becomes another form of sovereign abuse.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-18" class="scene-card" data-mode="Literature / Academia Lineage" data-search="argos literature / academia lineage a neglected animal preserves embodied recognition after the human institution has forgotten how to read its own sovereign. homer — odyssey, book xvii: canine recognition and death jakob von uexküll — animal umwelt and species-specific worlds donna haraway — companion species and co-constituted identity jacques derrida — the animal that therefore i am animal-memory research — scent, attachment, and long-duration recognition recognition is distributed across species and sensory worlds. accurate knowledge may lack institutional authority. neglected bodies can function as archives of a prior social order.">
+      <details >
+        <summary>
+          <span class="scene-number">18</span>
+          <span class="scene-title">Argos</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A neglected animal preserves embodied recognition after the human institution has forgotten how to read its own sovereign.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XVII: canine recognition and death</li><li>Jakob von Uexküll — animal Umwelt and species-specific worlds</li><li>Donna Haraway — companion species and co-constituted identity</li><li>Jacques Derrida — The Animal That Therefore I Am</li><li>Animal-memory research — scent, attachment, and long-duration recognition</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Recognition is distributed across species and sensory worlds.</li><li>Accurate knowledge may lack institutional authority.</li><li>Neglected bodies can function as archives of a prior social order.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Faithful dog → animal Umwelt → multispecies memory → nonhuman authentication.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Read Argos as a nonhuman archive rather than a sentimental emblem. Reconstruct the sensory and relational history that allows him to identify Odysseus when people cannot. The intervention should distinguish truth, confidence, explanation, and actionability: Argos is right, but his recognition cannot reorganize the household. Ask what institutions lose when only human-readable evidence counts.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-19" class="scene-card" data-mode="Code / Math Lineage" data-search="eurycleia and the scar code / math lineage a persistent bodily mark authenticates identity only because a trusted reader can reconstruct the event that produced it. homer — odyssey, book xix: scar, touch, memory, and secrecy biometric security — identification, verification, false matches, and liveness cryptographic provenance — claims bound to traceable origin events helen nissenbaum — contextual integrity and appropriate information flow forensic science — marks as evidence embedded in interpretive chains a feature is not an identity outside its provenance and context. strong evidence can still be dangerous when disclosed at the wrong time. authentication and authorization are separate operations.">
+      <details >
+        <summary>
+          <span class="scene-number">19</span>
+          <span class="scene-title">Eurycleia and the Scar</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A persistent bodily mark authenticates identity only because a trusted reader can reconstruct the event that produced it.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XIX: scar, touch, memory, and secrecy</li><li>Biometric security — identification, verification, false matches, and liveness</li><li>Cryptographic provenance — claims bound to traceable origin events</li><li>Helen Nissenbaum — contextual integrity and appropriate information flow</li><li>Forensic science — marks as evidence embedded in interpretive chains</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>A feature is not an identity outside its provenance and context.</li><li>Strong evidence can still be dangerous when disclosed at the wrong time.</li><li>Authentication and authorization are separate operations.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Epic scar → biometric marker → provenance proof → context-sensitive identity system.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Formalize the scar as a biometric credential with an origin event, authorized recognizers, error model, and disclosure policy. Compare visible matching with contextual reconstruction: who remembers the boar hunt, who can verify the memory, and who may act on the result? The intervention should make clear that accurate identification does not automatically grant safe authorization.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-20" class="scene-card" data-mode="Code / Math Lineage" data-search="penelope’s weaving code / math lineage a visible artifact advances by day while hidden reverse operations preserve an open field of political futures. homer — odyssey, book ii and book xix: weaving, unweaving, and delay version-control systems — commits, reversions, branches, and hidden history reversible computation — operations that preserve recoverable prior states process mining — reconstructing workflows from event logs textile computation — weaving as algorithm, pattern, and material memory current state does not reveal operation history. reversal can be productive rather than merely destructive. an unfinished artifact can function as a temporal governance system.">
+      <details >
+        <summary>
+          <span class="scene-number">20</span>
+          <span class="scene-title">Penelope’s Weaving</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A visible artifact advances by day while hidden reverse operations preserve an open field of political futures.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book II and Book XIX: weaving, unweaving, and delay</li><li>Version-control systems — commits, reversions, branches, and hidden history</li><li>Reversible computation — operations that preserve recoverable prior states</li><li>Process mining — reconstructing workflows from event logs</li><li>Textile computation — weaving as algorithm, pattern, and material memory</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Current state does not reveal operation history.</li><li>Reversal can be productive rather than merely destructive.</li><li>An unfinished artifact can function as a temporal governance system.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Loom practice → reversible process → version history → worldtext edit lineage.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Build Penelope’s loom as a versioned worldtext rather than a decorative animation. Every weave and unweave operation should create a trace, branch, political consequence, and observer model. Let the visible surface remain ambiguous while the lineage graph reveals the labor of postponement. The intervention should treat delay as authored state management.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-21" class="scene-card" data-mode="Code / Math Lineage" data-search="the bow contest code / math lineage a dormant artifact performs challenge-response authentication by requiring embodied capability that unauthorized users cannot reproduce. homer — odyssey, book xxi: bow, axes, and public test challenge-response authentication — proving possession without directly stating identity capability systems — authority demonstrated through executable relation formal verification — perceptual, structured, and executable validity embodied cognition — skill as distributed across body, artifact, and memory operational success can authenticate relations that appearance cannot. a test is only as sound as the claims attached to it. access to the verifier is itself a political decision.">
+      <details >
+        <summary>
+          <span class="scene-number">21</span>
+          <span class="scene-title">The Bow Contest</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">A dormant artifact performs challenge-response authentication by requiring embodied capability that unauthorized users cannot reproduce.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XXI: bow, axes, and public test</li><li>Challenge-response authentication — proving possession without directly stating identity</li><li>Capability systems — authority demonstrated through executable relation</li><li>Formal verification — perceptual, structured, and executable validity</li><li>Embodied cognition — skill as distributed across body, artifact, and memory</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Operational success can authenticate relations that appearance cannot.</li><li>A test is only as sound as the claims attached to it.</li><li>Access to the verifier is itself a political decision.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Heroic weapon test → challenge-response protocol → executable identity proof.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Represent the bow contest as a verifier with explicit assumptions, access rules, failure cases, and claim scope. Distinguish proving skill, proving identity, and proving legitimate sovereignty. Let readers weaken the verifier, change the artifact, or grant access to different participants. The aim is to show how a compelling demonstration can still overclaim.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-22" class="scene-card" data-mode="Literature / Academia Lineage" data-search="the slaughter of the suitors literature / academia lineage the returning sovereign collapses investigation, judgment, and execution into one violent restoration of the household. homer — odyssey, book xxii: revelation, enclosure, and killing walter benjamin — critique of violence rené girard — vengeance, sacrifice, and the escalation of mimetic violence giorgio agamben — sovereignty and the power to decide exception transitional-justice scholarship — differentiated responsibility and post-conflict legitimacy restoration and massacre can occupy the same event. collective wrongdoing does not erase the need for differentiated judgment. violence that closes one parasitic order may open another cycle of claim and revenge.">
+      <details >
+        <summary>
+          <span class="scene-number">22</span>
+          <span class="scene-title">The Slaughter of the Suitors</span>
+          <span class="mode mode-literature-academia-lineage">Literature / Academia Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">The returning sovereign collapses investigation, judgment, and execution into one violent restoration of the household.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XXII: revelation, enclosure, and killing</li><li>Walter Benjamin — Critique of Violence</li><li>René Girard — vengeance, sacrifice, and the escalation of mimetic violence</li><li>Giorgio Agamben — sovereignty and the power to decide exception</li><li>Transitional-justice scholarship — differentiated responsibility and post-conflict legitimacy</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Restoration and massacre can occupy the same event.</li><li>Collective wrongdoing does not erase the need for differentiated judgment.</li><li>Violence that closes one parasitic order may open another cycle of claim and revenge.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Heroic revenge → sovereign violence → state of exception → transitional justice.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Write the slaughter as a contested juridical scene, not a simple restoration. Catalogue individual offenses, offers of restitution, opportunities to surrender, and the collapse of procedural roles into Odysseus’s body. Place Serres beside Benjamin and Girard: the final parasite interrupts the feast, but the interruption generates new hosts for vengeance. Ask what a non-parasitic judgment would require.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-23" class="scene-card" data-mode="Code / Math Lineage" data-search="penelope’s bed test code / math lineage shared knowledge of an artifact’s irreversible construction history authenticates a relationship more strongly than appearance or narrative alone. homer — odyssey, book xxiii: olive tree, bed, construction, and recognition tamper-evident systems — immutable anchors and verifiable history cryptographic commitments — proving knowledge of a hidden construction fact situated cognition — knowledge embedded in practice and place digital-twin research — persistent world anchors across changing representations provenance can be materially encoded in a world’s structure. authentication is strongest when the claimant reconstructs how the object was made. private shared knowledge creates trust while also excluding outsiders.">
+      <details >
+        <summary>
+          <span class="scene-number">23</span>
+          <span class="scene-title">Penelope’s Bed Test</span>
+          <span class="mode mode-code-math-lineage">Code / Math Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">Shared knowledge of an artifact’s irreversible construction history authenticates a relationship more strongly than appearance or narrative alone.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XXIII: olive tree, bed, construction, and recognition</li><li>Tamper-evident systems — immutable anchors and verifiable history</li><li>Cryptographic commitments — proving knowledge of a hidden construction fact</li><li>Situated cognition — knowledge embedded in practice and place</li><li>Digital-twin research — persistent world anchors across changing representations</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Provenance can be materially encoded in a world’s structure.</li><li>Authentication is strongest when the claimant reconstructs how the object was made.</li><li>Private shared knowledge creates trust while also excluding outsiders.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Marriage bed → material provenance → cryptographic anchor → persistent world-state verification.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Model the bed as a world anchor whose identity depends on the living olive tree, room geometry, construction sequence, and limited knowledge set. Compare surface resemblance with procedural proof. The intervention should show why moving the bed is not a furniture edit but a destructive rewrite of the world’s canonical state. Preserve the tension between intimate trust and exclusionary secrecy.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+
+    <article id="scene-24" class="scene-card" data-mode="R&amp;D Lineage" data-search="the final peace r&amp;d lineage the restored order remains unstable until a higher authority interrupts the revenge cascade without fully resolving its history. homer — odyssey, book xxiv: retaliatory kin, renewed battle, and divine settlement john paul lederach — conflict transformation and relational peacebuilding transitional justice — truth, accountability, reparation, and institutional reform elinor ostrom — durable governance through shared rule systems systems dynamics — reinforcing loops, interruption, and stabilization stopping violence is not identical to resolving responsibility. peace requires new institutions, not only victorious force. an imposed settlement may stabilize behavior while leaving memory contested.">
+      <details >
+        <summary>
+          <span class="scene-number">24</span>
+          <span class="scene-title">The Final Peace</span>
+          <span class="mode mode-r-d-lineage">R&amp;D Lineage</span>
+        </summary>
+        <div class="scene-body">
+          <p class="seed">The restored order remains unstable until a higher authority interrupts the revenge cascade without fully resolving its history.</p>
+          <div class="lineage-grid">
+            <section>
+              <h3>Ancestral lineage</h3>
+              <ul class="sources"><li>Homer — Odyssey, Book XXIV: retaliatory kin, renewed battle, and divine settlement</li><li>John Paul Lederach — conflict transformation and relational peacebuilding</li><li>Transitional justice — truth, accountability, reparation, and institutional reform</li><li>Elinor Ostrom — durable governance through shared rule systems</li><li>Systems dynamics — reinforcing loops, interruption, and stabilization</li></ul>
+            </section>
+            <section>
+              <h3>Inherited operations</h3>
+              <ul class="lessons"><li>Stopping violence is not identical to resolving responsibility.</li><li>Peace requires new institutions, not only victorious force.</li><li>An imposed settlement may stabilize behavior while leaving memory contested.</li></ul>
+            </section>
+          </div>
+          <section class="migration">
+            <h3>Migration map</h3>
+            <p>Divine ceasefire → feud interruption → transitional justice → post-conflict governance design.</p>
+          </section>
+          <section class="echo">
+            <h3>Research echo</h3>
+            <p>Treat the final peace as a stabilization prototype whose success cannot be measured only by the absence of immediate killing. Map grievances, kinship obligations, reparations, memory, legitimacy, and the authority of the imposed rule. Let readers test ceasefire, trial, restitution, exile, and shared governance pathways. The intervention should ask what prevents the parasite of revenge from returning after the gods stop watching.</p>
+          </section>
+        </div>
+      </details>
+    </article>
+    
+    <p class="empty" id="empty">No scenes match this filter.</p>
+  </section>
+</main>
+
+<footer>
+  <p>Single-file, offline, searchable, and print-ready. The lineage logic derives from the supplied Literature/Academia, Code/Math, and R&amp;D forge structures, with Serres’s parasite used as the relational engine.</p>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const search = document.getElementById('search');
+  const mode = document.getElementById('mode');
+  const cards = [...document.querySelectorAll('.scene-card')];
+  const empty = document.getElementById('empty');
+  const toggle = document.getElementById('toggle-all');
+  const theme = document.getElementById('theme');
+
+  function filter() {
+    const q = search.value.trim().toLowerCase();
+    const m = mode.value;
+    let visible = 0;
+    cards.forEach(card => {
+      const okQ = !q || card.dataset.search.includes(q);
+      const okM = !m || card.dataset.mode === m;
+      card.hidden = !(okQ && okM);
+      if (!card.hidden) visible++;
+    });
+    empty.style.display = visible ? 'none' : 'block';
+  }
+
+  search.addEventListener('input', filter);
+  mode.addEventListener('change', filter);
+
+  toggle.addEventListener('click', () => {
+    const visibleDetails = cards.filter(c => !c.hidden).map(c => c.querySelector('details'));
+    const shouldOpen = visibleDetails.some(d => !d.open);
+    visibleDetails.forEach(d => d.open = shouldOpen);
+    toggle.textContent = shouldOpen ? 'Collapse all' : 'Expand all';
+  });
+
+  theme.addEventListener('click', () => {
+    const dark = root.dataset.theme !== 'dark';
+    root.dataset.theme = dark ? 'dark' : 'light';
+    theme.textContent = dark ? 'Light' : 'Dark';
+    localStorage.setItem('odyssey-lineage-theme', root.dataset.theme);
+  });
+
+  const saved = localStorage.getItem('odyssey-lineage-theme');
+  if (saved) {
+    root.dataset.theme = saved;
+    theme.textContent = saved === 'dark' ? 'Light' : 'Dark';
+  }
+
+  window.addEventListener('beforeprint', () => {
+    cards.forEach(c => c.querySelector('details').open = true);
+  });
+})();
+</script>
+</body>
+</html>
