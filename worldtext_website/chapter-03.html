@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>03 — THE SENTENCE FINISHED BY ANOTHER: A World Ontology of the Under-Specified Command</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span>WORLDTEXT</div>
+  <button id="play" type="button" aria-label="Play">▶</button>
+  <div id="title">Loading eleven worlds</div>
+  <div class="time"><span id="clock">00:00.0</span> / <span id="duration">11:44.0</span></div>
+  <button id="voiceToggle" type="button" aria-pressed="true">VOICE</button>
+  <button id="scoreToggle" type="button" aria-pressed="false">SCORE</button>
+  <button id="cinema" type="button">CINEMA</button>
+  <div class="state" id="state">opening field</div>
+</header>
+
+<main>
+  <section id="stage" aria-label="Worldtext film">
+    <div class="film-shell">
+      <canvas id="film" width="128" height="96" aria-label="BEFLIX animation"></canvas>
+      <div id="screenOverlay"><strong id="overlayTitle">CHAPTER 1</strong><span id="overlayFrame">F1</span></div>
+    </div>
+    <div class="under">
+      <span id="caption">WORLD TEXT · <b>CRYSTAL-IMAGE</b></span>
+      <span><b id="chapterCounter">01 / 11</b> · F<b id="frameNo">1</b></span>
+    </div>
+    <div id="timeline" role="slider" aria-label="Film timeline" aria-valuemin="0" aria-valuemax="704" aria-valuenow="0" tabindex="0">
+      <div id="head"></div>
+    </div>
+    <div id="chapters" aria-label="Chapters"></div>
+  </section>
+
+  <aside id="context">
+    <section class="panel" aria-live="polite">
+      <h2>Now</h2>
+      <div id="voice">Press play. The whole argument moves from one clock.</div>
+      <div id="screenText">SCREEN: CHAPTER 1</div>
+    </section>
+
+    <section class="panel">
+      <h2>Chapter</h2>
+      <p id="thesis">Loading the current ontology.</p>
+      <dl>
+        <dt>World</dt><dd id="worldId">—</dd>
+        <dt>Instability</dt><dd id="instability">—</dd>
+        <dt>Room</dt><dd id="room">—</dd>
+        <dt>Image</dt><dd id="imageFunction">—</dd>
+        <dt>Relation</dt><dd id="relation">—</dd>
+        <dt>Formula</dt><dd id="formula">—</dd>
+        <dt>Myth</dt><dd id="myth">—</dd>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <h2>Beats</h2>
+      <div id="beatList"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Laws</h2>
+      <ul id="laws"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>Sound</h2>
+      <dl>
+        <dt>Voice</dt><dd id="voiceName">—</dd>
+        <dt>Music</dt><dd id="musicCue">—</dd>
+        <dt>Room tone</dt><dd id="roomTone">—</dd>
+        <dt>SFX</dt><dd id="sfxCue">—</dd>
+      </dl>
+      <div class="progressRow">
+        <div id="microProgress" aria-hidden="true"><div id="microFill"></div></div>
+        <span id="beatTime">0.0 / 4.0</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Work</h2>
+      <div class="actions">
+        <button id="restartChapter" type="button">RESTART CHAPTER</button>
+        <button id="speak" type="button">SPEAK NOW</button>
+        <button id="downloadChapter" type="button">SAVE CHAPTER</button>
+        <button id="downloadCollection" type="button">SAVE ALL</button>
+        <label class="btn" for="loadJson">LOAD JSON</label>
+        <input class="sr-only" id="loadJson" type="file" accept=".json,application/json">
+        <a class="btn" id="allChapters" href="index.html">ALL CHAPTERS</a>
+      </div>
+      <div class="kbd">SPACE play · ←/→ seek · SHIFT+←/→ chapter · V voice · M score · F cinema · ESC exit</div>
+    </section>
+
+    <section class="panel">
+      <h2>Code</h2>
+      <pre id="code">—</pre>
+    </section>
+  </aside>
+</main>
+
+<script>
+window.WORLDTEXT_START_CHAPTER=3;
+window.WORLDTEXT_LOCK_CHAPTER=true;
+</script>
+<script src="worldtext-data.js"></script>
+<script src="player.js"></script>
+</body>
+</html>
